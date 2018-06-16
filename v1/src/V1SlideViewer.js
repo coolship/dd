@@ -4,7 +4,7 @@ import Slide from './Slide';
 import './V1SlideViewer.css';
 import controller from './assets/fov.controller.svg';
 import pako from 'pako';
-import data from './slides/927_umis_5c_flt_1000.json';
+import data from './slides/927_umis_5c_flt_10.json';
 
 class V1SlideViewer extends Component {
 
@@ -26,7 +26,6 @@ class V1SlideViewer extends Component {
 
     componentDidMount(){
 	  var that = this;
-	var url = "http://slides.dna-microscopy.org/927.5coords.json"
 /*
 	    this.timerID = setInterval(
       () => this.tick(),

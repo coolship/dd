@@ -19,12 +19,16 @@ class Slide extends Component {
 	let colors = []
 	for (var i = 0; i < npoints; i++){
 	    points.push(
-		{x:props.data[i][3]*10,
-		 y:props.data[i][4]*10,
+		{x:props.data[i][3]*8,
+		 y:props.data[i][4]*8,
 		 id:props.data[i][0],
 		 speed:0,
-		 size:5,
-		 color:props.data[i][1]}
+		 size:1,
+		 color:[
+		     props.data[i][1]==1?255:0,
+		     props.data[i][1]==2?255:0,
+		     props.data[i][1]==0?255:0,
+		     1]}
 	    )
 	}
 
@@ -40,6 +44,9 @@ class Slide extends Component {
 
 	var that = this
 	console.log(that.state.points)
+
+
+	
 	regl.frame(function(context) {
 	    // Each loop, update the data
 	    //updateData(points);
@@ -84,8 +91,8 @@ function randomIntFromInterval(min, max) {
 }
 
 // Some constants to use
-var MAX_WIDTH = 400;
-var MAX_HEIGHT = 400;
+var MAX_WIDTH = 800;
+var MAX_HEIGHT = 800;
 var MAX_SPEED = 15;
 var POINT_SIZE = 20;
 var POINT_COUNT = 300;
@@ -109,6 +116,13 @@ function updateData(data) {
 
 const drawDots = regl({
 
+
+
+  // using textbook example from http://regl.party/api#blending
+  blend: {
+      enable: true,
+
+  },
     
 
     vert:`precision mediump float;
@@ -117,7 +131,9 @@ attribute float pointWidth;
 
 
 uniform float stageWidth;
-uniform float stageHeight;
+    uniform float stageHeight;
+    varying vec4 fragColor;
+    attribute vec4 color;
 
 vec2 normalizeCoords(vec2 position) {
 // read in the positions into x and y vars
@@ -125,26 +141,30 @@ float x = position[0];
 float y = position[1];
 
 return vec2(
-2.0 * ((x / stageWidth) - 0.5),
+2.0 * ((x / stageWidth) ),
 // invert y to treat [0,0] as bottom left in pixel space
--(2.0 * ((y / stageHeight) - 0.5)));
+-(2.0 * ((y / stageHeight) )));
 }
 
 
 void main () {
 gl_PointSize = pointWidth;
-gl_Position = vec4(normalizeCoords(position), 0, 1);
+    gl_Position = vec4(normalizeCoords(position), 0, 1);
+    fragColor=color;
+
+    
 }`,
       frag:`  precision mediump float;
-  uniform vec4 color;
+    varying vec4 fragColor;
+    
   void main () {
-  float r = 0.0, delta = 0.0, alpha = .2;
+  float r = 0.0, delta = 0.0, alpha = .5;
   vec2 cxy = 2.0 * gl_PointCoord - 1.0;
   r = dot(cxy, cxy);
   if (r > 1.0) {
   discard;
   }
-    gl_FragColor = color * alpha;
+    gl_FragColor = fragColor * alpha;
 
 }
   `,
@@ -165,13 +185,13 @@ gl_Position = vec4(normalizeCoords(position), 0, 1);
 		return point.size;
 	    });
 	},
+	color:function(context,props){
+	    return props.points.map(d => d.color)
+	}
+	    
     },
     // uniforms
     uniforms: {
-	color: function(context, props) {
-	    // just to be a bit strange, oscillate the color a bit.
-	    return [Math.cos(context.tick / 100), 0.304, 1.000, 1.000];
-	},
 	// FYI: there is a helper method for grabbing
 	// values out of the context as well.
 	// These uniforms are used in our fragment shader to
