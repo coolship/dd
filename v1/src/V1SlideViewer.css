@@ -1,0 +1,43 @@
+
+
+.wrapper{
+    display:grid;
+    grid-template-columns: auto [center-col] 400px auto;
+    grid-template-rows:[header] 20px [fov-view] 2fr [fov-controls] 1fr [footer] 20px;
+}
+
+.wrapper>*{
+    grid-column:center-col;
+}
+
+.header{
+    grid-row:header;
+}
+.fov-container{
+    grid-row:fov-view;
+}
+.footer{
+    grid-row:footer;
+}
+.controls{
+    width:400px;
+    grid-row: fov-controls;
+}
+
+.fov.fov-red{
+    background-color:red;
+}
+
+.fov.fov-black{
+    background-color:black;
+}
+svg{
+    width:400px;
+    height:auto;
+}
+
+.fov{
+    background-color:blue;
+    width:400px;
+    height:400px;
+}
