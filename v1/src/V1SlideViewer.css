@@ -20,9 +20,16 @@
     grid-row:footer;
 }
 .controls{
-    width:400px;
-    grid-row: fov-controls;
+    position:fixed;
+    right:0px;
+    bottom:0px;
+    margin:20px;
 }
+.controls svg{
+    width:300px;
+    height:auto;
+}
+
 
 .fov.fov-red{
     background-color:red;
@@ -31,10 +38,7 @@
 .fov.fov-black{
     background-color:black;
 }
-svg{
-    width:400px;
-    height:auto;
-}
+
 
 .fov{
     background-color:blue;

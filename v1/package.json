@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "create-react-app": "^1.5.2",
+    "express-generator": "^4.16.0",
     "glslify": "^6.1.1",
     "jquery": "^3.3.1",
+    "node-express-generator": "0.0.1",
     "pako": "^1.0.6",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
     "react-svg-inline": "^2.1.1"
   },

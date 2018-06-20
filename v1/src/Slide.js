@@ -3,27 +3,29 @@ import ReactDOM from 'react-dom';
 
 
 
-const regl = require('regl')();
+import regl from 'regl';
+import initREGL from 'regl';
+const init_regl = initREGL()
+
 const glslify = require('glslify');
 
 
 
 class Slide extends Component {
-
     constructor(props){
 	super(props);
-
 	const npoints = props.data.length
 	
 	let points = []
 	let colors = []
 	for (var i = 0; i < npoints; i++){
 	    points.push(
-		{x:props.data[i][3]*8,
-		 y:props.data[i][4]*8,
+		{x:props.data[i][3]*16,
+		 y:props.data[i][4]*16,
+		 z:-1*props.data[i][1],
 		 id:props.data[i][0],
 		 speed:0,
-		 size:1,
+		 size:4,
 		 color:[
 		     props.data[i][1]==1?255:0,
 		     props.data[i][1]==2?255:0,
@@ -34,27 +36,84 @@ class Slide extends Component {
 
 	this.state = {
 	    points:points,
+	    scroll:0,
+	    pan_horz:0,
+	    pan_vert:0,
 	}
     }
     
-    componentWillMount(){
+    componentWillUnmount(){
+	window.removeEventListener('scroll', this.handleScroll);
+	window.removeEventListener('keydown', this.handleKeyDown);
+
+
     }
 
+    handleScroll(event){
+	this.zoomIn(event.deltaY)
+    }
+
+    zoomIn(dz){
+	var current_scroll = this.state.scroll;
+	var scroll=current_scroll+dz;
+	var state = this.state;
+	state.scroll = scroll;
+	this.setState(state);
+    }
+    panRight(dx){
+	var state = this.state;	
+	state.pan_horz +=dx;
+	this.setState(state);
+    }
+    panUp(dy){
+	var state = this.state;	
+	state.pan_vert +=dy
+	this.setState(state);
+    }
+
+    handleKeyDown(event) {
+	if (event.keyCode == 37){
+	    this.panRight(-30)
+	}
+	if (event.keyCode == 38){
+	    this.panUp(30)
+	}
+	if (event.keyCode == 39){
+	    this.panRight(30)
+	}
+	if (event.keyCode == 40){
+	    this.panUp(-30)
+	}	
+    }
+    
     componentDidMount(){
+	window.addEventListener("wheel", this.handleScroll.bind(this) , false);
+	window.addEventListener('keydown', this.handleKeyDown.bind(this));
 
+	//window.addEventListener('scroll', this.handleScroll);
+	
 	var that = this
-	console.log(that.state.points)
-
+	var rootDiv = ReactDOM.findDOMNode(this)
 
 	
-	regl.frame(function(context) {
+
+	var reglObj = regl({
+	    container: rootDiv,
+	})
+
+	
+	
+	reglObj.frame(function(context) {
 	    // Each loop, update the data
 	    //updateData(points);
 
 	    // And draw it!
 	    drawDots({
 		pointWidth: POINT_SIZE,
-		points: that.state.points
+		points: that.state.points,
+		scroll:that.state.scroll,
+		pan_horz:that.state.pan_horz,
+		pan_vert:that.state.pan_vert,
 	    });
 	});
 
@@ -114,20 +173,30 @@ function updateData(data) {
 }
 
 
-const drawDots = regl({
+const drawDots = init_regl({
 
 
-
-  // using textbook example from http://regl.party/api#blending
   blend: {
-      enable: true,
-
+    enable: true,
+    func: {
+    srcRGB:   'src alpha',
+    srcAlpha: 'src alpha',
+    dstRGB:   'one minus src alpha',
+    dstAlpha: 'one minus src alpha'
+    },
+    equation: {
+      rgb: 'add',
+      alpha: 'subtract'
+    },
+    color: [0, 0, 0, 0]
   },
-    
 
     vert:`precision mediump float;
 attribute vec2 position;
-attribute float pointWidth;
+    attribute float pointWidth;
+    uniform float zoom;
+    uniform float pan_horz;
+    uniform float pan_vert;
 
 
 uniform float stageWidth;
@@ -139,11 +208,11 @@ vec2 normalizeCoords(vec2 position) {
 // read in the positions into x and y vars
 float x = position[0];
 float y = position[1];
-
+    
 return vec2(
-2.0 * ((x / stageWidth) ),
+    (((x+pan_horz) / stageWidth*zoom)  ),
 // invert y to treat [0,0] as bottom left in pixel space
--(2.0 * ((y / stageHeight) )));
+    (((y+pan_vert) / stageHeight*zoom) ));
 }
 
 
@@ -197,8 +266,11 @@ gl_PointSize = pointWidth;
 	// These uniforms are used in our fragment shader to
 	// convert our x / y values to WebGL coordinate space.
 	
-	stageWidth: regl.context('drawingBufferWidth'),
-	stageHeight: regl.context('drawingBufferHeight')
+	stageWidth: init_regl.context('drawingBufferWidth'),
+	stageHeight: init_regl.context('drawingBufferHeight'),
+	zoom:function(context,props){ return 1+ props.scroll / 100 },
+	pan_horz:function(context,props){ return props.pan_horz   },
+	pan_vert:function(context,props){ return  props.pan_vert   },
     },
     
     

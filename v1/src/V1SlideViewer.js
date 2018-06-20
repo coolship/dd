@@ -17,22 +17,42 @@ class V1SlideViewer extends Component {
       this.fov = React.createRef();
   }
 
+    //this cool little piece of code in-lines the svg used for the controls
     handleImageLoaded() {
 	var c = ReactDOM.findDOMNode(this.controls.current)
 	c.parentElement.replaceChild(c.contentDocument.documentElement.cloneNode(true), c);
-
-	
     }
 
     componentDidMount(){
-	  var that = this;
+	/*
+	fetch('/users')
+	    .then(function(res){return res.json()})
+	    .then(users => this.setState({ users }));
+*/
+    
 /*
-	    this.timerID = setInterval(
-      () => this.tick(),
-      1000
-	    );*/
+	fetch("/slides/927_umis_5c_flt_1000.json")
+	    .then(function(response) {
+		if (response.status >= 400) {
+		    throw new Error("Bad response from server");
+		}
+		return response;
+	    })
+	    .then(function(data) {
+		console.log("successfully fetched 1000 datapoints")
+		console.log(data);
+	    });
+
+*/
+	
+	var that = this;
+	this.timerID = setInterval(
+	    () => this.tick(),
+	    1000
+	)
 
 
+	
 	
     }
   componentWillUnmount() {
@@ -44,10 +64,7 @@ class V1SlideViewer extends Component {
 	this.setState({counter:cval});
     }
     
-    render(){
-
-	
-	
+    render(){	
 	return (
 		<div className="V1SlideViewer">
 		<div className="wrapper">
