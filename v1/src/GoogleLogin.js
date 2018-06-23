@@ -24,8 +24,6 @@ class MyGoogleLogin extends Component {
 
 	this.setAccessToken = this.props.setAccessToken;
 	this.state = {
-	    modalIsOpen: true,
-	    hasFile:false
 	};
     }
 
@@ -52,8 +50,8 @@ class MyGoogleLogin extends Component {
 		<div><GoogleLogin
 	    onLoginSuccess={this.onSuccess.bind(this)}/></div>
 		</div>
-	    </GoogleAPI>
-	</Modal>)
+		</GoogleAPI>
+		</Modal>)
     }
 
 

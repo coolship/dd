@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Slide from './Slide';
 import FovControls from './FovControls';
 import ModalUpload from './ModalUpload';
-import MyGoogleLogin from './GoogleLogin';
 import DatasetSelect from './DatasetSelect';
 import './css/V1SlideViewer.css';
 import logo from './logo.svg';
@@ -38,7 +37,6 @@ class V1SlideViewer extends Component {
 	  fullscreen:false,
 	  pointdata:[],
 	  dataset:{},
-	  filenames:[]
       }
       
       this.handleAppFullscreenChanged = this.handleAppFullscreenChanged.bind(this);
@@ -164,44 +162,7 @@ class V1SlideViewer extends Component {
 	
     }
 
-    activateUser(){
-	
-	var list_directory_url = "https://www.googleapis.com/storage/v1/b/slides.dna-microscopy.org/o"
-	const token = this.state.access_token
 
-	var that = this
-	
-	fetch(list_directory_url,{
-	    method:'GET',
-	    headers:{
-		"Content-Type": "application/json",
-		'Authorization': 'Bearer ' + token,
-	    }
-	}).then(function(response){
-	    //console.log(response)
-	    //console.log(response.json())
-	    return response.json()
-	}).then(function(success){
-
-	    var result = success
-	    console.log(result)
-	    console.log(result.items)
-	    that.setState({filenames:result.items.map(function(e,i){return e.name})
-			   .filter(function(e){return e.search("dataset")>=0
-					       && e.split("/").slice(-1) != "" })
-			  })
-	    that.setState({directoryListing:result})
-	    console.log(that.state.filenames)
-
-	    
-	})
-
-    }
-    
-    setAccessToken(token){
-	this.setState({"access_token":token})
-	this.activateUser()
-    }
     
     componentWillUnmount() {
 	clearInterval(this.timerID);
@@ -219,11 +180,6 @@ class V1SlideViewer extends Component {
 	    
 		<div className={"V1SlideViewer " +(this.state.fullscreen? 'fullscreen': 'not-fullscreen')}>
 
-		<MyGoogleLogin
-	    setAccessToken={this.setAccessToken.bind(this)}
-	    hasAccessToken={!!this.state.access_token}
-		/>
-
 	    
 		<div className="wrapper">
 		<div className="app-controls">
@@ -233,7 +189,7 @@ class V1SlideViewer extends Component {
 		<form>
 		<label><DatasetSelect
 	    handleAppSlideIdChanged={this.handleAppSlideIdChanged.bind(this)}
-	    names={this.state.filenames}/></label>
+	    names={this.props.datasets}/></label>
 
 		<div className="icons">
 		<label className="upload-dataset">
