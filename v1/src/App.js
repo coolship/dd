@@ -8,8 +8,7 @@ import {
 } from 'react-router-dom'
 
 
-import logo from './logo.svg';
-import './App.css';
+import './css/App.css';
 import V1SlideViewer from './V1SlideViewer';
 
 
@@ -17,9 +16,6 @@ class Viewer extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-        </header>
 	    <V1SlideViewer>
 
 	</V1SlideViewer>
@@ -45,19 +41,11 @@ const About = () => (
 
 const App = () => (
   <Router>
-    <div>
-      <ul>
-        <li><Link to="/">Viewer</Link></li>
-        <li><Link to="/welcome">welcome</Link></li>
-        <li><Link to="/about">about</Link></li>
-      </ul>
-
-      <hr/>
-
-      <Route exact path="/" component={Viewer}/>
-      <Route path="/welcome" component={Welcome}/>
-      <Route path="/about" component={About}/>
-    </div>
+	<div>
+	<Route exact path="/" component={Viewer}/>
+	<Route path="/welcome" component={Welcome}/>
+	<Route path="/about" component={About}/>
+	</div>
   </Router>
 )
 export default App

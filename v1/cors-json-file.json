@@ -1,6 +1,6 @@
 [
     {
-      "origin": ["http://example.appspot.com"],
+      "origin": ["http://dna-microscopy.org:3000"],
       "responseHeader": ["Content-Type"],
       "method": ["GET", "HEAD", "DELETE"],
       "maxAgeSeconds": 3600
