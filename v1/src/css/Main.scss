@@ -1,12 +1,22 @@
 
-.V1SlideViewer .wrapper{
+.viewer .wrapper{
     display:grid;	
 
 }
 
-.V1SlideViewer:not(.fullscreen) .wrapper{
+
+.icon{
+    cursor:pointer;
+    font-size:1.5em;
+    padding:5px;
+}
+
+
+
+
+.viewer:not(.fullscreen) .wrapper{
     grid-template-columns: [left-margin] auto [center-col] 400px [right-margin] auto;
-    grid-template-rows:[header-row] auto [fov-view-row] 400px [fov-controls-row] auto [app-controls-fs-row] auto [footer-row] auto;
+    grid-template-rows: [header-row] auto [fov-view-row] 400px [fov-controls-row] auto [app-controls-fs-row] auto [footer-row] auto;
     grid-template-areas:
     ".  app-controls-area  ."
 	".  fov-view-area  ."
@@ -15,9 +25,9 @@
 	".  footer-area  .";
 }
 
-.V1SlideViewer.fullscreen .wrapper{
-    grid-template-columns: [left-margin] 70vw [center-col] auto [right-margin] 50px;
-    grid-template-rows:[header-row] 0vh [fov-view-row] 50vh [app-controls-fs-row] auto  [fov-controls-fs-row] 20vh [footer-row] 50px;
+.viewer.fullscreen .wrapper{
+    grid-template-columns: [left-margin] auto [center-col] 300px [right-margin] 100px;
+    grid-template-rows: [header-row] 0vh [fov-view-row] 50vh [app-controls-fs-row] auto  [fov-controls-fs-row] 10vh [footer-row] 50px;
     grid-template-areas:
     ". . ."
 	" .  .  ."
@@ -26,14 +36,6 @@
 	" .  .  .";
 }
 
-
-#screenshotCanvas{
-    background-color:black;
-    position:absolute;
-    top:400px;
-    height:400px;
-    width:400px;
-}
 
 
 form.has-file{
@@ -53,9 +55,7 @@ form.needs-file{
 }
 
 
-.fov-container{
-    grid-area:fov-view-area;
-}
+
 .footer{
     position:fixed;
     bottom:0px;
@@ -74,6 +74,8 @@ form.needs-file{
     }
 
 }
+
+
 
 .app-controls{
     margin-top:20px;;
@@ -101,22 +103,15 @@ form.needs-file{
     }
     select{
 
-	    background-color: transparent;
-	    border: 2px solid;
-	    border-radius:5px;
-	    padding:5px;
-	    height: 2.5em;
-	    font-size: .9em;
-	    
-	}
-    
-    .toggle-fullscreen{
-	
-	input{
-	    display:none;
-	}
+	background-color: transparent;
+	border: 2px solid;
+	border-radius:5px;
+	padding:5px;
+	height: 2.5em;
+	font-size: .9em;
 	
     }
+
     .icon{
 	font-size:1.5em;
 	cursor:pointer;
@@ -131,45 +126,62 @@ form.needs-file{
 
 }
 
-.V1SlideViewer:not(.fullscreen){
-    .toggle-fullscreen-off{
-	display:none;
-    }
+
+.fov-container{
+    grid-area:fov-view-area;
 }
-.V1SlideViewer.fullscreen{
-    color:white;
-    .toggle-fullscreen-on{
-	display:none;
+
+.viewer:not(.fullscreen){
+    .fov-container{
+	outline: 5px solid lightgray;
+	margin-left: 5px;
+	margin-right: 5px;
     }
+    
+}
+.viewer.fullscreen{
+    color:white;
+
     .app-controls{
 	text-align:left;
 	position:relative;
 
     }
     
-    .fov-container{
+    .wrapper>*{
+	    z-index:1;
+	
+    }
+    
+    .wrapper .fov-container{
 	position:fixed;
 	left:0px;
 	right:0px;
 	bottom:0px;
 	top:0px;
-	z-index:-1;
+	z-index:0;
 	.fov{
 	    position:relative;
 	    width:100%;
 	    height:100%;
 	}
     }
+
     .app-controls{
 	background-color:black;
 	color:white;
-	select{
-	    color:white;
-	}
 
     }
 
 }
+
+.app-controls{
+    select{
+	color:white;
+    }
+
+}
+
 
 .fov-container{
     position:relative;
@@ -183,15 +195,20 @@ form.needs-file{
 	position:absolute;
 	left:50%;
 	margin-left:-57px;
-	top:50%;
+	top:40%;
 	margin-top:-40px;
     }
 }
 
-.V1SlideViewer.not-fullscreen{
+.viewer.not-fullscreen{
     .fov{
 	width:100%;
 	height:100%;
+    }
+    .fov-container{
+    .App-logo{
+	top:50%;
+    }
     }
 }
 

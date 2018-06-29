@@ -1,0 +1,24 @@
+.viewer.fullscreen .toggle-fullscreen-on {
+  display: none; }
+
+.viewer:not(.fullscreen) .toggle-fullscreen-off {
+  display: none; }
+
+.toggle-fullscreen input {
+  display: none; }
+
+.toggle-fullscreen {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  margin: 10px; }
+
+.view-config .floating {
+  display: none;
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  margin-left: 100px;
+  margin-bottom: 100px;
+  width: 20vw;
+  heigth: 20vh; }

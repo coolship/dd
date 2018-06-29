@@ -1,0 +1,13 @@
+.user-manager .dataset-item {
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border: 1px dashed;
+  margin-top: 10px; }
+
+.user-manager form {
+  margin-top: 20px; }
+  .user-manager form label {
+    margin-top: 5px;
+    display: block; }

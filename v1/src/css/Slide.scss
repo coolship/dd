@@ -1,0 +1,16 @@
+
+
+#regl-canvas{
+    display:block;
+}
+
+
+#overlay-canvas{
+    display:block;
+    pointer-events:none;
+    position:absolute;
+    left:0px;
+    right:0px;
+    top:0px;
+    bottom:0px;
+}

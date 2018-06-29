@@ -1,22 +1,20 @@
-.V1SlideViewer .wrapper {
+.viewer .wrapper {
   display: grid; }
 
-.V1SlideViewer:not(.fullscreen) .wrapper {
+.icon {
+  cursor: pointer;
+  font-size: 1.5em;
+  padding: 5px; }
+
+.viewer:not(.fullscreen) .wrapper {
   grid-template-columns: [left-margin] auto [center-col] 400px [right-margin] auto;
   grid-template-rows: [header-row] auto [fov-view-row] 400px [fov-controls-row] auto [app-controls-fs-row] auto [footer-row] auto;
   grid-template-areas: ".  app-controls-area  ." ".  fov-view-area  ." ".  fov-controls-area  ." ".  .  ." ".  footer-area  ."; }
 
-.V1SlideViewer.fullscreen .wrapper {
-  grid-template-columns: [left-margin] 70vw [center-col] auto [right-margin] 50px;
-  grid-template-rows: [header-row] 0vh [fov-view-row] 50vh [app-controls-fs-row] auto [fov-controls-fs-row] 20vh [footer-row] 50px;
+.viewer.fullscreen .wrapper {
+  grid-template-columns: [left-margin] auto [center-col] 300px [right-margin] 100px;
+  grid-template-rows: [header-row] 0vh [fov-view-row] 50vh [app-controls-fs-row] auto [fov-controls-fs-row] 10vh [footer-row] 50px;
   grid-template-areas: ". . ." " .  .  ." " .    app-controls-area ." " .    fov-controls-area ."	 " .  .  ."; }
-
-#screenshotCanvas {
-  background-color: black;
-  position: absolute;
-  top: 400px;
-  height: 400px;
-  width: 400px; }
 
 form.has-file {
   color: green; }
@@ -30,9 +28,6 @@ form.needs-file {
   right: 0px;
   margin: 10px;
   font-size: 2em; }
-
-.fov-container {
-  grid-area: fov-view-area; }
 
 .footer {
   position: fixed;
@@ -76,8 +71,6 @@ form.needs-file {
     padding: 5px;
     height: 2.5em;
     font-size: .9em; }
-  .app-controls .toggle-fullscreen input {
-    display: none; }
   .app-controls .icon {
     font-size: 1.5em;
     cursor: pointer; }
@@ -87,32 +80,38 @@ form.needs-file {
 .fov {
   background-color: black; }
 
-.V1SlideViewer:not(.fullscreen) .toggle-fullscreen-off {
-  display: none; }
+.fov-container {
+  grid-area: fov-view-area; }
 
-.V1SlideViewer.fullscreen {
+.viewer:not(.fullscreen) .fov-container {
+  outline: 5px solid lightgray;
+  margin-left: 5px;
+  margin-right: 5px; }
+
+.viewer.fullscreen {
   color: white; }
-  .V1SlideViewer.fullscreen .toggle-fullscreen-on {
-    display: none; }
-  .V1SlideViewer.fullscreen .app-controls {
+  .viewer.fullscreen .app-controls {
     text-align: left;
     position: relative; }
-  .V1SlideViewer.fullscreen .fov-container {
+  .viewer.fullscreen .wrapper > * {
+    z-index: 1; }
+  .viewer.fullscreen .wrapper .fov-container {
     position: fixed;
     left: 0px;
     right: 0px;
     bottom: 0px;
     top: 0px;
-    z-index: -1; }
-    .V1SlideViewer.fullscreen .fov-container .fov {
+    z-index: 0; }
+    .viewer.fullscreen .wrapper .fov-container .fov {
       position: relative;
       width: 100%;
       height: 100%; }
-  .V1SlideViewer.fullscreen .app-controls {
+  .viewer.fullscreen .app-controls {
     background-color: black;
     color: white; }
-    .V1SlideViewer.fullscreen .app-controls select {
-      color: white; }
+
+.app-controls select {
+  color: white; }
 
 .fov-container {
   position: relative; }
@@ -123,12 +122,15 @@ form.needs-file {
     position: absolute;
     left: 50%;
     margin-left: -57px;
-    top: 50%;
+    top: 40%;
     margin-top: -40px; }
 
-.V1SlideViewer.not-fullscreen .fov {
+.viewer.not-fullscreen .fov {
   width: 100%;
   height: 100%; }
+
+.viewer.not-fullscreen .fov-container .App-logo {
+  top: 50%; }
 
 .App-logo {
   animation: App-logo-spin infinite 20s linear;

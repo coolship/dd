@@ -1,0 +1,17 @@
+export const FETCH_TODOS="FETCH_TODOS";
+export const FETCH_USER = "FETCH_USER";
+export const FETCH_DATASETS = "FETCH_DATASETS";
+
+export const SET_CURRENT_DATASET = "SET_CURRENT_DATASET";
+export const SET_WAITING_FOR_DATA = "SET_WAITING_FOR_DATA";
+
+export const SET_TRANSFORM = "SET_TRANSFORM";
+export const SET_FULLSCREEN = "SET_FULLSCREEN";
+
+export const SET_COLORMAP = "SET_COLORMAP";
+export const SET_POINTSIZE = "SET_POINTSIZE";
+
+export const SET_SELECT_TYPE = "SET_SELECT_TYPE";
+export const SET_SELECT_UMI_IDX = "SET_SELECT_UMI";
+
+export const RESET_APP = "RESET_APP";

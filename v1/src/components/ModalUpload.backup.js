@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import Modal from 'react-modal';
 import CloudUpload from 'react-icons/lib/md/cloud-upload';
 import Close from 'react-icons/lib/md/close';
+import { uploadNewDataset } from "../actions"
+import { connect } from "react-redux";
+
 
 
 const customStyles = {
@@ -60,7 +62,14 @@ class ModalUpload extends Component {
     }
 
     onFormSubmit(event){
-	this.uploadFile(event.target.files[0]);
+	//this.uploadFile(event.target.files[0]);
+
+	
+	var file = event.target.files[0]
+	this.props.uploadNewDataset(file)
+
+
+	
     }
 
     onSelectFile(event){
@@ -68,7 +77,10 @@ class ModalUpload extends Component {
 	this.setState({"hasFile":true})
     }
 
+ 
+
     uploadFile(file){
+	//NO LONGER USED!
 	var token ="ya29.GlvhBUCJZ_SFVxQ6Q9D5HLHglkNpoNf1bw-yEkvcBBaBWTjs5RfLIH09a-BDNvyv7XWFssN2Y9yyIRKoE5mFzA7-VTFkkfW9YuaE1wlWo55d7vyeVTw38Fr7f1p4"
 
 	var url = "https://www.googleapis.com/upload/storage/v1/b/slides.dna-microscopy.org/o?uploadType=multipart&name=datasets/001.json"
@@ -109,9 +121,11 @@ class ModalUpload extends Component {
 		>
 
 		<h2 ref={subtitle => this.subtitle = subtitle}>upload a file</h2>
-		<Close className="icon icon-close" onClick={this.closeModal} />
 		<form className={"file-upload "+ (this.state.hasFile? "has-file": "needs-file")} onSubmit={this.onFormSubmit.bind(this)}>
-		<input onChange={this.onSelectFile.bind(this)} type="file"  />
+
+		<label className="email">user: <input type="text" readOnly="true" value={this.props.user.email}/></label>
+		<label className="name">dataset name: <input type="text" name="name"/></label>
+		<label className="upload"><input onChange={this.onSelectFile.bind(this)} type="file"  /></label>
 		<input type="submit"/>
 		</form>
 		</Modal>
@@ -121,5 +135,10 @@ class ModalUpload extends Component {
 }
 
 
+function mapStateToProps(state){
+    console.log("mapping state for upload")
+    console.log(state)
+    return {datasets:state.datasets,state.user}
+}
 
-export default ModalUpload
+export default connect(mapStateToProps, { uploadNewDataset }) (ModalUpload)

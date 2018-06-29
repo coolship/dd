@@ -1,13 +1,33 @@
-.App {
+.app-container {
   text-align: center;
-  height: 100vh; }
+  height: 100vh;
+  color: white; }
 
-.App-header {
+body {
+  background-color: black; }
+
+.app-container .navbar {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  height: auto; }
+  .app-container .navbar .nav-right {
+    text-align: right;
+    width: auto;
+    margin-right: 20px; }
+    .app-container .navbar .nav-right .icon {
+      margin-top: 10px;
+      margin-right: 10px;
+      cursor: pointer;
+      color: white; }
+
+.app-container-header {
   height: 80px;
   padding: 10px; }
 
-.App-title {
+.app-container-title {
   font-size: 1.5em; }
 
-.App-intro {
+.app-container-intro {
   font-size: large; }

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
-import ReactDOM from 'react-dom';
-import {GoogleAPI,GoogleLogin,GoogleLogout} from 'react-google-oauth'
+import {GoogleAPI,GoogleLogin} from 'react-google-oauth'
 
 
 const customStyles = {

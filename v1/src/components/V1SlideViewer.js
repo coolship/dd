@@ -1,29 +1,13 @@
 import React, { Component } from 'react';
 import Slide from './Slide';
 import FovControls from './FovControls';
-import ModalUpload from './ModalUpload';
-import DatasetSelect from './DatasetSelect';
-import './css/V1SlideViewer.css';
-import logo from './logo.svg';
+import '../css/V1SlideViewer.css';
+import logo from '../logo.svg';
+import { connect } from "react-redux";
+import Welcome from "./Welcome";
 
 import Fullscreen from 'react-icons/lib/md/fullscreen';
 import FullscreenExit from 'react-icons/lib/md/fullscreen-exit';
-
-
-
-const canvasStyle = {
-    content: {
-	position:'absolute',
-	width:'100px',
-	height:'100px',
-	backgroundColor:'red',
-    }
-};
-
-
-
-//client id 211180157594-m5cchnk0hnh6iu0j7hkiekfehbsd146s.apps.googleusercontent.com
-//client secret ULYkLxvPJjqXnXtQJom7cA4-
 
 
 
@@ -34,7 +18,7 @@ class V1SlideViewer extends Component {
       super(props);
       this.state = {
 	  counter:0,
-	  fullscreen:false,
+	  fullscreen:true,
 	  pointdata:[],
 	  dataset:{},
       }
@@ -52,44 +36,16 @@ class V1SlideViewer extends Component {
     zoomIn(){this.fov.current.zoomIn(25)}
     zoomOut(){this.fov.current.zoomIn(-25)}
     exportPng(){
-	var webGLTestCanvas =  document.querySelector("#reglFov > canvas:first-of-type");
-
-	var videocanvas = document.getElementById("screenshotCanvas");
-	const vctx = videocanvas.getContext('2d');
-	vctx.drawImage(webGLTestCanvas, 0, 0); 
-	const capturedImage = videocanvas.toDataURL();
-
-	
-	//var ctx = canvas.getContext('3d');
-	//ctx.fillStyle = '#ff5';
-	//ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-	
-
-	
-	//var data = canvas.toDataURL();
-
-
+	var data =  document.querySelector("#reglFov > canvas:first-of-type").toDataURL();
 
 	
 	var link = document.createElement("a");
 	link.download = "slide.png";
-	link.href = capturedImage;
+	link.href = data;
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
 
-
-	
-	window.vcanvas = videocanvas
-	window.vctx = vctx
-	
-	//delete link;
-	
-	//var prev = window.location.href;
-	//window.location.href = data.replace("image/png", "image/octet-stream");
-	//window.location.href = prev;
-	
     }
 
     
@@ -152,14 +108,10 @@ class V1SlideViewer extends Component {
 
    
     componentDidMount(){
-
-	var that = this	
 	this.timerID = setInterval(
 	    () => this.tick(),
 	    1000
 	)
-
-	
     }
 
 
@@ -178,38 +130,18 @@ class V1SlideViewer extends Component {
 
 	   
 	    
-		<div className={"V1SlideViewer " +(this.state.fullscreen? 'fullscreen': 'not-fullscreen')}>
+		<div className={"viewer main " +(this.state.fullscreen? 'fullscreen': 'not-fullscreen')}>
 
 	    
+
 		<div className="wrapper">
-		<div className="app-controls">
-		<h1>Welcome to DNA microscopy</h1>
-		{this.state.dataset.name?"viewing " + this.state.dataset.name:"please choose a dataset to view"}
-	    
-		<form>
-		<label><DatasetSelect
-	    handleAppSlideIdChanged={this.handleAppSlideIdChanged.bind(this)}
-	    names={this.props.datasets}/></label>
-
-		<div className="icons">
-		<label className="upload-dataset">
-		<ModalUpload appComponent={this}>
-		</ModalUpload>
-		
-	    </label>
-		<label className="toggle-fullscreen">
-		<Fullscreen className="toggle-fullscreen-on icon"/><FullscreenExit className="icon toggle-fullscreen-off"/><input type="checkbox" id="app-toggle-fullscreen" checked={!! this.state.fullscreen } className="toggle-fullscreen" onChange={this.handleAppFullscreenChanged}/>
-		</label>
-		</div>
-		
-	    </form>
-		</div>
+		<Welcome/>
 		
 		<div className={"fov-container "+(this.state.waiting?"waiting":"rendered")}>
 		
 		<Slide ref={this.fov} data={this.state.pointdata} counter={this.state.counter} dataset_name={this.state.dataset.name} ></Slide>
 		<img src={logo} className="App-logo" alt="logo" />
-
+	    
 	    
 	    </div>
 		
@@ -223,22 +155,25 @@ class V1SlideViewer extends Component {
 	    exportPng={this.exportPng.bind(this)}
 		>
 		</FovControls>
-		<canvas 
-	    id="screenshotCanvas"
-	    width="800"
-	    height="800"
-	    style={ canvasStyle }
-		>
-		</canvas>
 		<div className="footer">
 		copyright Josh Weinstein 2018
 	    </div>
 		</div>
+			    	<label className="toggle-fullscreen">
+		<Fullscreen className="toggle-fullscreen-on icon"/><FullscreenExit className="icon toggle-fullscreen-off"/><input type="checkbox" id="app-toggle-fullscreen" checked={!! this.state.fullscreen } className="toggle-fullscreen" onChange={this.handleAppFullscreenChanged}/>
+
+	    </label>
 		</div>
+
+
 	)
 	
     }
 }
 
 
-export default V1SlideViewer;
+function mapStateToProps( {datasets}){
+    return {datasets};
+}
+
+export default connect( mapStateToProps, { } )(V1SlideViewer);

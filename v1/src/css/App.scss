@@ -1,20 +1,52 @@
-.App {
+.app-container {
     text-align: center;
     height:100vh;
+    color:white;
 }
 
 
+body{
+    background-color:black;
+}
 
-.App-header {
+.app-container{
+    .navbar{
+
+	position:fixed;
+	left:0px;
+	right:0px;
+	top:0px;
+	//background-color:black;
+	height:auto;
+
+	
+	.nav-right{
+	    text-align:right;
+	    width:auto;
+	    margin-right:20px;
+	    
+	    .icon{
+		margin-top:10px;
+		margin-right:10px;
+		cursor:pointer;
+		color:white;
+	    }
+	    
+	}
+    }
+}
+
+
+.app-container-header {
   height: 80px;
   padding: 10px;
 }
 
-.App-title {
+.app-container-title {
   font-size: 1.5em;
 }
 
-.App-intro {
+.app-container-intro {
   font-size: large;
 }
 
