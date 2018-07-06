@@ -69,8 +69,9 @@ class Slide extends Component {
 	if(this.props.app.select_type==2){ return	}
 	this.updateMousePos(event)
 	this.props.setSelectType(1);
-	this.findSelected()
+	//this.findSelected()
 	//this.updateOverlay()
+	
     }
     onMouseEnter(event){
 	if(this.props.app.select_type==2){ return	}

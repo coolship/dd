@@ -5,8 +5,9 @@ import auth from "./authReducer";
 import datasets from "./datasetsReducer";
 import app from "./appReducer";
 import view from "./viewReducer";
+import viewport from "./viewportReducer";
 import dataset from "./datasetReducer";
-import backend from "./backendReducer";
+import mouse from "./mouseReducer";
 
 
 export default combineReducers({
@@ -16,6 +17,7 @@ export default combineReducers({
     app,
     view,
     dataset,
-    backend
+    mouse,
+    viewport,
 });
 

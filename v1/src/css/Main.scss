@@ -27,7 +27,7 @@
 
 .viewer.fullscreen .wrapper{
     grid-template-columns: [left-margin] auto [center-col] 300px [right-margin] 100px;
-    grid-template-rows: [header-row] 0vh [fov-view-row] 50vh [app-controls-fs-row] auto  [fov-controls-fs-row] 10vh [footer-row] 50px;
+    grid-template-rows: [header-row] 0vh [fov-view-row] 60vh [app-controls-fs-row] auto  [fov-controls-fs-row] 10vh [footer-row] 0px;
     grid-template-areas:
     ". . ."
 	" .  .  ."
@@ -68,9 +68,25 @@ form.needs-file{
 
 .fov-controls{
     grid-area:fov-controls-area;
-    svg{
-	width:100%;
-	height:auto;
+    text-align:left;
+    .icon{
+	&:first-child{
+	    margin-left:0px;
+	}
+	opacity:1;
+	font-size:1.5em;
+	display:inline;
+	padding:5px;
+	border:2px solid;
+	cursor:points;
+	margin:5px;
+	border-radius:4px;
+    }
+    .icon:hover{
+	background-color:white;
+	color:black;
+	opacity:.8;
+	
     }
 
 }
@@ -80,7 +96,7 @@ form.needs-file{
 .app-controls{
     margin-top:20px;;
     grid-area:app-controls-area;
-    margin-bottom:30px;
+    margin-bottom:10px;
     position:relative;
     h1{
 	margin-top:0px;

@@ -2,7 +2,24 @@
 import { todosRef, authRef, provider, storageRef, datasetTestRef, databasesStorageRef, datasetsRef } from "../config/firebase";
 
 import { userIdFromEmail } from "./FileIO";
-import { FETCH_TODOS, FETCH_USER, FETCH_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP, SET_TRANSFORM } from "./types";
+import { FETCH_TODOS, FETCH_USER, FETCH_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP, SET_TRANSFORM , SET_MOUSE_XY, SET_VIEWPORT_WH} from "./types";
+
+
+export const setMouse = (mouse) => dispatch => {
+    dispatch({
+	type:SET_MOUSE_XY,
+	payload:mouse
+    })
+}
+
+
+export const setViewport = (viewport) => dispatch => {
+    dispatch({
+	type:SET_VIEWPORT_WH,
+	payload:viewport
+    })
+}
+
 
 
 export const resetApp = () => dispatch => {
@@ -17,7 +34,6 @@ export const setTransform = (transform) => dispatch => {
 	type:SET_TRANSFORM,
 	payload:transform
     })
-    console.log("transformed action")
 }
 
 

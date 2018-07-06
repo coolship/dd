@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 
 //app
 import Welcome from "./Welcome";
-import Slide from './Slide';
+import MultiResViewContainer from './MultiResViewContainer';
 import FovControls from './FovControls';
 import ViewConfig from './ViewConfig';
 
@@ -41,7 +41,7 @@ class Viewer extends Component {
 		<div className={"fov-container "+
 				(this.props.app.waiting_for_data?"waiting":"rendered")
 			       }>
-		<Slide></Slide>
+		<MultiResViewContainer/>
 		<img src={logo} className="App-logo" alt="logo" />
 		
 	    

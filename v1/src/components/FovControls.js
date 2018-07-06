@@ -5,6 +5,15 @@ import controller from '../assets/fov.controller.svg';
 import { connect } from "react-redux";
 import { setTransform } from "../actions";
 
+import ArrowBack from 'react-icons/lib/md/arrow-back';
+import ArrowDownward from 'react-icons/lib/md/arrow-downward';
+import ArrowForward from 'react-icons/lib/md/arrow-forward';
+import ArrowUpward from 'react-icons/lib/md/arrow-upward';
+import Refresh from 'react-icons/lib/md/refresh';
+import CloudDownload from 'react-icons/lib/md/cloud-download';
+
+
+
 
 
 class FovControls extends Component {
@@ -92,17 +101,18 @@ class FovControls extends Component {
     }
     
     
+    
     render(){
 
 	return 	(
 		<div className="fov-controls"
-	    onClick={this.handleClick.bind(this)}>
-		<object type="image/svg+xml"
-	    data={controller}
-	    onLoad={this.handleImageLoaded.bind(this)}
-	    ref={this.controls}
-		>
-		</object>
+	    onClick={this.handleClick.bind(this)}><ArrowBack className="icon" onClick={(event)=>{this.panRight(-100)}}/>
+		<ArrowUpward className="icon" onClick={(event)=>{this.panUp(100)}}/>
+		<ArrowDownward className="icon" onClick={(event)=>{this.panUp(-100)}}/>
+		<ArrowForward className="icon" onClick={(event)=>{this.panRight(100)}}/>
+		<Refresh className="icon" onClick={(event)=>{this.props.onReset()}}/>
+		<CloudDownload className="icon" onClick={(event)=>{this.props.exportPng()}}/>
+	    
 		</div>
 	)
     }

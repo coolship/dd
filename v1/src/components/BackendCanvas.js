@@ -8,85 +8,54 @@ import initREGL from 'regl';
 
 //this container element generates an invisible canvas element which is used strictly
 //to feed data to the view widgets
-class BackendCanvasContainer extends Component {
+export default class BackendCanvasContainer {
 
     
-    constructor(props){
-	super(props)
-	if (! props.onCanvasChanged){
-	    throw "please include an onCanvasChanged method in this components' props"
-	}
-	this.state ={
-	    drawn_dataset_name:null
-	}	
-	this.backend_canvas = null;
-	this.backend_context = null;
-    }
+    constructor(lz,lcx,lcy,nxy = 3){
 
-    //a dataset has been loaded and is now ready.
-    //create and render the backend canvas
-    componentWillReceiveProps(nextprops){
+	/*
+	  constructor takes
+lz --> zoom level, specifying a log base 10 for the zoomed untits
+lcx --> log_center_x, with the offset of the window to the left or right in log zoom units
+lcy --> log_center_y, same as lcx for the vertical dimension
+nxy --> the number of windows to render in each dimension. default is 3, render a grid 9 with 9 elements
+	*/
 
-	//creates canvas once
-	if (!this.backend_canvas){
-	    this.backend_canvas = document.createElement("canvas");
-	    this.backend_canvas.width = this.props.backend.resolution;
-	    this.backend_canvas.height = this.props.backend.resolution;
-	    this.backend_context = this.backend_canvas.getContext("webgl", { 'preserveDrawingBuffer':true})
-	}	
-    }
-    
-    shouldComponentUpdate(nextprops, nextstate){
-	if (nextprops.dataset.current_dataset == null){return false}
-	if (nextprops.dataset.current_dataset.metadata.dataset != this.state.drawn_dataset_name){
-	    nextstate.drawn_dataset_name = nextprops.dataset.current_dataset.metadata.dataset;
-	    return true
-	} else {
-	    return false
-	}
 
-    }
 
-    appearancesFromData(data){
-	let appearances = []
-	for (var i = 0; i < data.length; i++){
-	    appearances.push(
-		{
-		    size: 25,
-		    color:this.props.view.colormap[data[i][1]]
-		}
-	    )
-	}
-	return appearances
-    }
-    
-    pointsFromData(data){
-	let points = []
-	for (var i = 0; i < data.length; i++){
-	    points.push(
-		{x:data[i][3],
-		 y:data[i][4],
-		 z:1- (Number(data[i][1]) +2) / 5,
-		 id:data[i][0]
-		}
-	    )
-	}
-	return points
-    }
+	this.lcx = lcx
+	this.lcy = lcy
+	this.lz  = lz
 
-    //render an empty canvas. this is not drawn
-    render (){
-	if (!this.backend_context){
-	    return ("")
-	}
+	console.log("created new backend canvas with units " + lz +" (" + lcx + ", " + lcy+")")
 	
-	var backend_canvas =this.backend_canvas;
-	var backend_context = this.backend_context;	
-	var cwidth = this.width;
-	var cheight = this.height;
-	var init_regl = initREGL({
-	    gl:backend_context,
-	})
+	this.width = 1000 * nxy
+	this.height = 1000 * nxy
+	this.canvas = document.createElement("canvas")
+	this.context = this.canvas.getContext("webgl", {preserveDrawingBuffer:true})
+	this.canvas.width=this.width;
+	this.canvas.height=this.height;
+
+	this.regl =  initREGL({
+	    gl:this.context,
+	})	
+		
+
+
+	
+	
+    }
+
+    clearData(){
+	this.regl.clear({
+	    color: [0, 0, 0, 1],
+	    depth: 1,
+	});
+    }
+    
+    addData(points, appearances){
+	//takes points in universal coordinates and maps them to scaled coordinates
+	//having the range 0 to 1
 
 	const drawDots = {
 	    //NOTE: THESE CONTROLS ONLY SEEM TO WORK IN THE DATA URL PNG.
@@ -113,13 +82,26 @@ class BackendCanvasContainer extends Component {
 	    varying vec4 fragColor;
 	    attribute vec4 color;
 	    uniform float data_rescale;
+
+	    uniform float cx;
+	    uniform float cy;
+
+
 	    vec3 normalizeCoords(vec3 position) {
 		// read in the positions into x and y vars
+		
 		float x = position[0];
 		float y = position[1];
 		float z = position[2];
-		return vec3(x/resolution * data_rescale,-y/resolution * data_rescale,z);
+
+		return vec3(
+		    2.0 * (x - cx) / resolution,
+			-2.0 * (y- cy) / resolution,
+		    z
+		);
+		
 	    }
+	    
 	    void main () {
 		gl_PointSize = pointWidth;
 		gl_Position = vec4(normalizeCoords(position), 1);
@@ -157,7 +139,8 @@ class BackendCanvasContainer extends Component {
 	    },
 	    uniforms: {
 		resolution:function(context,props){return props.resolution},
-		data_rescale:function(context,props){return props.data_rescale},
+		cy:function(context,props){return props.cy},
+		cx:function(context,props){return props.cx},
 	    },
 	    // vertex count
 	    count: function(context, props) {
@@ -168,31 +151,18 @@ class BackendCanvasContainer extends Component {
 	};
 
 	
-		
-	init_regl.clear({
-	    color: [0, 0, 0, 1],
-	    depth: 1,
-	});
-		
-	init_regl(drawDots)({
-	    points: this.pointsFromData(this.props.dataset.current_dataset.json),
-	    appearances: this.appearancesFromData(this.props.dataset.current_dataset.json),
-	    resolution: this.props.backend.resolution,
-	    data_rescale: this.props.backend.scale_factor,
+	this.regl(drawDots)({
+	    points: points,
+	    appearances: appearances,
+	    resolution:this.width,
+	    cx:this.cx*Math.pow(10,-1*this.lz),
+	    cy:this.cy*Math.pow(10,-1*this.lz),
 	});
 
 	
-	return ("")
     }
+    
 
-    componentDidUpdate(){
-	this.props.onCanvasChanged(this.backend_canvas)
-    }
+
 
 }
-
-function mapStateToProps({dataset,backend,view}){
-    return {dataset,backend,view}
-}
-
-export default connect(mapStateToProps, {})(BackendCanvasContainer)

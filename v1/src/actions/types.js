@@ -15,3 +15,6 @@ export const SET_SELECT_TYPE = "SET_SELECT_TYPE";
 export const SET_SELECT_UMI_IDX = "SET_SELECT_UMI";
 
 export const RESET_APP = "RESET_APP";
+
+export const SET_MOUSE_XY = "SET_MOUSE_XY";
+export const SET_VIEWPORT_WH ="SET_VIEWPORT_WH";

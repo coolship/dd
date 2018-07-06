@@ -34,7 +34,10 @@ class Overlay extends Component {
 	return points
     }
   
-    updateOverlay(){	
+    updateOverlay(){
+
+		
+	
 	const overlay_canvas = document.querySelector("#overlay-canvas");
 	const overlay_context =overlay_canvas.getContext('webgl')
 	const cwidth =this.props.width;
@@ -102,9 +105,13 @@ class Overlay extends Component {
 
 
 
-	var nidx = this.props.app.select_umi_idx
+	var nidx = this.props.app.select_umi_idx	
 	if (nidx >= 0){
 	    var selected  = this.props.getSelectedPoint()
+
+	    var xy = this.props.getSelectedUmiXY()
+	    var nx = xy.x
+	    
 	    var {nx, ny} = selected
 	    overlay_regl(drawDots)({
 		point_nx:nx,
@@ -129,8 +136,8 @@ class Overlay extends Component {
 }
 
 
-function mapStateToProps({app,backend}){
-    return {app,backend}
+function mapStateToProps({app,backend, mouse}){
+    return {app,backend, mouse}
 }
 
 export default connect(mapStateToProps, {})(Overlay)

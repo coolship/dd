@@ -3,7 +3,7 @@ import { SET_CURRENT_DATASET, SET_VERT_PAN, SET_HORZ_PAN, SET_ZOOM, SET_WAITING_
 import { combineReducers } from "redux";
 
 const default_state={
-    transform:{a:10,b:0,c:0,d:10,e:0,f:0},
+    transform:{a:1,b:0,c:0,d:1,e:0,f:0},
     waiting_for_data:true,
     is_fullscreen:true,
     select_umi_idx:-1,
