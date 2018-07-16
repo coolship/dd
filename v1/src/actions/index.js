@@ -2,8 +2,23 @@
 import { todosRef, authRef, provider, storageRef, datasetTestRef, databasesStorageRef, datasetsRef } from "../config/firebase";
 
 import { userIdFromEmail } from "./FileIO";
-import { FETCH_TODOS, FETCH_USER, FETCH_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP, SET_TRANSFORM , SET_MOUSE_XY, SET_VIEWPORT_WH} from "./types";
+import { FETCH_TODOS,  FETCH_USER, FETCH_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP, SET_TRANSFORM , SET_MOUSE_XY, SET_VIEWPORT_WH, SET_VIEWPORT_TRANSFORM, SET_VIEWPORT_XY, SET_QUERY_UMI_SUBSTRING, SET_QUERY_UMI_TYPE, SET_APP_MODAL } from "./types";
 
+
+
+export const closeModal =() => dispatch => {
+    dispatch({
+	type:SET_APP_MODAL,
+	payload:null,
+    })
+}
+
+export const activateModal = (name) => dispatch => {
+    dispatch({
+	type:SET_APP_MODAL,
+	payload:name
+    })
+}
 
 export const setMouse = (mouse) => dispatch => {
     dispatch({
@@ -12,15 +27,27 @@ export const setMouse = (mouse) => dispatch => {
     })
 }
 
-
-export const setViewport = (viewport) => dispatch => {
+export const setViewportWH = (viewportWH) => dispatch => {
     dispatch({
 	type:SET_VIEWPORT_WH,
-	payload:viewport
+	payload:viewportWH
     })
 }
 
+export const setViewportTransform = (viewportTransform) => dispatch => {
+    dispatch({
+	type:SET_VIEWPORT_TRANSFORM,
+	payload:viewportTransform
+    })
+}
 
+export const setViewportXY = (viewportXY) => dispatch =>{
+    dispatch({
+	type:SET_VIEWPORT_XY,
+	payload:viewportXY
+    })
+    
+}
 
 export const resetApp = () => dispatch => {
     dispatch({
@@ -50,7 +77,6 @@ export const setSelectType = (type) => dispatch => {
 	payload:type
     })
 }
-
 
 export const fetchUser = () => dispatch => {
     authRef.onAuthStateChanged(user => {
@@ -116,6 +142,20 @@ export const signOut = () => dispatch => {
       // Sign-out successful.
     })
     .catch(error => {
-      console.log(error);
+	console.log(error);
     });
 };
+
+export const setQueryUmiSubstring = (substring) => dispatch => {
+    dispatch({
+	type: SET_QUERY_UMI_SUBSTRING,
+	payload: substring
+    });
+}
+
+export const setQueryUmiType = (type) => dispatch => {
+    dispatch({
+	type: SET_QUERY_UMI_TYPE,
+	payload: type
+    });
+}

@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
+import styled, { css } from 'styled-components';
+
+
 
 import {setPointSize, setColorMap, setFullscreen} from '../actions';
 
@@ -18,38 +21,18 @@ class ViewConfig extends Component {
     render(){
 
 	return (
-
-
-		<div className="view-config">
-		<label className="toggle-fullscreen">
+	    <div className="view-config">
+	      <label className="toggle-fullscreen">
 		<Fullscreen className="toggle-fullscreen-on icon"/>
 		<FullscreenExit className="icon toggle-fullscreen-off"/>
 		<input type="checkbox"
-	    id="app-toggle-fullscreen"
-	    checked={!! this.props.app.is_fullscreen }
-	    className="toggle-fullscreen"
-	    onChange={(event) => {this.props.setFullscreen(event.target.checked)}}/>
-
-	    </label>
-
-		<div className="floating">
-		<form>
-		<label>point size: <input name="pointsize" type="range" max="51" step="5" min="1"
-	    value={this.props.view.pointsize}
-	    onChange={ (event) => {
-
-		this.props.setPointSize(Number(event.target.value))
-
-	    } }/>
-		</label>
-		<label>
-		<CirclePicker />
-	    </label>
-	    </form>
-	    </div>
-	    
-		</div>
-	)
+		       id="app-toggle-fullscreen"
+		       checked={!! this.props.app.is_fullscreen }
+		       className="toggle-fullscreen"
+		       onChange={(event) => {this.props.setFullscreen(event.target.checked)}}/>
+	      </label>
+	    </div>	    
+	);
 
     }
 
@@ -62,3 +45,30 @@ function mapStateToProps( { view, app}){
 }
 
 export default connect( mapStateToProps, { setPointSize, setColorMap, setFullscreen } )(ViewConfig);
+
+
+
+
+.viewer.fullscreen{
+    .toggle-fullscreen-on{
+	display:none;
+    }
+}
+
+.viewer:not(.fullscreen){
+    .toggle-fullscreen-off{
+	display:none;
+    }
+}
+
+
+const ToggleFullscreen=styled.div`
+    input{
+	display:none;
+    }
+    position:fixed;
+    top:0px;
+    left:0px;
+    margin:10px;
+
+`;

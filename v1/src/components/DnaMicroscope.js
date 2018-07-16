@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
-import Viewer from './Viewer';
-import MyUserManagement from './MyUserManagement';
+import UserManagerContainer from './UserManagerContainer';
 import AccountCircle from 'react-icons/lib/md/account-circle';
 import ExitToApp from 'react-icons/lib/md/exit-to-app';
 import CloudUpload from 'react-icons/lib/md/cloud-upload';
-import { signOut, fetchDatasets } from "../actions";
+import { signOut, fetchDatasets, activateModal } from "../actions";
+import {MODALS} from "../layout"
 import { connect } from "react-redux";
+
+import MultiResViewContainer from './MultiResViewContainer';
+import HeadsUpComponent from './HeadsUpComponent';
+import logo from '../logo.svg';
+
 
 
 class DnaMicroscope extends Component {
@@ -39,26 +44,13 @@ class DnaMicroscope extends Component {
 	    that.setState({datasets:result.items.map(function(e,i){return e.name})
 			   .filter(function(e){return e.search("dataset")>=0
 					       && e.split("/").slice(-1) !== "" })
-			  })
-	    that.setState({directoryListing:result})
-	})
+			  });
+	    that.setState({directoryListing:result});
+	});
     }
   
     render() {
-	var main_state;
-	var main_app;
 
-
-	
-
-	if(this.state.managing_user) {
-	    main_state="manage";
-	} else{
-	    main_state="view";
-	}
-
-	    
-	    main_app =  <Viewer/>
 
 	
 	return (
@@ -66,29 +58,28 @@ class DnaMicroscope extends Component {
 		<div className="App">
 		<div className="navbar">
 		<div className="nav-right">
-		<CloudUpload className="icon" 
+		<CloudUpload
 	    className="icon manage-account"
-	    onClick={function(){
-		this.setState({"managing_user":!this.state.managing_user})
-	    }.bind(this)
-		    }/>
+	    onClick={event=>this.props.activateModal(MODALS.USER_MANAGER)}/>
 		<ExitToApp className="icon logout" onClick={this.props.signOut}/>
 		</div>
 		</div>
-		<MyUserManagement className="user-manager"
- closed={!this.state.managing_user} onClose={function(){this.setState({managing_user:false})}.bind(this)}/>
-		<Viewer/>
 
+		<UserManagerContainer/>
+		{this.props.dataset.current_dataset!=null?<MultiResViewContainer/>:null}
+		<HeadsUpComponent/>
+
+		
 	    </div>
        )
    }
 }
 
 
-function mapStateToProps({ auth, datasets }) {
-    return { auth, datasets };
+function mapStateToProps({ auth, datasets, dataset }) {
+    return { auth, datasets, dataset };
 }
 
 
-export default connect(mapStateToProps, { signOut , fetchDatasets})(DnaMicroscope);
+export default connect(mapStateToProps, { signOut , fetchDatasets, activateModal})(DnaMicroscope);
 

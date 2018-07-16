@@ -1,0 +1,20 @@
+
+//images
+
+class Viewer extends Component {
+    render(){
+	return (
+		<div className="wrapper">
+
+		</div>
+	);
+    }
+}
+
+function mapStateToProps( {datasets, app, dataset}){
+    return {datasets, app, dataset};
+}
+
+export default connect( mapStateToProps, { } )(Viewer);
+
+

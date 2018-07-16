@@ -18,8 +18,8 @@ class Signin extends Component {
     render() {
 	return (
 	    <div className="signin main">
-		<Welcome/>
-		</div>
+	      <Welcome/>
+	    </div>
 	);
     }
 }

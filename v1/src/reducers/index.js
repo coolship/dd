@@ -8,6 +8,8 @@ import view from "./viewReducer";
 import viewport from "./viewportReducer";
 import dataset from "./datasetReducer";
 import mouse from "./mouseReducer";
+import selection from "./selectionReducer";
+import query from "./queryReducer";
 
 
 export default combineReducers({
@@ -19,5 +21,7 @@ export default combineReducers({
     dataset,
     mouse,
     viewport,
+    selection,
+    query,
 });
 

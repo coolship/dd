@@ -6,10 +6,6 @@ import { fetchUser, fetchDatasets } from "../actions";
 //css
 import '../css/App.css';
 import '../css/Main.css';
-import '../css/UserManager.css';
-import '../css/SignIn.css';
-import '../css/ViewConfig.css';
-import '../css/Slide.css';
 
 //components
 import DnaMicroscope from "./DnaMicroscope";

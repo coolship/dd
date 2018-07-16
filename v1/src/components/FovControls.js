@@ -29,6 +29,17 @@ class FovControls extends Component {
 	c.parentElement.replaceChild(c.contentDocument.documentElement.cloneNode(true), c);
     }
 
+    exportPng(){
+	var rcanvas = document.querySelector("#reglFov > canvas:first-of-type")
+	var data =  rcanvas.toDataURL();	
+	var link = document.createElement("a");
+	link.download = "slide.png";
+	link.href = data;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+    }
+
 
     zoomIn(dz){
 	var a = this.props.app.transform.a * (1+dz / 1000)
@@ -58,12 +69,12 @@ class FovControls extends Component {
 	    if( count > 10){break}
 	    el = el.parentElement	    
 	    if( el.id==="zoom-in"){
-		this.zoomIn(100)
+		this.zoomIn(1000)
 
 		break
 	    }
 	    if( el.id==="zoom-out"){
-		this.zoomIn(-100)
+		this.zoomIn(-1000)
 
 		break
 	    }
@@ -111,7 +122,7 @@ class FovControls extends Component {
 		<ArrowDownward className="icon" onClick={(event)=>{this.panUp(-100)}}/>
 		<ArrowForward className="icon" onClick={(event)=>{this.panRight(100)}}/>
 		<Refresh className="icon" onClick={(event)=>{this.props.onReset()}}/>
-		<CloudDownload className="icon" onClick={(event)=>{this.props.exportPng()}}/>
+		<CloudDownload className="icon" onClick={(event)=>{this.exportPng()}}/>
 	    
 		</div>
 	)

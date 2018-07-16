@@ -1,16 +1,29 @@
-import {SET_VIEWPORT_WH} from "../actions/types";
+import {SET_VIEWPORT_WH, SET_VIEWPORT_TRANSFORM, SET_VIEWPORT_XY} from "../actions/types";
 
 const default_state={
-    width:null,
-    height:null,
+    clientWidth:null,
+    clientHeight:null,
+    x0:-20,
+    y0:-20,
+    zoom:10,
+    
 }
 
 export default( state= default_state,  action) => {
     switch(action.type){
     case SET_VIEWPORT_WH:
-	return Object.assign({}, state, {width:action.payload.width,
-					 height:action.payload.height})
+	return Object.assign({}, state, {clientWidth:action.payload.clientWidth,
+					 clientHeight:action.payload.clientHeight})
+    case SET_VIEWPORT_TRANSFORM:
+	return Object.assign({}, state, {x0:action.payload.x0,
+					 y0:action.payload.y0,
+					 zoom:action.payload.zoom,
+					})
+    case SET_VIEWPORT_XY:
+	return Object.assign({}, state, {x0:action.payload.x0,
+					 y0:action.payload.y0})
     default:
 	return state;
     }
+   
 }

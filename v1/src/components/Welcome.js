@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import DatasetSelect from './DatasetSelect';
 import { connect } from "react-redux";
 import { signIn } from "../actions";
 
@@ -13,7 +12,7 @@ class Welcome extends Component {
 
 	if(this.props.auth){
 	    console.log("has auth, rendering datasets")
-	    return <DatasetSelect/>
+	    return null
 	} else {
 	    console.log("no auth, rendering signin")
 	    return (
@@ -35,7 +34,7 @@ class Welcome extends Component {
     render(){
 	return(
 	    
-		<div className="welcome app-controls">
+		<div className="welcome">
 		<h1>Welcome to DNA microscopy</h1>
 		{ this.renderSelectOrSignIn() }
 		</div>
