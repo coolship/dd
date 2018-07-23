@@ -20,12 +20,15 @@ function makeTree(state){
 			var t =  types?types[Math.floor(e[1])]:null;
 			var color = t&&t.color?t.color:[255,255,255,1];
 			var size = t&&t.size?t.size:1;
+			var z = t&&t.z?t.z:.5;
 			
-			return {minX:e[3],
+			return {x:e[3],
+				minX:e[3],
 				maxX:e[3],
+				y:e[4],
 				minY:e[4],
 				maxY:e[4],
-				z:.5,
+				z:z,
 				id:e[0],
 				type:e[1],
 				idx:i,
@@ -35,6 +38,56 @@ function makeTree(state){
 		    }
 		   ));
     return tree;
+    
+}
+
+function makePoints(state){
+
+    var json = state.current_dataset.json;
+    var types = state.types_json;
+    var umis = state.umis_json;
+    
+    var points = _.map(json,
+		    function(e,i){
+			var t =  types?types[Math.floor(e[1])]:null;
+			var color = t&&t.color?t.color:[255,255,255,1];
+			var size = t&&t.size?t.size:1;
+			var z = t&&t.z?t.z:.5;
+
+			
+			return {x:e[3],
+				minX:e[3],
+				maxX:e[3],
+				y:e[4],
+				minY:e[4],
+				maxY:e[4],
+				z:z,
+				id:e[0],
+				type:e[1],
+				idx:i,
+				color:color,
+				size:size,
+			       };
+		    }
+		   );
+    return points;
+    
+}
+
+function makePTree(state){
+
+    var ptree = rbush();
+    var json = state.current_dataset.json;
+    ptree.load(_.map(json,
+		    function(e,i){
+			return {minX:e[3],
+				maxX:e[3],
+				minY:e[4],
+				maxY:e[4],
+			       };
+		    }
+		   ));
+    return ptree;
     
 }
 
@@ -58,6 +111,8 @@ export default (state = {
 						metadata:meta}
 					      });
 	    prestate.current_dataset.tree=makeTree(prestate);
+	    prestate.current_dataset.ptree=makePTree(prestate);
+	    prestate.current_dataset.points=makePoints(prestate);
 	    
 	    return prestate;
 	    
@@ -69,6 +124,8 @@ export default (state = {
 				     );
 	    if(prestate.current_dataset){
 		prestate.current_dataset.tree=makeTree(prestate);
+		prestate.current_dataset.ptree=makePTree(prestate);
+		prestate.current_dataset.points=makePoints(prestate);
 	    }
 	    return prestate;
 
@@ -79,6 +136,8 @@ export default (state = {
 				     });
 	    if(prestate.current_dataset){
 		prestate.current_dataset.tree = makeTree(prestate);
+		prestate.current_dataset.ptree=makePTree(prestate);
+		prestate.current_dataset.points=makePoints(prestate);
 	    }
 	    return prestate;
 	    

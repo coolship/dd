@@ -1,4 +1,6 @@
 import { SET_WAITING_FOR_DATA, SET_FULLSCREEN , RESET_APP, SET_TRANSFORM, SET_APP_MODAL } from "../actions/types";
+import { combineReducers } from "redux";
+
 
 
 const default_state={
@@ -14,20 +16,20 @@ export default (state = default_state, action) => {
     case SET_TRANSFORM:
 	return Object.assign({},state, {
 	    transform:action.payload
-	})
+	});
     case SET_WAITING_FOR_DATA:
 	return Object.assign({},state, {
 	    waiting_for_data:action.payload,
 	    select_umi_idx:-1,
-	})
+	});
     case SET_FULLSCREEN:
 	return Object.assign({},state, {
 	    is_fullscreen:action.payload
-	})
+	});
     case RESET_APP:
-	return Object.assign({},default_state)
+	return Object.assign({},default_state);
     case SET_APP_MODAL:
-	return Object.assign({},state,{modal:action.payload})
+	return Object.assign({},state,{modal:action.payload});
     default:
       return state;
   }

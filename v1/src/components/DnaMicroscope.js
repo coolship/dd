@@ -66,7 +66,7 @@ class DnaMicroscope extends Component {
 		</div>
 
 		<UserManagerContainer/>
-		{this.props.dataset.current_dataset!=null?<MultiResViewContainer/>:null}
+		{this.props.dataset.current_dataset!=null?<MultiResViewContainer which_dataset={this.props.dataset.current_dataset.name}/>:null}
 		<HeadsUpComponent/>
 
 		

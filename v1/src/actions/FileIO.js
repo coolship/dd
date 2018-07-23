@@ -112,7 +112,7 @@ export const activateDataset = (metadata) => dispatch => {
     };
     xhr3.open('GET', metadata.types_url);
     xhr3.send();  
-}
+};
 
 
 

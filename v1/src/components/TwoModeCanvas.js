@@ -16,148 +16,268 @@ import initREGL from 'regl';
 class TwoModeCanvas extends Component {
     constructor(props){
 	super(props);
-	this.big_canvas_ref = React.createRef();
-	this.little_canvas_ref = React.createRef();
+	this.little_canvas_ref_1 = React.createRef();
+	this.little_canvas_ref_2 = React.createRef();
+	this.resolution = 4000;
+
+	//specify a margin in pixels, currently 10% on each side;
+	this.margin_percent = 35;
+	
+	this.has_drawn_dataset=false;
     }
     componentDidMount(){
+	this.little_canvases =[
+	    ReactDOM.findDOMNode(this.little_canvas_ref_1.current),
+	    ReactDOM.findDOMNode(this.little_canvas_ref_2.current)
+	];
 
-	this.big_canvas = ReactDOM.findDOMNode(this.big_canvas_ref.current );
-	this.big_context = this.big_canvas.getContext("webgl", {preserveDrawingBuffer:true});
-	this.big_canvas.width=10000;
-	this.big_canvas.height=10000;
-
-
-	this.little_canvas = ReactDOM.findDOMNode(this.little_canvas_ref.current);
-	this.little_context = this.little_canvas.getContext("webgl", {preserveDrawingBuffer:true});
-	this.little_canvas.width=1200;
-	this.little_canvas.height=1200;
-	this.big_regl = initREGL({gl:this.big_context});	
-	this.little_regl = initREGL({gl:this.little_context});		
-    }
-
-    computePositions(x0,y0,x1,y1){
-
-	    
-	    var points_unfiltered = this.props.dataset.current_dataset.tree.search(
-		{minX:x0,
-		 maxX:x1,
-		 minY:y0,
-		 maxY:y1,
-		});
-
-	    var points;
-
-	    console.time("free stuff")
-	    
-	    if(this.props.query.umi_substring){
-		var subs_re = RegExp(this.props.query.umi_substring.toUpperCase());
-		var umis_data = this.props.dataset.umis_json;
-		points = _.filter(points_unfiltered,
-				  function(e){
-				      return subs_re.exec(umis_data[e.idx].sequence) != null;
-				  });
-	    } else {
-		points = points_unfiltered;
-	    }
-	    console.timeEnd("free stuff");
-
-	    console.time("pos")
-	    
-	    this.positions = _.map(points,(p)=>{return {x:p.minX,
-						       y:p.minY,
-						       z:.5};});
+	this.little_regls = [];
 
 	
-
-	    console.timeEnd("pos")
-
-	
+	_.each(this.little_canvases,(e,i)=>{
+	    e.width = this.resolution;
+	    e.height = this.resolution;
+	    this.little_regls[i] = initREGL({gl:e.getContext("webgl", {preserveDrawingBuffer:true})});
+	});
+	this.render_canvas = 0;
     }
+
 
     //takes as input a canvas with a transformation applied mapping x, y ranges
     //to the desired drawing area
-    getCanvasImage(x0, y0, x1, y1, width, height){
 
-	//var {a,b,c,d,e,f} = this.props.app.transform;
-	var use_big = Math.max(x1-x0,y1-y0) > 5000;
+    getRenderCanvas(){
+	return this.little_canvases[this.render_canvas];
+    }
+    
+    getRenderRegl(){
+	return this.little_regls[this.render_canvas];
+    }
 
-	var output_canvas = document.createElement("canvas");
-	output_canvas.width = width;
-	output_canvas.height = height;	
-	var output_context = output_canvas.getContext("2d");
+    getStorageCanvas(){
+	return this.little_canvases[1-this.render_canvas];
+    }
+    exchangeBuffers(){
+	this.render_canvas = 1  - this.render_canvas;
+    }
+
+    //returns the length of the largest dimension of the data window
+    getBackendDataLen(x0,y0,x1,y1){
+	return Math.max(x1 - x0, y1 - y0);
+    }
+
+    //returns the len fo the largest data dimension + 2 * margin
+    getBackendFullLen(len){
+	return  (1+ 2*this.margin_percent/100) * len;
+    }
+    getRescale(x0,y0,len){
+	return 1 / ( (1+ 2*this.margin_percent/100) * len);
+    }
+    getBackendOriginY(x0,y0,len){
+	return y0 - this.margin_percent / 100 * 1* len;
+    }
+
+    getBackendOriginX(x0,y0,len){
+	return x0 - this.margin_percent / 100 * 1* len;
+    }
+    renderImage(x0, y0, x1, y1, width, height){
+
+
+
+	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
+	var rescale = this.getRescale(x0,y0,dataLen);
+
 	
-	if (use_big){
-
+	if(dataLen < 20){
+	    console.log("computing points");
+	    console.log(dataLen);
 	    
-	} else {
-	    if (!this.props.dataset.current_dataset)
-	    {
-		console.log("no dataset yet. not drawing")
-		return
-		
-	    }
-
+	    var xMin = this.getBackendOriginX(x0,y0,dataLen);
+	    var yMin = this.getBackendOriginY(x0,y0,dataLen);
+	    var xMax = xMin + this.getBackendFullLen(dataLen);
+	    var yMax = xMin + this.getBackendFullLen(dataLen);
 	    
-
-	    console.time("full_render")
-
-	    var points_unfiltered = this.props.dataset.current_dataset.tree.search(
+	    var points = this.props.dataset.current_dataset.tree.search(
 		{minX:x0,
 		 maxX:x1,
 		 minY:y0,
 		 maxY:y1,
 		});
-
-	    var points;
-
-	    console.time("free stuff")
-	    
-	    if(this.props.query.umi_substring){
-		var subs_re = RegExp(this.props.query.umi_substring.toUpperCase());
-		var umis_data = this.props.dataset.umis_json;
-		points = _.filter(points_unfiltered,
-				  function(e){
-				      return subs_re.exec(umis_data[e.idx].sequence) != null;
-				  });
-	    } else {
-		points = points_unfiltered;
-	    }
-	    console.timeEnd("free stuff");
-	    
-	    console.time("regl")
-	    var buffer_resolution = this.little_canvas.width; 
-	    var rescale = 1/(x1 - x0);    
-	    this.drawRegl(this.little_regl,
-			  rescale,
-			  x0,
-			  y0,
-			  points.slice(0,500000));
-	    
-	    console.timeEnd("regl")
-
-	    var scl = buffer_resolution / Math.max(height, width);
-	    //var y_ofs = height < width?(width - height) / 2: 0; // not used, why?
-	    //var x_ofs = width < height?(height - width ) / 2: 0; // not used, why?
-	    
-	    output_context.drawImage(this.little_canvas,
-				     0,
-				     0,
-				     width*scl,
-				     height*scl,
-				     0,
-				     0,
-				     width,
-				     height);
-
-	    console.timeEnd("full_render")
-	    
 	
+	} else {
+	    var points = this.props.dataset.current_dataset.points;
 	}
-	return output_canvas;
+	/*
+	 */
+	/*
+	 if(this.props.query.umi_substring){
+	 var subs_re = RegExp(this.props.query.umi_substring.toUpperCase());
+	 var umis_data = this.props.dataset.umis_json;
+	 points = _.filter(points_unfiltered,
+	 function(e){
+	 return subs_re.exec(umis_data[e.idx].sequence) != null;
+	 });
+	 } else {
+	 points = points_unfiltered;
+	 }
+	 */
+
+
+	var increment = 200000;
+	var passes = Math.ceil(points.length / increment);
+	var i = 0;
+	this.nextPass=null;
+	var that = this;
+
+	
+	var timeoutFun =function(){
+	    that.nextPass=null;
+
+	    if(i==0){
+		that.getRenderRegl().clear({
+		    color: [0, 0, 0, 1],
+		    depth: 1,
+		});
+	    }
+
+
+	    var pts =   points.slice(i*increment,(i+1)*increment);
+	    that.drawRegl(that.getRenderRegl(),
+			  rescale,
+			  that.getBackendOriginX(x0,y0,dataLen),
+			  that.getBackendOriginY(x0,y0,dataLen),
+			  pts
+			);
+	    i++;
+	   	    
+	    
+	    if(i < passes){
+		that.nextPass = window.setTimeout(timeoutFun,0);
+	    } else {
+		that.last_draw_params = {lx0:x0,
+					 ly0:y0,
+					 lr:rescale,
+					 lDataLen:dataLen};
+		that.exchangeBuffers();		
+		that.props.markFresh();
+		that.releaseOrResetCooldown();
+	    }
+
+	}
+	
+	this.nextPass = window.setTimeout(timeoutFun,0)
     }
 
 
+    initiateDraw(){
+
+    }
+    releaseOrResetCooldown(){
+	var cooldown_time = 400
+	
+	//set a cooldown which will trigger the same async render
+	this.cooldown = window.setTimeout( ()=>{
+	    if(this.needs_render){
+		
+		//delayed async render does not delete the cooldown
+		var {x0,x1,y0,y1,width,height} = this.next_render;
+		this.renderImage(x0,y0,x1,y1,width,height);
+		
+		//only removes needs_render flag
+		this.needs_render=false;
+	    } else {
+		this.cooldown=null;
+	    }
+	    
+	}, cooldown_time);
+	
+    }
     
+    getImage(x0, y0, x1, y1, width, height, block_render){
+
+
+	
+	
+	var clientDim = Math.max(width,height);
+	
+	var output_canvas = document.createElement("canvas");
+	output_canvas.width = clientDim;
+	output_canvas.height = clientDim;	
+	var output_context = output_canvas.getContext("2d");
+	var {lx0, ly0, lr, lDataLen} = this.last_draw_params?this.last_draw_params:{};
+
+	var nDataLen = this.getBackendDataLen(x0,y0,x1,y1);
+	var nFullLen = this.getBackendFullLen(nDataLen);
+	var rescale = this.getRescale(x0,y0,nDataLen);
+	
+	if (!this.props.dataset.current_dataset)
+	{
+	    console.log("no dataset yet. not drawing");
+	    return;    
+	}
+
+
+	var max_delta;
+	var has_moved;
+
+	if(this.has_drawn_dataset){
+	    var center_motion_x = Math.abs(( lx0 + lDataLen / 2) - (x0 + nDataLen /2));
+	    var center_motion_y = Math.abs(( ly0 + lDataLen / 2) - (y0 + nDataLen / 2));
+	    var change_width = Math.abs(nDataLen - lDataLen);
+	    var delta = 0;
+	    max_delta = Math.max(center_motion_x,center_motion_y,change_width);
+	    has_moved = (center_motion_x > delta || center_motion_y > delta || change_width > delta);
+	} else {
+	    max_delta = -1;
+	    has_moved = true;
+	}
+
+
+	//do not render if we haven't moved, or if render is explicitly blocked
+	var do_render = has_moved && !block_render;
+	if(do_render){	    
+	    if(this.cooldown==null){
+		//if not in cooldown state, trigger an async render
+		this.cooldown=window.setTimeout(()=>{this.renderImage(x0,y0,x1,y1,width,height);},0);
+		
+	    }else{
+		this.needs_render = true;
+		this.next_render = {x0,y0,x1,y1,width,height};
+				    
+	    }
+	}
+
+	var littleCanvas = this.getStorageCanvas();
+	var buffer_resolution = this.resolution; 
+	var scl = buffer_resolution / clientDim;
+	
+
+	output_context.beginPath();
+	output_context.clearRect(-5000,-5000,10000,10000);
+	var source_x0 = this.getBackendOriginX(lx0,ly0,lDataLen);
+	var source_y0 = this.getBackendOriginY(lx0,ly0,lDataLen);
+	var outputLen = clientDim * (1+ this.margin_percent/100 * 2) ;
+	var marginOffset = outputLen * this.margin_percent/100;
+	var lMarginData = lDataLen * this.margin_percent/100;
+	
+	output_context.drawImage(littleCanvas,
+				 0,
+				 0,
+				 this.resolution,
+				 this.resolution,
+				 (source_x0 -x0) * clientDim / (nDataLen),
+				 (source_y0 -y0) * clientDim / (nDataLen),
+				 outputLen*lDataLen/nDataLen ,
+				 outputLen*lDataLen/nDataLen );
+
+	 
+
+
+	
+	   
+	return output_canvas;
+    }
+
     drawRegl(regl_object, zoom, cx, cy, points){	
 	const drawDots = {
 	    blend: {
@@ -176,7 +296,7 @@ class TwoModeCanvas extends Component {
 	    },
 	    vert:`precision mediump float;
 	    attribute vec3 position;
-	    attribute float pointWidth;
+	    uniform float pointWidth;
 	    uniform float rescale;
 	    varying vec4 fragColor;
 	    attribute vec4 color;
@@ -204,11 +324,13 @@ class TwoModeCanvas extends Component {
 	    frag:` precision mediump float;
 	    varying vec4 fragColor;
 	    void main () {
-		float r = 0.0, delta = 0.0, alpha = 1.0;
-		vec2 cxy = 2.0 * gl_PointCoord - 1.0;
-		r = dot(cxy, cxy);
-		if (r > 1.0) {discard;}
-		gl_FragColor = fragColor * alpha;
+   float r = 0.0, delta = 0.0, alpha = 1.0;
+    vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+    r = dot(cxy, cxy);
+    if (r > 1.0) {
+        discard;
+    }
+    gl_FragColor = fragColor;
 	    }
 	    `,
 	    // attributes
@@ -218,18 +340,18 @@ class TwoModeCanvas extends Component {
 			return [point.minX, point.minY, point.z];
 		    });
 		},
-		pointWidth: function(context, props) {
-		    return  props.points.map(function(point) {
-			return point.size;
+		color: function(context, props) {
+		    return props.points.map(function(point) {
+			return  point.color;
 		    });
 		},
-		color:(context,props)=>props.points.map(d => d.color),
-		
+
 	    },
 	    uniforms: {
 		rescale:(context,props)=>props.rescale,
 		cy:(context,props)=>props.cy,
 		cx:(context,props)=>props.cx,
+		pointWidth: (context,props) =>props.pointWidth,
 	    },
 	    // vertex count
 	    count:(context, props)=>props.points.length,
@@ -238,13 +360,11 @@ class TwoModeCanvas extends Component {
 
 
 	
-	regl_object.clear({
-	    color: [0, 0, 0, 1],
-	    depth: 1,
-	});
+
 	regl_object(drawDots)({
 	    points: points,
 	    rescale:zoom,
+	    pointWidth:50*zoom*this.resolution/1200,
 	    cx:cx,
 	    cy:cy,
 	});
@@ -257,21 +377,15 @@ class TwoModeCanvas extends Component {
 
 
 	var testLittleStyles = {
-	    backgroundColor:"red",
 	    position:"fixed",
-	    zIndex:100,
-	     display:"none",
-	}
-
-
-	var testBigStyles = {
 	    display:"none",
 	}
+
 	
 	return (
 		<div>
-		<canvas ref={this.little_canvas_ref} style={testLittleStyles}/>
-		<canvas ref={this.big_canvas_ref} style={testBigStyles}/>
+		<canvas ref={this.little_canvas_ref_1} style={testLittleStyles}/>
+		<canvas ref={this.little_canvas_ref_2} style={testLittleStyles}/>
 		</div>
 	)
     }

@@ -3,8 +3,8 @@ import {SET_VIEWPORT_WH, SET_VIEWPORT_TRANSFORM, SET_VIEWPORT_XY} from "../actio
 const default_state={
     clientWidth:null,
     clientHeight:null,
-    x0:-20,
-    y0:-20,
+    x0:0,
+    y0:0,
     zoom:10,
     
 }
