@@ -86,6 +86,10 @@ class MultiResView extends Component {
     getCanvas(){
 	return  ReactDOM.findDOMNode(this.canvas_ref.current);
     }
+
+    componentDidMount(){
+	this.props.drawFromBuffer(this.getContext());
+    }
     
     componentDidUpdate(prevProps,prevState){
 	this.props.drawFromBuffer(this.getContext());

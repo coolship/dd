@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
 
+import {makeTree, makePoints} from "./datafuns";
 
 //actions
 import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer,resetUIOnly} from "../actions";
@@ -26,7 +27,7 @@ const INTERACTION_STATES={
     "FREEZE":2
 };
 
-class MultiResViewContainer extends Component {
+class DatasetContainer extends Component {
 
     //LIFECYCLE METHODS
     constructor(props){
@@ -41,22 +42,30 @@ class MultiResViewContainer extends Component {
 	    dataset_json_data:null,
 	    dataset_umis_data:null,
 	    dataset_types_data:null,
+	    dataset_tree:null,
+	    dataset_points:null,
 	    progress:0,
 	    fetching_dataset:false,
 	    dataset_fetched_name:null,
 	};
 
-	this.requests = {}
+
+	this.requests = {};
 
 	//register this image container for png export
 	this.props.registerImageContainer(this);
     }
+
+    hasUmis(){return this.state.dataset_umis_data!=null;}
+    hasTypes(){return this.state.dataset_types_data!=null;}
+    hasData(){return this.state.dataset_json_data!=null;}
+    
     componentDidMount(){
 	window.addEventListener("resize", this.handleResize.bind(this) , false);
 	window.addEventListener("wheel", this.handleScroll.bind(this) , false);
 	window.addEventListener('keydown', this.handleKeyDown.bind(this));
 
-	this.fetchDataset();
+	this.fetchDataset(this.props.which_dataset);
     }
 
  
@@ -67,16 +76,18 @@ class MultiResViewContainer extends Component {
 		nextstate.dataset_json_data=null;
 		nextstate.dataset_umis_data=null;
 		nextstate.dataset_types_data=null;
-		this.fetchDataset();
+		nextstate.dataset_tree=null;
+		nextstate.dataset_points=null;
+		this.fetchDataset(nextprops.which_dataset);
 	    }
 	}
-	return true
+	return true;
     }
     
 
     
-    fetchDataset() {
-	const metadata = _.find(this.props.datasets,(d)=>d.dataset==this.props.which_dataset);
+    fetchDataset(dataset_name) {
+	const metadata = _.find(this.props.datasets,(d)=>d.dataset==dataset_name);
 	this.requests.json = new XMLHttpRequest();
 	var xhr = this.requests.json;
 
@@ -89,8 +100,14 @@ class MultiResViewContainer extends Component {
 	xhr.onprogress =(snapshot)=> this.setState({progress:this.state.progress+10});
 	xhr.onload = function(event) {
 	    var jsondata = xhr.response;
+
+	    var tree = makeTree(jsondata,that.state.dataset_types_data,null);
+	    var points = makePoints(jsondata,that.state.dataset_types_data,null);
+	    
 	    that.setState({dataset_json_data:jsondata,
 			   dataset_fetched_name:metadata.dataset,
+			   dataset_tree:tree,
+			   dataset_points:points,
 			   progress:0,
 			  });
 	    that.requests.json = null;
@@ -277,20 +294,22 @@ class MultiResViewContainer extends Component {
     }
     render(props){
 
-	console.log(this.props.dataset_name)
 	let main;
 	if(this.state.dataset_json_data){
 	    main = <span>
 		<TwoModeCanvas
-		 ref={this.backend_ref}
-		 markFresh={this.forcedRefresh.bind(this)}/>
+	    ref={this.backend_ref}
+	    markFresh={this.forcedRefresh.bind(this)}
+	    treeData={this.state.dataset_tree}
+	    pointData={this.state.dataset_points}
+		/>
 		<MultiResView
 		 onMouseMove={this.onMouseMove.bind(this)}
 		 onMouseEnter={this.onMouseEnter.bind(this)}
 		 onMouseLeave={this.onMouseLeave.bind(this)}
 		 onClick={this.onClick.bind(this)}
 		 drawFromBuffer={this.drawFromBuffer.bind(this)}
-		 bufferReady={this.props.app.waiting_for_data?false:true}
+		 bufferReady={true}
 		 ref={this.view_ref}
 		/>
 	    </span>;
@@ -303,7 +322,7 @@ class MultiResViewContainer extends Component {
 	}
 	
 	return (
-	    <div id="reglFov" className="fov fov-black" data-rendered_dataset_name="" ref={this.fov} data-dataset_name={this.props.dataset.current_dataset?this.props.dataset.current_dataset.metadata.dataset:"" } >
+	    <div id="reglFov" className="fov fov-black">
 	      {main}
 	      <DebugConsole>
 		<table>
@@ -323,7 +342,7 @@ function mapStateToProps( { dataset, app, view, backend, mouse, viewport, select
     return { dataset, app, view , backend, mouse, viewport, selection, datasets };
 }
 
-export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer, resetUIOnly } )(MultiResViewContainer);
+export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer, resetUIOnly } )(DatasetContainer);
 
 
 const LoadingScreen=styled.div`

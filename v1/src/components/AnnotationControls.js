@@ -21,9 +21,12 @@ class AnnotationControls extends Component {
  
     render(){
 	var Annotations, UmiQuery;
+
+	if(this.props.app.current_dataset !=null){
 	
-	if (this.props.dataset.current_dataset !=null){
-	    if(this.props.dataset.umis_json){
+	    const metadata = _.find(this.props.datasets,(d)=>d.dataset==this.props.app.current_dataset);
+
+	    if(metadata.umis_url){
 		UmiQuery =(
 		    <div className="query-umi">
 		      <label className="name">sequence query:
@@ -32,14 +35,12 @@ class AnnotationControls extends Component {
 		    </div>);
 	    } else {UmiQuery = null; }
 	    
-	}
-
-	if(this.props.dataset.current_dataset != null){
 	    Annotations = (<div className="annotation-controls">
-			   <AddRemoveUmisButton which_dataset={this.props.dataset.current_dataset.name} />
-			   <AddRemoveTypesButton which_dataset={this.props.dataset.current_dataset.name}/>
+			   <AddRemoveUmisButton which_dataset={this.props.app.current_dataset} />
+			   <AddRemoveTypesButton which_dataset={this.props.app.current_dataset} />
 			   {UmiQuery}
 			   </div>);
+	    
 	} else {Annotations = null;}
 	
 	return (
@@ -53,8 +54,8 @@ class AnnotationControls extends Component {
     }    
 }
 
-function mapStateToProps({dataset, auth, datasets, query}){
-    return {dataset, auth, datasets, query};
+function mapStateToProps({auth, datasets, query, app}){
+    return { auth, datasets, query, app};
 }
 
 export default connect (mapStateToProps, {setQueryUmiSubstring, setQueryUmiType}) (AnnotationControls);

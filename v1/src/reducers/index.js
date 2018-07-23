@@ -6,7 +6,6 @@ import { RESET, CLEAN_RESET_WITH_JSON, UPDATE_STATE_WITH_JSON, RESET_UI_ONLY } f
 //data and user reducers
 import auth from "./authReducer";
 import datasets from "./datasetsReducer";
-import dataset from "./datasetReducer";
 
 //ui reducers
 import app from "./appReducer";
@@ -23,7 +22,6 @@ const appReducer = combineReducers({
     datasets,
     app,
     view,
-    dataset,
     mouse,
     viewport,
     selection,
@@ -41,8 +39,8 @@ const rootReducer = (state, action) => {
     } else if (action.type === UPDATE_STATE_WITH_JSON){
 	state = Object.assign({},state,action.payload);
     } else if (action.type === RESET_UI_ONLY){
-	var {dataset,datasets,auth} = state;
-	state = Object.assign({},{dataset,datasets,auth});
+	var {datasets,auth} = state;
+	state = Object.assign({},{datasets,auth});
     }
 
     return appReducer(state, action);

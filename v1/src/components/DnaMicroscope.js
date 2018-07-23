@@ -7,7 +7,7 @@ import { signOut, fetchDatasets, activateModal } from "../actions";
 import {MODALS} from "../layout"
 import { connect } from "react-redux";
 
-import MultiResViewContainer from './MultiResViewContainer';
+import DatasetContainer from './DatasetContainer';
 import HeadsUpComponent from './HeadsUpComponent';
 import logo from '../logo.svg';
 
@@ -30,6 +30,7 @@ class DnaMicroscope extends Component {
 	var list_directory_url = "https://www.googleapis.com/storage/v1/b/slides.dna-microscopy.org/o"
 	const token = this.state.access_token
 	var that = this
+
 	fetch(list_directory_url,{
 	    method:'GET',
 	    headers:{
@@ -52,7 +53,8 @@ class DnaMicroscope extends Component {
     render() {
 
 
-	
+
+	console.log(this.props.app.current_dataset);
 	return (
 
 		<div className="App">
@@ -66,7 +68,7 @@ class DnaMicroscope extends Component {
 		</div>
 
 		<UserManagerContainer/>
-		{this.props.dataset.current_dataset!=null?<MultiResViewContainer which_dataset={this.props.dataset.current_dataset.name}/>:null}
+		{this.props.app.current_dataset!=null?<DatasetContainer which_dataset={this.props.app.current_dataset}/>:null}
 		<HeadsUpComponent/>
 
 		
@@ -76,8 +78,8 @@ class DnaMicroscope extends Component {
 }
 
 
-function mapStateToProps({ auth, datasets, dataset }) {
-    return { auth, datasets, dataset };
+function mapStateToProps({ auth, datasets, dataset, app }) {
+    return { auth, datasets, dataset, app };
 }
 
 

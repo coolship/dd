@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from "lodash";
 import { connect } from "react-redux";
-import { activateDataset } from "../actions/FileIO";
+import { setCurrentDataset } from "../actions";
 
 
 class DatasetSelect extends Component{
@@ -12,8 +12,9 @@ class DatasetSelect extends Component{
     datasetSelected(event){
 	const tgt = event.target;
 	const sel  = tgt.options[tgt.selectedIndex];
-	const metadata =JSON.parse( sel.dataset.dataset_metadata);
-	this.props.activateDataset(metadata);
+	const name = sel.dataset.dataset_name;
+	console.log("setting, ", name);
+	this.props.setCurrentDataset(name);
     }
 
     render(){
@@ -24,7 +25,6 @@ class DatasetSelect extends Component{
 		<option
 		   key={i}
 		   data-dataset_name={e.dataset}
-		   data-dataset_metadata={JSON.stringify(e)}
 		   >
 		  {e.dataset}
 		</option>);
@@ -44,5 +44,5 @@ function mapStateToProps( { datasets} ) {
 }
 
 
-export default connect(mapStateToProps, { activateDataset } )(DatasetSelect); 
+export default connect(mapStateToProps, { setCurrentDataset } )(DatasetSelect); 
 

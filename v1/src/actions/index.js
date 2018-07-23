@@ -12,6 +12,13 @@ export const reset = () => dispatch =>{
     });
 };
 
+export const setCurrentDataset = (dataset_name) => dispatch =>{
+    dispatch({
+	type:SET_CURRENT_DATASET,
+	payload:dataset_name,
+    });
+}
+
 export const cleanResetWithJSON = (json) => dispatch =>{
     dispatch({
 	type:CLEAN_RESET_WITH_JSON,

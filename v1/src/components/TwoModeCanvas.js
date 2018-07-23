@@ -86,7 +86,7 @@ class TwoModeCanvas extends Component {
 
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
-
+	let points;
 	
 	if(dataLen < 20){
 	    console.log("computing points");
@@ -97,7 +97,7 @@ class TwoModeCanvas extends Component {
 	    var xMax = xMin + this.getBackendFullLen(dataLen);
 	    var yMax = xMin + this.getBackendFullLen(dataLen);
 	    
-	    var points = this.props.dataset.current_dataset.tree.search(
+	     points = this.props.treeData.search(
 		{minX:x0,
 		 maxX:x1,
 		 minY:y0,
@@ -105,7 +105,7 @@ class TwoModeCanvas extends Component {
 		});
 	
 	} else {
-	    var points = this.props.dataset.current_dataset.points;
+	     points = this.props.pointData;
 	}
 	/*
 	 */
@@ -209,13 +209,6 @@ class TwoModeCanvas extends Component {
 	var nDataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var nFullLen = this.getBackendFullLen(nDataLen);
 	var rescale = this.getRescale(x0,y0,nDataLen);
-	
-	if (!this.props.dataset.current_dataset)
-	{
-	    console.log("no dataset yet. not drawing");
-	    return;    
-	}
-
 
 	var max_delta;
 	var has_moved;
