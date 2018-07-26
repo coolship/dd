@@ -8,6 +8,7 @@ const default_state={
     is_fullscreen:true,
     select_umi_idx:-1,
     select_umi_type:0,
+    current_dataset:undefined,
 }
 
 export default (state = default_state, action) => {

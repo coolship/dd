@@ -143,6 +143,19 @@ export const deleteAnnotation= (meta, type) => dispatch =>{
 
 export const uploadFiletypeWithCallbacks = (file,type,meta,callbacks) => dispatch => {
     const filename = filenameFromMetadata(meta,type);
+
+
+    /*
+    console.log(file)
+    var metadata = {
+	contentType: 'application/json',
+	contentEncoding: 'gzip'
+    };
+     */
+    
+    var fileSize = file.size;
+    var fileName = file.name;
+    
     var uploadTask = storageRef.child(filename).put(file);
     var {dataset,email} = meta;
     const userId = userIdFromEmail(email);
@@ -208,7 +221,9 @@ export const uploadFiletypeWithCallbacks = (file,type,meta,callbacks) => dispatc
 			downloadUrl:downloadURL,
 			userId:userId,
 			filename:filename,
-			key:key
+			key:key,
+			fileSize:fileSize,
+			fileName:fileName,
 		    });
 		});   
 	    }

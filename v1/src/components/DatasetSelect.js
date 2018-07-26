@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import _ from "lodash";
 import { connect } from "react-redux";
 import { setCurrentDataset } from "../actions";
+import styled, { css } from 'styled-components';
+
 
 
 class DatasetSelect extends Component{
@@ -11,9 +13,10 @@ class DatasetSelect extends Component{
 
     datasetSelected(event){
 	const tgt = event.target;
+	if(tgt.selectedIndex <= 0){return;};
 	const sel  = tgt.options[tgt.selectedIndex];
 	const name = sel.dataset.dataset_name;
-	console.log("setting, ", name);
+	event.target.blur();
 	this.props.setCurrentDataset(name);
     }
 
@@ -31,18 +34,29 @@ class DatasetSelect extends Component{
 		});
 		
 	return(   
-		<select className="set-slide" onChange={this.datasetSelected.bind(this)}>
-		<option value="" selected disabled>choose a dataset</option>
+		<DatasetSelectStyled value={this.props.app.current_dataset?this.props.app.current_dataset:"none"} onChange={this.datasetSelected.bind(this)}>
+		<option value="none" disabled>choose a dataset</option>
 	        { list_els }
-	    </select>
+	    </DatasetSelectStyled>
 	);
     }   
 }
 
-function mapStateToProps( { datasets} ) {
-    return { datasets };
+    function mapStateToProps( { datasets,app} ) {
+	return { datasets,app };
 }
 
 
 export default connect(mapStateToProps, { setCurrentDataset } )(DatasetSelect); 
 
+const DatasetSelectStyled=styled.select`
+	    background-color: transparent;
+	    border: 2px solid;
+	    border-radius:3px;
+	    padding:5px;
+	    height: 2.5em;
+	    font-size: .9em;
+	    color:white;
+	    width:325px;
+	    margin-bottom:5px;
+`;

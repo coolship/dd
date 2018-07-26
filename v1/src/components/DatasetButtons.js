@@ -108,7 +108,7 @@ position:absolute;
 left:0px;
 top:0px;
 bottom:0px;
-background-color:green;
+background-color:blue;
 right:${props => 100 - props.progress}%;
 pointer-events:none;
 
@@ -129,6 +129,10 @@ vertical-align:middle;
 width: 150px;
 margin-right: 10px;
 cursor:pointer;
+
+&.uploaded{
+background-color:blue;
+}
 svg{
 	margin-top:-3px;
 

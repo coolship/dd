@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import { fetchUser, fetchDatasets } from "../actions";
+import styled, { css } from 'styled-components';
+
 
 //css
-import '../css/App.css';
 import '../css/Main.css';
 
 //components
@@ -21,16 +22,20 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter>
-        <div className="container app-container">
+        <StyledAppContainer className="container">
           <Route exact path="/" component={SignIn} />
           <Route path="/app" component={requireAuth(DnaMicroscope)} />
-        </div>
+        </StyledAppContainer>
       </BrowserRouter>
     );
   }
 }
 
-
+const StyledAppContainer=styled.div`
+    text-align: center;
+    height:100vh;
+    color:white;
+`;
 export default connect(null, { fetchUser })(App);
 
 

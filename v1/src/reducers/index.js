@@ -7,6 +7,7 @@ import { RESET, CLEAN_RESET_WITH_JSON, UPDATE_STATE_WITH_JSON, RESET_UI_ONLY } f
 import auth from "./authReducer";
 import datasets from "./datasetsReducer";
 
+
 //ui reducers
 import app from "./appReducer";
 import view from "./viewReducer";
@@ -14,7 +15,6 @@ import viewport from "./viewportReducer";
 import mouse from "./mouseReducer";
 import selection from "./selectionReducer";
 import query from "./queryReducer";
-import components from "./componentsReducer";
 
 
 const appReducer = combineReducers({
@@ -26,7 +26,6 @@ const appReducer = combineReducers({
     viewport,
     selection,
     query,
-    components,
 });
 
 

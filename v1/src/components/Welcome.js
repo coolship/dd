@@ -23,10 +23,7 @@ class Welcome extends Component {
 		    Log in with Google
 		</div>
 		    </a>
-
-
-	    )
-
+	    );
 	}
     }
 
@@ -39,7 +36,7 @@ class Welcome extends Component {
 		{ this.renderSelectOrSignIn() }
 		</div>
 
-	)
+	);
     }
 
 }

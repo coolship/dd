@@ -16,9 +16,10 @@ import _ from 'lodash';
 import TwoModeCanvas from "./TwoModeCanvas";
 import MultiResView from "./MultiResView";
 
-
 //math tools
 var knn = require('rbush-knn');
+var pako = require('pako');
+
 
 
 const INTERACTION_STATES={
@@ -94,23 +95,68 @@ class DatasetContainer extends Component {
 	console.log("fetching dataset ", metadata.dataset);
 
 	//can also use xhr.responseType="blob";
-	xhr.responseType = 'json';
+	xhr.responseType = 'blob';
+	xhr.acceptEncoding ="gzip";
 	var that = this;
 	
-	xhr.onprogress =(snapshot)=> this.setState({progress:this.state.progress+10});
+	xhr.onprogress =(snapshot)=> {
+	    console.log("progress", snapshot)
+	    this.setState({
+		progress:snapshot.loaded / snapshot.total * 100
+	    });
+	    console.log(this.state.progress)
+	}
+	
 	xhr.onload = function(event) {
-	    var jsondata = xhr.response;
+	    var blob = xhr.response;
+	    var arrayBuffer;
+	    var fileReader = new FileReader();
+	    fileReader.onload = function(event) {
+		arrayBuffer = event.target.result;
+		try {
+		    console.log("loaded file");
+		    let result = pako.ungzip(new Uint8Array(arrayBuffer), {"to": "string"});
+		    let jsondata = JSON.parse(result);
+		    that.requests.json = null;
 
-	    var tree = makeTree(jsondata,that.state.dataset_types_data,null);
-	    var points = makePoints(jsondata,that.state.dataset_types_data,null);
-	    
-	    that.setState({dataset_json_data:jsondata,
-			   dataset_fetched_name:metadata.dataset,
-			   dataset_tree:tree,
-			   dataset_points:points,
-			   progress:0,
-			  });
-	    that.requests.json = null;
+		    
+		    if(metadata.types_url){
+			var xhr3 = new XMLHttpRequest();
+			xhr3.responseType = 'json';
+			xhr3.onload = function(event) {
+			    var types_json = xhr3.response;
+			    var tree = makeTree(jsondata,types_json,null);
+			    var points = makePoints(jsondata,types_json,null);
+			    that.setState({dataset_json_data:jsondata,
+					   dataset_fetched_name:metadata.dataset,
+					   dataset_tree:tree,
+					   dataset_points:points,
+					   dataset_types_data:types_json,
+					   progress:0,
+					  });
+			    
+			};
+			xhr3.open('GET', metadata.types_url);
+			xhr3.send();
+		    } else{
+						    
+			var tree = makeTree(jsondata,that.state.dataset_types_data,null);
+			var points = makePoints(jsondata,that.state.dataset_types_data,null);
+			
+			that.setState({dataset_json_data:jsondata,
+				       dataset_fetched_name:metadata.dataset,
+				       dataset_tree:tree,
+				       dataset_points:points,
+				       progress:0,
+				      });
+			
+		    }
+		    
+		} catch (err) {
+		    console.log("Error " + err);
+		}
+	    };
+	    fileReader.readAsArrayBuffer(blob);
 	};
 	xhr.open('GET', metadata.downloadUrl);
 	xhr.send();
@@ -126,20 +172,10 @@ class DatasetContainer extends Component {
 	};
 	xhr2.open('GET', metadata.umis_url);
 	xhr2.send();
-
-	var xhr3 = new XMLHttpRequest();
-	//can also use xhr.responseType="blob";
-	xhr3.responseType = 'json';
-	xhr3.onload = function(event) {
-	    var jsondata = xhr3.response;
-	    
-	    this.setState({dataset_types_data:jsondata});
-
-	    
-	};
-	xhr3.open('GET', metadata.types_url);
-	xhr3.send();  
 	 */
+
+
+	 
     };
 
 
@@ -317,12 +353,12 @@ class DatasetContainer extends Component {
 	} else{
 	    main=<LoadingScreen>
 		<h1>Loading Dataset, {this.props.dataset_name}</h1>
-		<ProgressContainer><span className="fill" width={this.state.progress+"%"}></span></ProgressContainer>
+		<ProgressContainer progress={this.state.progress}><span className="fill" ></span></ProgressContainer>
 	    </LoadingScreen>;
 	}
 	
 	return (
-	    <div id="reglFov" className="fov fov-black">
+	    <div className="fov fov-black">
 	      {main}
 	      <DebugConsole>
 		<table>
@@ -362,6 +398,12 @@ border-radius:3px;
 .fill{
 background-color:green;
 height:100%;
+position:absolute;
+left:0px;
+top:0px;
+bottom:0px;
+points-events:none;
+right:${props => 100 - props.progress}%;
 }
 `;
 

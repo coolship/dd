@@ -6,9 +6,11 @@ import CloudUpload from 'react-icons/lib/md/cloud-upload';
 import { signOut, fetchDatasets, activateModal } from "../actions";
 import {MODALS} from "../layout"
 import { connect } from "react-redux";
+import styled, { css } from 'styled-components';
+
 
 import DatasetContainer from './DatasetContainer';
-import HeadsUpComponent from './HeadsUpComponent';
+import HeadsUp from './HeadsUp';
 import logo from '../logo.svg';
 
 
@@ -27,9 +29,9 @@ class DnaMicroscope extends Component {
     }
     
     activateUser(){
-	var list_directory_url = "https://www.googleapis.com/storage/v1/b/slides.dna-microscopy.org/o"
-	const token = this.state.access_token
-	var that = this
+	var list_directory_url = "https://www.googleapis.com/storage/v1/b/slides.dna-microscopy.org/o";
+	const token = this.state.access_token;
+	var that = this;
 
 	fetch(list_directory_url,{
 	    method:'GET',
@@ -58,18 +60,18 @@ class DnaMicroscope extends Component {
 	return (
 
 		<div className="App">
-		<div className="navbar">
+		<StyledNavbar>
 		<div className="nav-right">
 		<CloudUpload
 	    className="icon manage-account"
 	    onClick={event=>this.props.activateModal(MODALS.USER_MANAGER)}/>
 		<ExitToApp className="icon logout" onClick={this.props.signOut}/>
 		</div>
-		</div>
+		</StyledNavbar>
 
 		<UserManagerContainer/>
 		{this.props.app.current_dataset!=null?<DatasetContainer which_dataset={this.props.app.current_dataset}/>:null}
-		<HeadsUpComponent/>
+		<HeadsUp/>
 
 		
 	    </div>
@@ -85,3 +87,25 @@ function mapStateToProps({ auth, datasets, dataset, app }) {
 
 export default connect(mapStateToProps, { signOut , fetchDatasets, activateModal})(DnaMicroscope);
 
+
+
+const StyledNavbar = styled.div`
+	position:fixed;
+	z-index:100;
+	left:0px;
+	right:0px;
+	top:0px;
+	height:auto;
+
+	.nav-right{
+	    text-align:right;
+	    width:auto;
+	    margin-right:20px;
+	    .icon{
+		margin-top:10px;
+		margin-right:10px;
+		cursor:pointer;
+		color:white;
+	    }
+	}
+`;

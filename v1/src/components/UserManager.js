@@ -17,6 +17,9 @@ import {MODALS} from "../layout";
 import {FILETYPES} from "../actions/FileIO";
 
 
+
+var pako = require('pako');
+
 class UserManager extends Component {
     constructor(props){
 	super(props);
@@ -38,7 +41,26 @@ class UserManager extends Component {
     }
     
     onChangeFile(event){
-	this.setState({form_file: event.target.files[0]});
+	/*
+	var file =  event.target.files[0]
+	var r = new FileReader();
+        r.onload = function(){                   
+            var zippedResult = pako.deflate(r.result);
+            var oMyBlob = new Blob(zippedResult, {type : file.type});
+	    console.log(oMyBlob);
+	    console.log(file)
+	    console.log(zippedResult)
+            //app.formData.append(event.target.name, oMyBlob, file.name);
+        };
+        r.readAsArrayBuffer(file);
+	 */
+	// not used... didn't compress more that 20%?
+	
+	
+	this.setState({form_file:event.target.files[0]});
+
+	
+	
     }
     
     onFormSubmit(event){
