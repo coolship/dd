@@ -10,7 +10,6 @@ import datasets from "./datasetsReducer";
 
 //ui reducers
 import app from "./appReducer";
-import view from "./viewReducer";
 import viewport from "./viewportReducer";
 import mouse from "./mouseReducer";
 import selection from "./selectionReducer";
@@ -21,7 +20,6 @@ const appReducer = combineReducers({
     auth,
     datasets,
     app,
-    view,
     mouse,
     viewport,
     selection,
@@ -39,7 +37,10 @@ const rootReducer = (state, action) => {
 	state = Object.assign({},state,action.payload);
     } else if (action.type === RESET_UI_ONLY){
 	var {datasets,auth} = state;
-	state = Object.assign({},{datasets,auth});
+	state = Object.assign({},{datasets:state.datasets,
+				  auth:state.auth,				  
+				 });
+	console.log(state);
     }
 
     return appReducer(state, action);

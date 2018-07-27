@@ -3,7 +3,11 @@ import UserManagerContainer from './UserManagerContainer';
 import AccountCircle from 'react-icons/lib/md/account-circle';
 import ExitToApp from 'react-icons/lib/md/exit-to-app';
 import CloudUpload from 'react-icons/lib/md/cloud-upload';
-import { signOut, fetchDatasets, activateModal } from "../actions";
+import Refresh from 'react-icons/lib/md/refresh';
+
+import DatasetSelect from './DatasetSelect';
+
+import { signOut, fetchDatasets, activateModal, resetUIOnly } from "../actions";
 import {MODALS} from "../layout"
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
@@ -17,10 +21,10 @@ import logo from '../logo.svg';
 
 class DnaMicroscope extends Component {
     constructor(props){
-	super(props)
+	super(props);
 	this.state={
 	    managing_user:false
-	}
+	};
     }
 
     componentWillMount(){
@@ -55,28 +59,26 @@ class DnaMicroscope extends Component {
     render() {
 
 
-
-	console.log(this.props.app.current_dataset);
 	return (
 
-		<div className="App">
-		<StyledNavbar>
+	    <div className="App">
+	      <StyledNavbar>
 		<div className="nav-right">
-		<CloudUpload
-	    className="icon manage-account"
-	    onClick={event=>this.props.activateModal(MODALS.USER_MANAGER)}/>
-		<ExitToApp className="icon logout" onClick={this.props.signOut}/>
+		  <CloudUpload
+		     className="icon manage-account"
+		     onClick={event=>this.props.activateModal(MODALS.USER_MANAGER)}/>
+		    <ExitToApp className="icon logout" onClick={this.props.signOut}/>
+		    <Refresh className="icon logout" onClick={this.props.resetUIOnly}/>
 		</div>
-		</StyledNavbar>
+	      </StyledNavbar>
+	      <UserManagerContainer/>
+	      {this.props.app.current_dataset!=null?<DatasetContainer which_dataset={this.props.app.current_dataset}/>:<CenterContainer><h1>Welcome to DNA microscopy</h1>
+<DatasetSelect></DatasetSelect></CenterContainer>}
 
-		<UserManagerContainer/>
-		{this.props.app.current_dataset!=null?<DatasetContainer which_dataset={this.props.app.current_dataset}/>:null}
-		<HeadsUp/>
-
-		
+	      
 	    </div>
-       )
-   }
+	);
+    }
 }
 
 
@@ -85,9 +87,15 @@ function mapStateToProps({ auth, datasets, dataset, app }) {
 }
 
 
-export default connect(mapStateToProps, { signOut , fetchDatasets, activateModal})(DnaMicroscope);
+export default connect(mapStateToProps, { resetUIOnly, signOut , fetchDatasets, activateModal})(DnaMicroscope);
 
 
+const CenterContainer = styled.div`
+top:50%;
+left:50%;
+position:absolute;
+transform: translate(-50%, -50%);
+`;
 
 const StyledNavbar = styled.div`
 	position:fixed;

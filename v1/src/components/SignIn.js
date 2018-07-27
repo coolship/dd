@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { signIn } from "../actions";
 import PropTypes from "prop-types";
-import Welcome from "./Welcome";
 import styled, { css } from 'styled-components';
 
 
@@ -20,7 +19,16 @@ class Signin extends Component {
     render() {
 	return (
 	    <StyledSignIn className="signin main">
-	      <Welcome/>
+	      <div className="welcome">
+		<h1>Welcome to DNA microscopy</h1>
+
+		<a href="#" className="login" onClick={this.props.signIn}>
+		  <div  className="login-container">
+		    
+		    Log in with Google
+		  </div>
+		</a>
+	      </div>
 	    </StyledSignIn>
 	);
     }

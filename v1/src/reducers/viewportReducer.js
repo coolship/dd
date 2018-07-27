@@ -5,7 +5,7 @@ const default_state={
     clientHeight:null,
     x0:0,
     y0:0,
-    zoom:10,
+    zoom:20,
     
 }
 

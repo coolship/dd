@@ -1,3 +1,47 @@
+.icon{
+    cursor:pointer;
+    font-size:1.5em;
+    padding:5px;
+}
+
+.boxed-icon{
+
+    opacity:1;
+    font-size:1.5em;
+    display:inline;
+    padding:5px;
+    border:2px solid;
+    cursor:points;
+    margin:5px;
+    border-radius:4px;
+}
+.boxed-icon:hover{
+    background-color:white;
+    color:black;
+    opacity:.8;
+    
+}    
+
+.icon-close{
+    position:absolute;
+    top:0px;
+    right:0px;
+    margin:10px;
+    font-size:2em;
+}
+
+.viewer{
+    color:white;
+}
+
+
+body{
+    color:white;
+    background-color:black;
+}
+
+
+
 body {
   margin: 0;
   padding: 0;

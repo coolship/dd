@@ -13,10 +13,6 @@ const default_state={
 
 export default (state = default_state, action) => {
     switch (action.type) {
-    case SET_TRANSFORM:
-	return Object.assign({},state, {
-	    transform:action.payload
-	});
     case SET_WAITING_FOR_DATA:
 	return Object.assign({},state, {
 	    waiting_for_data:action.payload,

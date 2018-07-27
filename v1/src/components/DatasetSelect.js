@@ -13,7 +13,9 @@ class DatasetSelect extends Component{
 
     datasetSelected(event){
 	const tgt = event.target;
-	if(tgt.selectedIndex <= 0){return;};
+	if(tgt.selectedIndex <= 0){
+	    this.props.setCurrentDataset(undefined);
+	};
 	const sel  = tgt.options[tgt.selectedIndex];
 	const name = sel.dataset.dataset_name;
 	event.target.blur();

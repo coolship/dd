@@ -120,7 +120,7 @@ input[type=file]{
 }	    
 position:relative;
 display:inline-block;
-margin-bottom:10px;
+margin-bottom:5px;
 border:2px solid;
 border-radius:3px;
 padding:1px;

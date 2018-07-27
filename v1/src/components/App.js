@@ -4,10 +4,6 @@ import { connect } from "react-redux";
 import { fetchUser, fetchDatasets } from "../actions";
 import styled, { css } from 'styled-components';
 
-
-//css
-import '../css/Main.css';
-
 //components
 import DnaMicroscope from "./DnaMicroscope";
 import SignIn from "./SignIn";

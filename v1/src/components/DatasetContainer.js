@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components';
 import {makeTree, makePoints} from "./datafuns";
 
 //actions
-import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer,resetUIOnly} from "../actions";
+import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer} from "../actions";
 
 //rendering tools
 import initREGL from 'regl';
@@ -15,6 +15,9 @@ import _ from 'lodash';
 //child components
 import TwoModeCanvas from "./TwoModeCanvas";
 import MultiResView from "./MultiResView";
+import OverlayControls from "./OverlayControls";
+import SelectionInfo from "./SelectionInfo";
+
 
 //math tools
 var knn = require('rbush-knn');
@@ -51,6 +54,12 @@ class DatasetContainer extends Component {
 	};
 
 
+	
+	this.bound_resize = this.handleResize.bind(this);
+	this.bound_wheel = this.handleScroll.bind(this);
+	this.bound_keydown = this.handleKeyDown.bind(this);
+	
+
 	this.requests = {};
 
 	//register this image container for png export
@@ -62,9 +71,10 @@ class DatasetContainer extends Component {
     hasData(){return this.state.dataset_json_data!=null;}
     
     componentDidMount(){
-	window.addEventListener("resize", this.handleResize.bind(this) , false);
-	window.addEventListener("wheel", this.handleScroll.bind(this) , false);
-	window.addEventListener('keydown', this.handleKeyDown.bind(this));
+
+	window.addEventListener("resize", this.bound_resize , false);
+	window.addEventListener("wheel", this.bound_wheel , false);
+	window.addEventListener('keydown', this.bound_keydown);
 
 	this.fetchDataset(this.props.which_dataset);
     }
@@ -86,26 +96,26 @@ class DatasetContainer extends Component {
     }
     
 
+    computeDataState(){
+
+
+    }
+    
     
     fetchDataset(dataset_name) {
 	const metadata = _.find(this.props.datasets,(d)=>d.dataset==dataset_name);
 	this.requests.json = new XMLHttpRequest();
 	var xhr = this.requests.json;
-
-	console.log("fetching dataset ", metadata.dataset);
-
 	//can also use xhr.responseType="blob";
 	xhr.responseType = 'blob';
 	xhr.acceptEncoding ="gzip";
 	var that = this;
 	
 	xhr.onprogress =(snapshot)=> {
-	    console.log("progress", snapshot)
 	    this.setState({
 		progress:snapshot.loaded / snapshot.total * 100
 	    });
-	    console.log(this.state.progress)
-	}
+	};
 	
 	xhr.onload = function(event) {
 	    var blob = xhr.response;
@@ -180,11 +190,12 @@ class DatasetContainer extends Component {
 
 
 
-    
     componentWillUnmount(){
-	window.removeEventListener('scroll', this.handleScroll);
-	window.removeEventListener('keydown', this.handleKeyDown);
-	window.removeEventListener('resize', this.handleResize);
+
+	console.log("unmouting");
+	window.removeEventListener('wheel',this.bound_wheel);
+	window.removeEventListener('keydown', this.bound_keydown);
+	window.removeEventListener('resize', this.bound_resize);
     }
     onMouseEnter(event){
 	if(this.props.selection.select_type==2){return;}
@@ -203,7 +214,7 @@ class DatasetContainer extends Component {
 	    clientHeight:window.innerHeight,
 	});
     }
-    handleScroll(event){	
+    handleScroll(event){
 	this.zoomIn(-1 * event.deltaY,event);
     }    
     handleResize(event){	
@@ -219,6 +230,16 @@ class DatasetContainer extends Component {
 	y0+=dy;
 	this.props.setViewportXY({x0,y0});
     }
+    centerView(){
+	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
+
+	console.log(x0,y0)
+	
+	
+	this.props.setViewportXY({x0:-1*clientWidth/2/zoom,
+				  y0:-1*clientHeight/2/zoom});
+    }
+    
     handleKeyDown(event) {
 	if (event.keyCode === 37){this.panRight(-30 / this.props.app.transform.a);}
 	if (event.keyCode === 38){this.panUp(-30 / this.props.app.transform.d);}
@@ -241,14 +262,10 @@ class DatasetContainer extends Component {
 	document.body.removeChild(link);
     }
 
-    resetUI(){
-	this.props.resetUIOnly();
-    }
-    
     drawFromBuffer(child_context,block_render = false){
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
 	var backend = this.backend_ref.current.getWrappedInstance();
-	var dim = Math.max(clientWidth,clientHeight)
+	var dim = Math.max(clientWidth,clientHeight);
 	var image_canvas = backend.getImage(x0,
 					    y0,
 					    x0+clientWidth / zoom ,
@@ -271,12 +288,12 @@ class DatasetContainer extends Component {
     }
 
     forcedRefresh(){
+	if (!this.view_ref.current){return null;}
 	var view =  this.view_ref.current.getWrappedInstance();
 	var context = view.getContext();
 	this.drawFromBuffer(context,true);
-
     }
-    
+
     onMouseMove(event){
 	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
@@ -319,14 +336,15 @@ class DatasetContainer extends Component {
     zoomIn(dz, event = null){
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
 	var {nx,ny} = this.props.mouse;
-	var z_new = zoom*(1+dz / 1000);
+	var z_new = Math.max(5,zoom*(1+dz / 1000));
 	var x0_new = nx * clientWidth * (1/zoom  - 1/z_new) + x0;
 	var y0_new = ny * clientHeight * (1/zoom - 1/z_new) + y0;
+
 	this.props.setViewportTransform({
 	    x0:x0_new,
 	    y0:y0_new,
 	    zoom:z_new,
-	});	
+	});
     }
     render(props){
 
@@ -340,20 +358,28 @@ class DatasetContainer extends Component {
 	    pointData={this.state.dataset_points}
 		/>
 		<MultiResView
-		 onMouseMove={this.onMouseMove.bind(this)}
-		 onMouseEnter={this.onMouseEnter.bind(this)}
-		 onMouseLeave={this.onMouseLeave.bind(this)}
-		 onClick={this.onClick.bind(this)}
-		 drawFromBuffer={this.drawFromBuffer.bind(this)}
-		 bufferReady={true}
-		 ref={this.view_ref}
+	    onMouseMove={this.onMouseMove.bind(this)}
+	    onMouseEnter={this.onMouseEnter.bind(this)}
+	    onMouseLeave={this.onMouseLeave.bind(this)}
+	    onClick={this.onClick.bind(this)}
+	    drawFromBuffer={this.drawFromBuffer.bind(this)}
+	    bufferReady={true}
+	    ref={this.view_ref}
+		/>
+		<OverlayControls
+	    centerView={this.centerView.bind(this)}
+	    zoomIn={this.zoomIn.bind(this)}
+	    panRight={this.panRight.bind(this)}
+	    panUp={this.panUp.bind(this)}
 		/>
 	    </span>;
 
 	} else{
 	    main=<LoadingScreen>
-		<h1>Loading Dataset, {this.props.dataset_name}</h1>
+		
+		<h1>Loading Dataset, {this.props.which_dataset}</h1>
 		<ProgressContainer progress={this.state.progress}><span className="fill" ></span></ProgressContainer>
+		
 	    </LoadingScreen>;
 	}
 	
@@ -378,14 +404,15 @@ function mapStateToProps( { dataset, app, view, backend, mouse, viewport, select
     return { dataset, app, view , backend, mouse, viewport, selection, datasets };
 }
 
-export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer, resetUIOnly } )(DatasetContainer);
+export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer } )(DatasetContainer);
+
 
 
 const LoadingScreen=styled.div`
 left:50%;
-width:200px;
-margin-top:200px;
-position:relative;
+top:50%;
+position:absolute;
+transform: translate(-50%, -50%);
 `;
 
 const ProgressContainer=styled.div`
@@ -396,7 +423,7 @@ border:2px solid;
 border-radius:3px;
 
 .fill{
-background-color:green;
+background-color:blue;
 height:100%;
 position:absolute;
 left:0px;
@@ -416,4 +443,18 @@ margin:0px;
 z-index:1000;
 padding:20px;
 background-color:red;
+`;
+
+
+
+const HeadsUpStyled = styled.div`
+    position:fixed;
+    bottom:0px;
+    right:0px;
+    margin-bottom:40px;
+    margin-right:40px;
+    width:400px;
+    text-align:left;
+    background-color:black;
+    padding:20px;
 `;

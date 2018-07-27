@@ -18,7 +18,7 @@ class TwoModeCanvas extends Component {
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
 	this.little_canvas_ref_2 = React.createRef();
-	this.resolution = 2400;
+	this.resolution = 2500;
 
 	//specify a margin in pixels, currently 10% on each side;
 	this.margin_percent = 35;
@@ -357,7 +357,7 @@ class TwoModeCanvas extends Component {
 	regl_object(drawDots)({
 	    points: points,
 	    rescale:zoom,
-	    pointWidth:50*zoom*this.resolution/1200,
+	    pointWidth:100*zoom*this.resolution/1200,
 	    cx:cx,
 	    cy:cy,
 	});
