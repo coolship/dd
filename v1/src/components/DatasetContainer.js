@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
 
-import {makeTree, makePoints} from "./datafuns";
+import {makeTree, makePoints} from "../data/TreeFuns";
+import {MODALS} from "../layout";
 
 //actions
-import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer} from "../actions";
+import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer, activateModal} from "../actions";
 
 //rendering tools
 import initREGL from 'regl';
@@ -17,7 +18,10 @@ import TwoModeCanvas from "./TwoModeCanvas";
 import MultiResView from "./MultiResView";
 import OverlayControls from "./OverlayControls";
 import SelectionInfo from "./SelectionInfo";
+import ModalSelectionContainer from "./ModalSelectionContainer";
+import RenderContainer from "./RenderContainer";
 
+import {Dataset} from "../data/Dataset";
 
 //math tools
 var knn = require('rbush-knn');
@@ -31,86 +35,51 @@ const INTERACTION_STATES={
     "FREEZE":2
 };
 
-class DatasetContainer extends Component {
+
+class DatasetContainer extends RenderContainer {
 
     //LIFECYCLE METHODS
     constructor(props){
 	super(props);
+
 	this.syncViewport();
-	this.backend_ref=React.createRef();
-	this.view_ref=React.createRef();
-	this.needs_render=false;
-	this.cooldown=null;
-	this.full_cooldown=null;
 	this.state= {
-	    dataset_json_data:null,
-	    dataset_umis_data:null,
-	    dataset_types_data:null,
-	    dataset_tree:null,
-	    dataset_points:null,
 	    progress:0,
 	    fetching_dataset:false,
 	    dataset_fetched_name:null,
 	};
-
-
-	
 	this.bound_resize = this.handleResize.bind(this);
 	this.bound_wheel = this.handleScroll.bind(this);
+	this.bound_click = this.onClick.bind(this);
 	this.bound_keydown = this.handleKeyDown.bind(this);
-	
-
 	this.requests = {};
-
-	//register this image container for png export
-	this.props.registerImageContainer(this);
     }
 
-    hasUmis(){return this.state.dataset_umis_data!=null;}
-    hasTypes(){return this.state.dataset_types_data!=null;}
-    hasData(){return this.state.dataset_json_data!=null;}
-    
     componentDidMount(){
-
 	window.addEventListener("resize", this.bound_resize , false);
-	window.addEventListener("wheel", this.bound_wheel , false);
-	window.addEventListener('keydown', this.bound_keydown);
-
 	this.fetchDataset(this.props.which_dataset);
     }
 
- 
 
     shouldComponentUpdate(nextprops,nextstate){
 	if(nextprops.which_dataset != nextstate.dataset_fetched_name){
 	    if(!this.requests.json){
-		nextstate.dataset_json_data=null;
-		nextstate.dataset_umis_data=null;
-		nextstate.dataset_types_data=null;
-		nextstate.dataset_tree=null;
-		nextstate.dataset_points=null;
+		nextstate.dataset_fetched_name=null;
 		this.fetchDataset(nextprops.which_dataset);
 	    }
 	}
 	return true;
     }
-    
 
-    computeDataState(){
-
-
-    }
-    
-    
     fetchDataset(dataset_name) {
 	const metadata = _.find(this.props.datasets,(d)=>d.dataset==dataset_name);
 	this.requests.json = new XMLHttpRequest();
+
+	//now, makes only one http request for all data--gzipped
 	var xhr = this.requests.json;
-	//can also use xhr.responseType="blob";
 	xhr.responseType = 'blob';
 	xhr.acceptEncoding ="gzip";
-	var that = this;
-	
+	var that = this;	
 	xhr.onprogress =(snapshot)=> {
 	    this.setState({
 		progress:snapshot.loaded / snapshot.total * 100
@@ -124,43 +93,26 @@ class DatasetContainer extends Component {
 	    fileReader.onload = function(event) {
 		arrayBuffer = event.target.result;
 		try {
-		    console.log("loaded file");
 		    let result = pako.ungzip(new Uint8Array(arrayBuffer), {"to": "string"});
 		    let jsondata = JSON.parse(result);
+
+		    const {coordinate_data,
+			   sequence_data,
+			   types_data} = jsondata;
+		    
 		    that.requests.json = null;
 
+
+		    that.dataset = new Dataset(metadata.dataset,
+					       coordinate_data,
+					       types_data,
+					       sequence_data);
 		    
-		    if(metadata.types_url){
-			var xhr3 = new XMLHttpRequest();
-			xhr3.responseType = 'json';
-			xhr3.onload = function(event) {
-			    var types_json = xhr3.response;
-			    var tree = makeTree(jsondata,types_json,null);
-			    var points = makePoints(jsondata,types_json,null);
-			    that.setState({dataset_json_data:jsondata,
-					   dataset_fetched_name:metadata.dataset,
-					   dataset_tree:tree,
-					   dataset_points:points,
-					   dataset_types_data:types_json,
-					   progress:0,
-					  });
-			    
-			};
-			xhr3.open('GET', metadata.types_url);
-			xhr3.send();
-		    } else{
-						    
-			var tree = makeTree(jsondata,that.state.dataset_types_data,null);
-			var points = makePoints(jsondata,that.state.dataset_types_data,null);
-			
-			that.setState({dataset_json_data:jsondata,
-				       dataset_fetched_name:metadata.dataset,
-				       dataset_tree:tree,
-				       dataset_points:points,
-				       progress:0,
-				      });
-			
-		    }
+		    that.setState({
+			dataset_fetched_name:metadata.dataset,
+			progress:0,
+		    });
+		    
 		    
 		} catch (err) {
 		    console.log("Error " + err);
@@ -170,43 +122,27 @@ class DatasetContainer extends Component {
 	};
 	xhr.open('GET', metadata.downloadUrl);
 	xhr.send();
-
-
-	/*	
-	 var xhr2 = new XMLHttpRequest();
-	//can also use xhr.responseType="blob";
-	xhr2.responseType = 'json';
-	xhr2.onload = function(event) {
-	    var jsondata = xhr2.response;
-	    this.setState({dataset_umis_data:jsondata});	    
-	};
-	xhr2.open('GET', metadata.umis_url);
-	xhr2.send();
-	 */
-
-
 	 
     };
 
 
 
     componentWillUnmount(){
-
-	console.log("unmouting");
-	window.removeEventListener('wheel',this.bound_wheel);
-	window.removeEventListener('keydown', this.bound_keydown);
 	window.removeEventListener('resize', this.bound_resize);
     }
     onMouseEnter(event){
-	if(this.props.selection.select_type==2){return;}
+	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){return;}
 	this.props.setSelectType(1);	
     }
     onMouseLeave(event){
-	if(this.props.selection.select_type==2){return;}
+	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){return;}
 	this.props.setSelectType(0);
     }
     onClick(event){
-	this.props.setSelectType(this.props.selection.select_type==2?0:2);
+	this.props.setSelectType(
+	    this.props.selection.select_type==INTERACTION_STATES.FREEZE?
+		INTERACTION_STATES.NONE:
+		INTERACTION_STATES.FREEZE);
     }
     syncViewport(){	
 	this.props.setViewportWH({
@@ -232,10 +168,6 @@ class DatasetContainer extends Component {
     }
     centerView(){
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
-
-	console.log(x0,y0)
-	
-	
 	this.props.setViewportXY({x0:-1*clientWidth/2/zoom,
 				  y0:-1*clientHeight/2/zoom});
     }
@@ -249,9 +181,8 @@ class DatasetContainer extends Component {
 	if (event.keyCode === 189){this.zoomIn(-300);}
     }
     
-
     exportPng(){
-	var backend = this.backend_ref.current.getWrappedInstance();
+	var backend = this.backend_ref.current;
 	var rcanvas = backend.getStorageCanvas();
 	var data =  rcanvas.toDataURL();	
 	var link = document.createElement("a");
@@ -263,9 +194,10 @@ class DatasetContainer extends Component {
     }
 
     drawFromBuffer(child_context,block_render = false){
+	console.log("drawing from buffer")
+	console.time("draw")
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
-	var backend = this.backend_ref.current.getWrappedInstance();
-	var dim = Math.max(clientWidth,clientHeight);
+	var backend = this.backend_ref.current;
 	var image_canvas = backend.getImage(x0,
 					    y0,
 					    x0+clientWidth / zoom ,
@@ -274,17 +206,12 @@ class DatasetContainer extends Component {
 					    block_render);
 	if (image_canvas){
 	    child_context.setTransform(1,0,0,1,0,0);
-
 	    child_context.clearRect(-5000,-5000,10000,10000);
-
-	    //child_context.clearRect(0, 0,
-	    //this.props.viewport.width,
-	    //			  this.props.viewport.height);
-	    
 	    child_context.drawImage(image_canvas,0,0);
 	} else {
 	    console.log("no image, skipping draw");
 	}
+	console.timeEnd("draw")
     }
 
     forcedRefresh(){
@@ -292,36 +219,32 @@ class DatasetContainer extends Component {
 	var view =  this.view_ref.current.getWrappedInstance();
 	var context = view.getContext();
 	this.drawFromBuffer(context,true);
-    }
+    };
 
     onMouseMove(event){
+	console.time("move")
 	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
 	var {x0,y0,zoom,clientWidth,clientHeight } = this.props.viewport;
 	this.props.setMouse({nx:event.clientX / clientWidth,
 			     ny:event.clientY / clientHeight});
-
-	return
-
+	
 	this.props.setSelectType(INTERACTION_STATES.HOVER);
 	var dataX = this.props.mouse.nx*(clientWidth / zoom) + x0;
 	var dataY = this.props.mouse.ny*(clientHeight / zoom) + y0;
 
-	if(this.props.dataset.current_dataset){
-	    var tree = this.props.dataset.current_dataset.tree;
-
-	    console.time("knn");
-	    var neighbors = knn(tree,dataX,dataY, 1);
-	    if (neighbors.length >0){
-		var n1 = neighbors[0];
-		const new_idx = n1.idx;
-		if (this.props.selection.select_umi_idx != new_idx){
-		    console.log("setting new umi idx: ", new_idx);
-		    this.props.setSelectUmiIdx(n1.idx);
-		}
+	console.time("knn")
+	
+	var neighbors = knn(this.dataset.tree,dataX,dataY, 1);
+	if (neighbors.length >0){
+	    var n1 = neighbors[0];
+	    const new_idx = n1.umi.idx;
+	    if (this.props.selection.select_umi_idx != new_idx){
+		this.props.setSelectUmiIdx(new_idx);
 	    }
-	    console.timeEnd("knn");
 	}
+	console.timeEnd("knn")
+	console.timeEnd("move");
     }
 
     getMouseXY(){
@@ -347,32 +270,45 @@ class DatasetContainer extends Component {
 	});
     }
     render(props){
-
 	let main;
-	if(this.state.dataset_json_data){
+	if(this.state.dataset_fetched_name){
 	    main = <span>
 		<TwoModeCanvas
 	    ref={this.backend_ref}
 	    markFresh={this.forcedRefresh.bind(this)}
-	    treeData={this.state.dataset_tree}
-	    pointData={this.state.dataset_points}
+	    treeData={this.dataset.tree}
+	    pointData={this.dataset.points}
 		/>
 		<MultiResView
 	    onMouseMove={this.onMouseMove.bind(this)}
 	    onMouseEnter={this.onMouseEnter.bind(this)}
 	    onMouseLeave={this.onMouseLeave.bind(this)}
-	    onClick={this.onClick.bind(this)}
+	    onKeyDown={this.bound_keydown}
+	    onWheel={this.bound_wheel}
 	    drawFromBuffer={this.drawFromBuffer.bind(this)}
 	    bufferReady={true}
+	    clickFun={this.bound_click}
+	    dataset={this.dataset}
 	    ref={this.view_ref}
 		/>
+
 		<OverlayControls
 	    centerView={this.centerView.bind(this)}
 	    zoomIn={this.zoomIn.bind(this)}
 	    panRight={this.panRight.bind(this)}
 	    panUp={this.panUp.bind(this)}
 		/>
+		
+	    {this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
+	     <ModalSelectionContainer
+	     dataset={this.dataset}
+	     selected_idx={this.props.selection.select_umi_idx}
+	     close={()=>{
+		 this.props.setSelectType(INTERACTION_STATES.NONE);
+	     }}/>:
+	     null}
 	    </span>;
+
 
 	} else{
 	    main=<LoadingScreen>
@@ -404,7 +340,7 @@ function mapStateToProps( { dataset, app, view, backend, mouse, viewport, select
     return { dataset, app, view , backend, mouse, viewport, selection, datasets };
 }
 
-export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer } )(DatasetContainer);
+export default connect(mapStateToProps, { setMouse,setViewportTransform, setViewportWH, setSelectUmiIdx, setSelectType , setViewportXY, registerImageContainer ,activateModal} )(DatasetContainer);
 
 
 

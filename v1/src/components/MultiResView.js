@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import logo from '../logo.svg';
 import _ from 'lodash';
 
+import  SvgSelectionView from "./SvgSelectionView";
 
 
 import styled, { css } from 'styled-components';
@@ -53,7 +54,7 @@ function shallowCompare(instance, nextProps, nextState) {
 class MultiResView extends Component {
     constructor(props){
 	super(props);
-	this.state = {}
+	this.state = {};
 	this.canvas_ref=React.createRef();
 	this.context_ref=null;
     }
@@ -64,17 +65,29 @@ class MultiResView extends Component {
     
     render(){
 	return (
-	    <span><FullscreenCanvas
-		     ref={this.canvas_ref}
+	    <div
 		     onMouseMove={this.props.onMouseMove}
 		     onMouseEnter={this.props.onMouseEnter}
 		     onMouseLeave={this.props.onMouseLeave}
-		     onClick={this.props.onClick}
+		     onKeyDown={this.props.onKeyDown}
+		     onWheel={this.props.onWheel}
+	       ><FullscreenCanvas
+		     ref={this.canvas_ref}
+
 		     width={this.props.viewport.clientWidth}
 		     height={this.props.viewport.clientHeight}
 		     id="regl-canvas"/>
+	      	    {this.props.selection.select_umi_idx?
+		<SvgSelectionView umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+	    x0={this.props.viewport.x0}
+	    y0={this.props.viewport.y0}
+	    x1={this.props.viewport.x0+this.props.viewport.clientWidth/this.props.viewport.zoom}
+	    y1={this.props.viewport.y0+this.props.viewport.clientHeight/this.props.viewport.zoom}
+	     clickFun={this.props.clickFun} />
+	     :null}
+		
 	      <FullscreenLogoContainer waiting={this.props.app.waiting_for_data}><img src={logo} className="App-logo logo" alt="logo" /></FullscreenLogoContainer>
-	    </span>
+	    </div>
 	    
 	);
     }
@@ -96,8 +109,8 @@ class MultiResView extends Component {
     }
 }
 
-function mapStateToProps({ viewport, app}){
-    return { viewport, app};
+function mapStateToProps({ viewport, app, selection}){
+    return { viewport, app, selection};
 }
 
 export default connect(mapStateToProps, {},null,  { withRef: true })(MultiResView);

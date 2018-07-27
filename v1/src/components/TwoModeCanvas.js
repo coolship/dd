@@ -13,7 +13,7 @@ import initREGL from 'regl';
 //this container element generates an invisible canvas element which is used strictly
 //to feed data to the view widgets
 
-class TwoModeCanvas extends Component {
+export default class TwoModeCanvas extends Component {
     constructor(props){
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
@@ -89,23 +89,25 @@ class TwoModeCanvas extends Component {
 	let points;
 	
 	if(dataLen < 20){
-	    console.log("computing points");
-	    console.log(dataLen);
-	    
+ 
 	    var xMin = this.getBackendOriginX(x0,y0,dataLen);
 	    var yMin = this.getBackendOriginY(x0,y0,dataLen);
 	    var xMax = xMin + this.getBackendFullLen(dataLen);
 	    var yMax = xMin + this.getBackendFullLen(dataLen);
 	    
-	     points = this.props.treeData.search(
+	    var els = this.props.treeData.search(
 		{minX:x0,
 		 maxX:x1,
 		 minY:y0,
 		 maxY:y1,
 		});
-	
+
+
+	    points = _.map(els, el=>el.umi.asPoint());
+
 	} else {
-	     points = this.props.pointData;
+	    points = this.props.pointData;
+	    
 	}
 	/*
 	 */
@@ -162,19 +164,11 @@ class TwoModeCanvas extends Component {
 		that.props.markFresh();
 		that.releaseOrResetCooldown();
 	    }
-
 	}
-	
 	this.nextPass = window.setTimeout(timeoutFun,0)
-    }
-
-
-    initiateDraw(){
-
     }
     releaseOrResetCooldown(){
 	var cooldown_time = 400
-	
 	//set a cooldown which will trigger the same async render
 	this.cooldown = window.setTimeout( ()=>{
 	    if(this.needs_render){
@@ -188,28 +182,19 @@ class TwoModeCanvas extends Component {
 	    } else {
 		this.cooldown=null;
 	    }
-	    
 	}, cooldown_time);
-	
     }
     
     getImage(x0, y0, x1, y1, width, height, block_render){
-
-
-	
-	
 	var clientDim = Math.max(width,height);
-	
 	var output_canvas = document.createElement("canvas");
 	output_canvas.width = clientDim;
 	output_canvas.height = clientDim;	
 	var output_context = output_canvas.getContext("2d");
 	var {lx0, ly0, lr, lDataLen} = this.last_draw_params?this.last_draw_params:{};
-
 	var nDataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var nFullLen = this.getBackendFullLen(nDataLen);
 	var rescale = this.getRescale(x0,y0,nDataLen);
-
 	var max_delta;
 	var has_moved;
 
@@ -330,7 +315,7 @@ class TwoModeCanvas extends Component {
 	    attributes: {
 		position: function(context, props) {
 		    return props.points.map(function(point) {
-			return [point.minX, point.minY, point.z];
+			return [point.x, point.y, point.z];
 		    });
 		},
 		color: function(context, props) {
@@ -352,8 +337,6 @@ class TwoModeCanvas extends Component {
 	};
 
 
-	
-
 	regl_object(drawDots)({
 	    points: points,
 	    rescale:zoom,
@@ -367,20 +350,16 @@ class TwoModeCanvas extends Component {
 
 
     render(){
-
-
 	var testLittleStyles = {
 	    position:"fixed",
 	    display:"none",
-	}
-
-	
+	};
 	return (
 		<div>
 		<canvas ref={this.little_canvas_ref_1} style={testLittleStyles}/>
 		<canvas ref={this.little_canvas_ref_2} style={testLittleStyles}/>
 		</div>
-	)
+	);
     }
 
 
@@ -389,12 +368,3 @@ class TwoModeCanvas extends Component {
 
 
 
-
-
-function mapStateToProps( { dataset, viewport, query, selection} ) {
-    return { dataset, viewport, query, selection};
-}
-
-
-
-export default connect(mapStateToProps, {}, null, { withRef: true })(TwoModeCanvas)

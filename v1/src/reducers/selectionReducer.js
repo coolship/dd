@@ -1,6 +1,6 @@
 import {SET_SELECT_TYPE, SET_SELECT_UMI_IDX} from "../actions/types";
 
-export default (state={select_umi_idx:-1,select_type:-1},action) =>
+export default (state={select_umi_idx:null,select_type:null},action) =>
     {
 	switch(action.type){
 	case SET_SELECT_UMI_IDX:

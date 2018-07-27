@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
-
-
 import CenterFocusStrong from 'react-icons/lib/md/center-focus-strong';
 import OpenWith from 'react-icons/lib/md/open-with';
 import FovControls from './FovControls';
+import DatasetSelect from './DatasetSelect';
 
-
-import AnnotationControls from "./AnnotationControls";
 
 
 
 export default class OverlayControls extends Component{
 
+    //returns left and right controls containing FOV / camera manipulation
+    //and dataset manipulation controls respectively
     render(){
 	return <StyledOverlayControls>
 	    <div className="left-controls">
@@ -25,17 +24,12 @@ export default class OverlayControls extends Component{
 	centerview={this.props.centerView}
 	    />
 	</div>
-
 	    <div className="right-controls">
-	    <AnnotationControls/>
+	    <DatasetSelect/>
 	</div>
-
-
-	
 	</StyledOverlayControls>;
     }
 }
-
 
 
 const StyledOverlayControls=styled.div`

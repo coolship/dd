@@ -1,10 +1,11 @@
+
+//this file is no longer used
+
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import { setQueryUmiSubstring, setQueryUmiType } from '../actions';
 import DatasetSelect from './DatasetSelect';
-
 import styled, { css } from 'styled-components';
-
 import {AddRemoveUmisButton, AddRemoveTypesButton} from "./DatasetButtons";
 
 
