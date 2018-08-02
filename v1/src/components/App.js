@@ -6,7 +6,8 @@ import styled, { css } from 'styled-components';
 
 //components
 import DnaMicroscope from "./DnaMicroscope";
-import SignIn from "./SignIn";
+import Signin from "./SignIn";
+import Home from "../Home";
 import requireAuth from "./requireAuth";
 
 
@@ -18,20 +19,13 @@ class App extends Component {
   render() {
     return (
       <BrowserRouter>
-        <StyledAppContainer className="container">
-          <Route exact path="/" component={SignIn} />
+          <Route exact path="/" component={Signin} />
           <Route path="/app" component={requireAuth(DnaMicroscope)} />
-        </StyledAppContainer>
       </BrowserRouter>
     );
   }
 }
 
-const StyledAppContainer=styled.div`
-    text-align: center;
-    height:100vh;
-    color:white;
-`;
 export default connect(null, { fetchUser })(App);
 
 

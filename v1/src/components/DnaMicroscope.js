@@ -95,6 +95,8 @@ top:50%;
 left:50%;
 position:absolute;
 transform: translate(-50%, -50%);
+    height:100vh;
+
 `;
 
 const StyledNavbar = styled.div`

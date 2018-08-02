@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './components/App';
+import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 import { Provider } from "react-redux";
@@ -37,7 +37,7 @@ const saveState = (state) =>{
     }
 };
 
-const store = createStore(reducers,loadState(), applyMiddleware(reduxThunk));
+const store = createStore(reducers,{}, applyMiddleware(reduxThunk));
 store.subscribe(()=>{
     saveState(store.getState());
 });

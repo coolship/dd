@@ -30,10 +30,7 @@ export default class TwoModeCanvas extends Component {
 	    ReactDOM.findDOMNode(this.little_canvas_ref_1.current),
 	    ReactDOM.findDOMNode(this.little_canvas_ref_2.current)
 	];
-
 	this.little_regls = [];
-
-	
 	_.each(this.little_canvases,(e,i)=>{
 	    e.width = this.resolution;
 	    e.height = this.resolution;
@@ -247,11 +244,6 @@ export default class TwoModeCanvas extends Component {
 				 (source_y0 -y0) * clientDim / (nDataLen),
 				 outputLen*lDataLen/nDataLen ,
 				 outputLen*lDataLen/nDataLen );
-
-	 
-
-
-	
 	   
 	return output_canvas;
     }
