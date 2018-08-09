@@ -1,10 +1,10 @@
 //react architecture
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
-
-import {makeTree, makePoints} from "../data/TreeFuns";
 import {MODALS} from "../layout";
+
 
 //actions
 import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer, activateModal} from "../actions";
@@ -22,11 +22,6 @@ import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
 
 import {Dataset} from "../data/Dataset";
-
-//math tools
-var knn = require('rbush-knn');
-var pako = require('pako');
-
 
 
 const INTERACTION_STATES={
@@ -53,80 +48,83 @@ class DatasetContainer extends RenderContainer {
 	this.bound_click = this.onClick.bind(this);
 	this.bound_keydown = this.handleKeyDown.bind(this);
 	this.requests = {};
-    }
+	this.export_canvas_ref=React.createRef();
 
-    componentDidMount(){
-	window.addEventListener("resize", this.bound_resize , false);
-	this.fetchDataset(this.props.which_dataset);
     }
-
 
     shouldComponentUpdate(nextprops,nextstate){
 	if(nextprops.which_dataset != nextstate.dataset_fetched_name){
-	    if(!this.requests.json){
-		nextstate.dataset_fetched_name=null;
-		this.fetchDataset(nextprops.which_dataset);
-	    }
+	    nextstate.dataset_fetched_name=null;
 	}
 	return true;
     }
 
-    fetchDataset(dataset_name) {
-	const metadata = _.find(this.props.datasets,(d)=>d.dataset==dataset_name);
-	this.requests.json = new XMLHttpRequest();
-
-	//now, makes only one http request for all data--gzipped
-	var xhr = this.requests.json;
-	xhr.responseType = 'blob';
-	xhr.acceptEncoding ="gzip";
-	var that = this;	
-	xhr.onprogress =(snapshot)=> {
-	    this.setState({
-		progress:snapshot.loaded / snapshot.total * 100
-	    });
-	};
+    fetchDataset(resolve) {
+	const metadata = _.find(this.props.datasets,(d)=>d.dataset==this.props.which_dataset);
+	var that = this;
+	var url = metadata.downloadUrl;
 	
-	xhr.onload = function(event) {
-	    var blob = xhr.response;
-	    var arrayBuffer;
-	    var fileReader = new FileReader();
-	    fileReader.onload = function(event) {
-		arrayBuffer = event.target.result;
-		try {
-		    let result = pako.ungzip(new Uint8Array(arrayBuffer), {"to": "string"});
-		    let jsondata = JSON.parse(result);
+	that.setState({loading_progress:5,
+		       loading_status:"fetching dataset from server"});
+	this.requests.json = fetch(url).then(function(response) {
+	    return response.json();
+	}).then(function(myJson) {
+	    const coords_data = myJson;
+	    that.requests.json = null;
+	    that.setState({loading_progress:20,
+			   loading_status:"creating microscope view"});	    
+	    that.dataset = new Dataset(metadata.dataset,
+				       coords_data,
+				       metadata.annotations_url
+				      );
+	    resolve();
 
-		    const {coordinate_data,
-			   sequence_data,
-			   types_data} = jsondata;
-		    
-		    that.requests.json = null;
+	}).catch((err)=>{throw err;});
 
-
-		    that.dataset = new Dataset(metadata.dataset,
-					       coordinate_data,
-					       types_data,
-					       sequence_data);
-		    
-		    that.setState({
-			dataset_fetched_name:metadata.dataset,
-			progress:0,
-		    });
-		    
-		    
-		} catch (err) {
-		    console.log("Error " + err);
-		}
-	    };
-	    fileReader.readAsArrayBuffer(blob);
-	};
-	xhr.open('GET', metadata.downloadUrl);
-	xhr.send();
-	 
     };
+    resetDataset(){
+	
+	var that = this;
+	that.resetting=true;
+	this.setState({"dataset_fetched_name":null});
+	var p = new Promise(resolve=>{
+	    that.fetchDataset(resolve);
+	}).then(function(result){
 
-
-
+	    return new Promise(resolve=>{
+		that.dataset.initializeAsync(
+		    (loading_progress,loading_status)=>{
+			console.log("setting state", loading_progress);
+			that.setState({loading_progress:loading_progress* .5+20,loading_status});
+		    },
+		    ()=>{
+			that.setState({
+			    dataset_fetched_name:that.props.which_dataset,
+			    loading_progress:100,
+			    loading_status:"complete",
+			});
+			resolve();
+		    }
+		)
+	    });
+	}).then(function(){
+	    that.resetting=false;
+	});
+    }
+    componentDidMount(){
+	var that = this;
+	window.addEventListener("resize", this.bound_resize , false);
+	if(this.props.which_dataset != this.state.dataset_fetched_name){
+	    if(!this.resetting){this.resetDataset()}
+	}
+    };
+    componentDidUpdate(){
+	var that = this;
+	if(this.props.which_dataset != this.state.dataset_fetched_name){
+	    if(!this.resetting){this.resetDataset();}
+	}	
+    }
+    
     componentWillUnmount(){
 	window.removeEventListener('resize', this.bound_resize);
     }
@@ -184,9 +182,16 @@ class DatasetContainer extends RenderContainer {
     exportPng(){
 	var backend = this.backend_ref.current;
 	var rcanvas = backend.getStorageCanvas();
-	var data =  rcanvas.toDataURL();	
+
+	var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
+
+	export_canvas.width=2000;
+	export_canvas.height=2000;
+	export_canvas.getContext("2d").drawImage(rcanvas,0,0,export_canvas.height,export_canvas.width);
+	
+	var data =  export_canvas.toDataURL( "image/jpeg" ,.5);	
 	var link = document.createElement("a");
-	link.download = "slide.png";
+	link.download = "slide.jpg";
 	link.href = data;
 	document.body.appendChild(link);
 	link.click();
@@ -194,8 +199,6 @@ class DatasetContainer extends RenderContainer {
     }
 
     drawFromBuffer(child_context,block_render = false){
-	console.log("drawing from buffer")
-	console.time("draw")
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
 	var backend = this.backend_ref.current;
 	var image_canvas = backend.getImage(x0,
@@ -211,7 +214,6 @@ class DatasetContainer extends RenderContainer {
 	} else {
 	    console.log("no image, skipping draw");
 	}
-	console.timeEnd("draw")
     }
 
     forcedRefresh(){
@@ -222,7 +224,6 @@ class DatasetContainer extends RenderContainer {
     };
 
     onMouseMove(event){
-	console.time("move")
 	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
 	var {x0,y0,zoom,clientWidth,clientHeight } = this.props.viewport;
@@ -233,18 +234,17 @@ class DatasetContainer extends RenderContainer {
 	var dataX = this.props.mouse.nx*(clientWidth / zoom) + x0;
 	var dataY = this.props.mouse.ny*(clientHeight / zoom) + y0;
 
-	console.time("knn")
-	
-	var neighbors = knn(this.dataset.tree,dataX,dataY, 1);
-	if (neighbors.length >0){
-	    var n1 = neighbors[0];
-	    const new_idx = n1.umi.idx;
+
+
+	var n1 = this.dataset.nearest(dataX,dataY,.25);
+	if(n1){
+	    const new_idx = n1.idx;
 	    if (this.props.selection.select_umi_idx != new_idx){
 		this.props.setSelectUmiIdx(new_idx);
 	    }
+	} else {
+	    this.props.setSelectUmiIdx(null);
 	}
-	console.timeEnd("knn")
-	console.timeEnd("move");
     }
 
     getMouseXY(){
@@ -259,7 +259,8 @@ class DatasetContainer extends RenderContainer {
     zoomIn(dz, event = null){
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
 	var {nx,ny} = this.props.mouse;
-	var z_new = Math.max(5,zoom*(1+dz / 1000));
+	var z_new = Math.max(10,zoom*(1+dz / 1000));
+
 	var x0_new = nx * clientWidth * (1/zoom  - 1/z_new) + x0;
 	var y0_new = ny * clientHeight * (1/zoom - 1/z_new) + y0;
 
@@ -273,11 +274,11 @@ class DatasetContainer extends RenderContainer {
 	let main;
 	if(this.state.dataset_fetched_name){
 	    main = <span>
+		<ExportCanvas ref={this.export_canvas_ref}/>
 		<TwoModeCanvas
 	    ref={this.backend_ref}
 	    markFresh={this.forcedRefresh.bind(this)}
-	    treeData={this.dataset.tree}
-	    pointData={this.dataset.points}
+	    dataset={this.dataset}
 		/>
 		<MultiResView
 	    onMouseMove={this.onMouseMove.bind(this)}
@@ -314,7 +315,7 @@ class DatasetContainer extends RenderContainer {
 	    main=<LoadingScreen>
 		
 		<h1>Loading Dataset, {this.props.which_dataset}</h1>
-		<ProgressContainer progress={this.state.progress}><span className="fill" ></span></ProgressContainer>
+		<ProgressContainer progress={this.state.loading_progress}><span className="fill" ></span><div className="message">{this.state.loading_status}</div></ProgressContainer>
 		
 	    </LoadingScreen>;
 	}
@@ -322,16 +323,18 @@ class DatasetContainer extends RenderContainer {
 	return (
 	    <div className="fov fov-black">
 	      {main}
-	      <DebugConsole>
+	      <DebugConsole bg={this.state.debug_bg}>
 		<table>
 		  <tbody>
 		    <tr><td>mouse coords: </td><td>{this.getMouseXY().x +", "+ this.getMouseXY().y}</td></tr>
 		    <tr><td>x0, y0: </td><td>{this.props.viewport.x0 + ", " + this.props.viewport.y0}</td></tr>
 		  </tbody>
 		</table>
+		<button onClick={this.resetDataset.bind(this)}>RESET DATASET</button>
+		<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
 	      </DebugConsole>
 	    </div>);	
-    }   
+    }
 }
 
 
@@ -351,6 +354,11 @@ position:absolute;
 transform: translate(-50%, -50%);
 `;
 
+const ExportCanvas=styled.canvas`
+display:none;
+`
+
+
 const ProgressContainer=styled.div`
 position:relative;
 height:40px;
@@ -359,7 +367,7 @@ border:2px solid;
 border-radius:3px;
 
 .fill{
-background-color:blue;
+background-color:rgba(0,0,255,.5);
 height:100%;
 position:absolute;
 left:0px;
@@ -367,6 +375,12 @@ top:0px;
 bottom:0px;
 points-events:none;
 right:${props => 100 - props.progress}%;
+}
+.message{
+left:50%;
+top:50%;
+transform:translate(-50%, -50%);
+position:absolute;
 }
 `;
 
@@ -378,7 +392,7 @@ bottom:0px;
 margin:0px;
 z-index:1000;
 padding:20px;
-background-color:red;
+background-color:${props =>props.bg?props.bg:"red"};
 `;
 
 

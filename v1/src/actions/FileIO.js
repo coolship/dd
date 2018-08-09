@@ -29,7 +29,9 @@ Metadata has type:
 export const FILETYPES={
     DATASET:"dataset",
     UMIS:"umis",
-    TYPES:"types"
+    TYPES:"types",
+    COORDS:"coords",
+    ANNOTATIONS:"annotations",
 }
 
 
@@ -140,6 +142,67 @@ export const deleteAnnotation= (meta, type) => dispatch =>{
 	});
     }
 }
+
+/*
+takes upload form input of a coordinate and annotation file and sequentially posts these to the server, creating a database entry when both are successfully submitted
+ */
+
+export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations_file, meta, callbacks) => dispatch => {
+
+    console.log(coords_file)
+    const cfname = filenameFromMetadata(meta,FILETYPES.COORDS);
+    const afname = filenameFromMetadata(meta,FILETYPES.ANNOTATIONS);
+    var filetype_meta = {
+	contentType: 'application/json',
+	contentEncoding: 'gzip'
+    };
+
+        
+    var og_filesize = coords_file.size;
+    var og_filename = coords_file.name;
+    
+    var uploadTask = storageRef.child(cfname).put(coords_file, filetype_meta);
+    var {dataset,email} = meta;
+    const userId = userIdFromEmail(email);
+
+    uploadTask.on(
+	firebase.storage.TaskEvent.STATE_CHANGED,
+	(snapshot)=>{callbacks.progress(50* snapshot.bytesTransferred/snapshot.totalBytes);},
+    	callbacks.error,
+	()=>{
+	    
+	    // Upload completed successfully, now we can get the download URL
+	    uploadTask.snapshot.ref.getDownloadURL().then(function(cDownloadURL) {
+		console.log("completed coordinate resource upload");
+		var aUploadTask = storageRef.child(afname).put(annotations_file, filetype_meta);
+		aUploadTask.on(
+		    firebase.storage.TaskEvent.STATE_CHANGED,
+		    (snapshot)=>{callbacks.progress(50+50* snapshot.bytesTransferred/snapshot.totalBytes);},
+    		    callbacks.error,
+		    ()=>{
+			aUploadTask.snapshot.ref.getDownloadURL().then(function(aDownloadURL) {
+			    console.log("completed annotations resource upload");
+			    var newObject=datasetsRef.child(userIdFromEmail(email)).push();
+			    var key = newObject.key;
+			    newObject.set({
+				dataset:dataset,
+				email:email,
+				downloadUrl:cDownloadURL,
+				annotations_url:aDownloadURL,
+				userId:userId,
+				filename:cfname,
+				key:key,
+				og_filesize:og_filesize,
+				og_filename:og_filename,
+			    });
+			});
+		    });
+	    });
+		
+	    callbacks.complete();
+	}
+    );
+};
 
 export const uploadFiletypeWithCallbacks = (file,type,meta,callbacks) => dispatch => {
     const filename = filenameFromMetadata(meta,type);

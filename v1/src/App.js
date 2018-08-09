@@ -8,6 +8,7 @@ import styled, { css } from 'styled-components';
 import DnaMicroscope from "./components/DnaMicroscope";
 import Signin from "./components/SignIn";
 import Home from "./Home";
+import Admin from "./Admin";
 import requireAuth from "./components/requireAuth";
 
 
@@ -23,6 +24,7 @@ class App extends Component {
           <Route exact path="/" component={Signin} />
           <Route path="/app" component={requireAuth(DnaMicroscope)} />
 	  <Route path="/home" component={Home} />
+	  <Route path="/admin" component={requireAuth(Admin)} />
 
         </StyledAppContainer>
       </BrowserRouter>

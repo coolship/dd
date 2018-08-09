@@ -18,10 +18,10 @@ export default class TwoModeCanvas extends Component {
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
 	this.little_canvas_ref_2 = React.createRef();
-	this.resolution = 2500;
+	this.resolution = 3000;
 
 	//specify a margin in pixels, currently 10% on each side;
-	this.margin_percent = 35;
+	this.margin_percent = 15;
 	
 	this.has_drawn_dataset=false;
     }
@@ -79,51 +79,11 @@ export default class TwoModeCanvas extends Component {
     }
     renderImage(x0, y0, x1, y1, width, height){
 
-
-
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
 	let points;
-	
-	if(dataLen < 20){
- 
-	    var xMin = this.getBackendOriginX(x0,y0,dataLen);
-	    var yMin = this.getBackendOriginY(x0,y0,dataLen);
-	    var xMax = xMin + this.getBackendFullLen(dataLen);
-	    var yMax = xMin + this.getBackendFullLen(dataLen);
-	    
-	    var els = this.props.treeData.search(
-		{minX:x0,
-		 maxX:x1,
-		 minY:y0,
-		 maxY:y1,
-		});
-
-
-	    points = _.map(els, el=>el.umi.asPoint());
-
-	} else {
-	    points = this.props.pointData;
-	    
-	}
-	/*
-	 */
-	/*
-	 if(this.props.query.umi_substring){
-	 var subs_re = RegExp(this.props.query.umi_substring.toUpperCase());
-	 var umis_data = this.props.dataset.umis_json;
-	 points = _.filter(points_unfiltered,
-	 function(e){
-	 return subs_re.exec(umis_data[e.idx].sequence) != null;
-	 });
-	 } else {
-	 points = points_unfiltered;
-	 }
-	 */
-
-
-	var increment = 200000;
-	var passes = Math.ceil(points.length / increment);
+	var inc = 100000;
+	var passes = Math.ceil(this.props.dataset.points.length / inc);
 	var i = 0;
 	this.nextPass=null;
 	var that = this;
@@ -138,31 +98,39 @@ export default class TwoModeCanvas extends Component {
 		    depth: 1,
 		});
 	    }
-
-
-	    var pts =   points.slice(i*increment,(i+1)*increment);
+ 
+	   
+	    
 	    that.drawRegl(that.getRenderRegl(),
 			  rescale,
 			  that.getBackendOriginX(x0,y0,dataLen),
 			  that.getBackendOriginY(x0,y0,dataLen),
-			  pts
-			);
+			  that.props.dataset.r.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.g.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.b.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.a.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.x.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.y.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.z.slice(i*inc,(i+1)*inc),
+			 );
 	    i++;
 	   	    
 	    
 	    if(i < passes){
 		that.nextPass = window.setTimeout(timeoutFun,0);
 	    } else {
+		window.setTimeout(function(){
 		that.last_draw_params = {lx0:x0,
 					 ly0:y0,
 					 lr:rescale,
 					 lDataLen:dataLen};
 		that.exchangeBuffers();		
 		that.props.markFresh();
-		that.releaseOrResetCooldown();
+		    that.releaseOrResetCooldown();
+		},0);
 	    }
 	}
-	this.nextPass = window.setTimeout(timeoutFun,0)
+	this.nextPass = window.setTimeout(timeoutFun,0);
     }
     releaseOrResetCooldown(){
 	var cooldown_time = 400
@@ -248,24 +216,30 @@ export default class TwoModeCanvas extends Component {
 	return output_canvas;
     }
 
-    drawRegl(regl_object, zoom, cx, cy, points){	
+    drawRegl(regl_object, zoom, cx, cy, r,g,b,a,x,y,z){	
 	const drawDots = {
 	    blend: {
 		enable: true,
 		func: {
-		    srcRGB:   'src alpha',
-		    srcAlpha: 'src alpha',
-		    dstRGB:   'one minus src alpha',
-		    dstAlpha: 'one minus src alpha'
+		    srcRGB: 'src alpha',
+		    srcAlpha: 'src alpha saturate',
+		    dstRGB: 'one minus src alpha',
+		    dstAlpha: 'dst alpha',
+		    // src: 'one',
+		    // dst: 'one'
 		},
-		equation: {
-		    rgb: 'add',
-		    alpha: 'add'
-		},
+		equation: 'add',
 		color: [0, 0, 0, 0]
 	    },
+
 	    vert:`precision mediump float;
-	    attribute vec3 position;
+	    attribute float x;
+	    attribute float y;
+	    attribute float z;
+attribute float r;
+attribute float g;
+attribute float b;
+attribute float a;
 	    uniform float pointWidth;
 	    uniform float rescale;
 	    varying vec4 fragColor;
@@ -274,11 +248,8 @@ export default class TwoModeCanvas extends Component {
 	    uniform float cx;
 	    uniform float cy;
 
-	    vec3 normalizeCoords(vec3 position) {
+	    vec3 normalizeCoords() {
 		// read in the positions into x and y vars
-		float x = position[0];
-		float y = position[1];
-		float z = position[2];
 		return vec3(
 		    2.0*( (x-cx) *  rescale - .5),
 			-2.0*(( (y-cy) *  rescale) - .5),
@@ -288,13 +259,13 @@ export default class TwoModeCanvas extends Component {
 	    
 	    void main () {
 		gl_PointSize = pointWidth;
-		gl_Position = vec4(normalizeCoords(position), 1);
-		fragColor=color;
+		gl_Position = vec4(normalizeCoords(), 1);
+		fragColor=vec4(r, g, b, a);
 	    }`,
 	    frag:` precision mediump float;
 	    varying vec4 fragColor;
 	    void main () {
-   float r = 0.0, delta = 0.0, alpha = 1.0;
+   float r = 0.0, delta = 0.0;
     vec2 cxy = 2.0 * gl_PointCoord - 1.0;
     r = dot(cxy, cxy);
     if (r > 1.0) {
@@ -305,15 +276,26 @@ export default class TwoModeCanvas extends Component {
 	    `,
 	    // attributes
 	    attributes: {
-		position: function(context, props) {
-		    return props.points.map(function(point) {
-			return [point.x, point.y, point.z];
-		    });
+		x: function(context, props) {
+		    return props.x;
 		},
-		color: function(context, props) {
-		    return props.points.map(function(point) {
-			return  point.color;
-		    });
+		y: function(context, props) {
+		    return props.y;
+		},
+		z: function(context, props) {
+		    return props.z;
+		},
+		r: function(context, props) {
+		    return props.r;
+		},
+		g: function(context, props) {
+		    return props.g;
+		},
+		b: function(context, props) {
+		    return props.b;
+		},
+		a: function(context, props) {
+		    return props.a;
 		},
 
 	    },
@@ -324,15 +306,21 @@ export default class TwoModeCanvas extends Component {
 		pointWidth: (context,props) =>props.pointWidth,
 	    },
 	    // vertex count
-	    count:(context, props)=>props.points.length,
+	    count:(context, props)=>props.x.length,
 	    primitive: 'points'
 	};
 
 
 	regl_object(drawDots)({
-	    points: points,
+	    x:x,
+	    y:y,
+	    z:z,
+	    r:r,
+	    g:g,
+	    b:b,
+	    a:a,
 	    rescale:zoom,
-	    pointWidth:100*zoom*this.resolution/1200,
+	    pointWidth:50*zoom*this.resolution/1200,
 	    cx:cx,
 	    cy:cy,
 	});

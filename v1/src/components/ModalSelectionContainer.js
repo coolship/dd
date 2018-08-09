@@ -78,8 +78,7 @@ export default class ModalSelectionContainer extends RenderContainer{
 		<TwoModeCanvas
 		   ref={this.backend_ref}
 		   markFresh={this.forcedRefresh.bind(this)}
-		   treeData={this.neighborhood.tree}
-		   pointData={this.neighborhood.points}
+		   dataset={this.neighborhood}
 		   />
 	      </div>
 	    </ModalSelectionComponent>
