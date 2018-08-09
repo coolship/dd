@@ -171,6 +171,7 @@ export const fetchDatasets = email =>  dispatch => {
 };
 
 export const signIn = () => dispatch => {
+    console.log("signing in")
   authRef
     .signInWithPopup(provider)
 	.then(result => {})

@@ -32,6 +32,7 @@ export const FILETYPES={
     TYPES:"types",
     COORDS:"coords",
     ANNOTATIONS:"annotations",
+    PREVIEW:"preview",
 }
 
 
@@ -61,6 +62,32 @@ export const deleteDataset = (metadata) => dispatch => {
 	datasetsRef.child(userIdFromEmail(email)).child(key).remove();	
     });    
 };
+
+export const uploadPreview = (metadata, blob) => {
+    const {email, dataset, key} = metadata;
+    console.log(metadata)
+    const filename = filenameFromMetadata(metadata, FILETYPES.PREVIEW);
+    var filetype_meta = {
+	contentType: 'image/jpeg',
+    };
+
+    const uploadTask = storageRef.child(filename).put(blob, filetype_meta);
+    uploadTask.on(
+	firebase.storage.TaskEvent.STATE_CHANGED,
+	(snapshot)=>{console.log(50* snapshot.bytesTransferred/snapshot.totalBytes);},
+    	(err)=>{throw err;},
+	()=>{
+	    
+	    // Upload completed successfully, now we can get the download URL
+	    uploadTask.snapshot.ref.getDownloadURL()
+		.then((url)=>{
+		    datasetsRef
+			.child(userIdFromEmail(email))
+			.child(key)
+			.update({preview_url:url});		    
+		});
+	});
+}
 
 export const activateDataset = (metadata) => dispatch => {
     dispatch({

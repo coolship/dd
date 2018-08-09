@@ -8,6 +8,7 @@ import {MODALS} from "../layout";
 
 //actions
 import { setSelectUmiIdx, setSelectType, setViewport, setMouse, resetApp, setViewportWH, setViewportTransform, setViewportXY, registerImageContainer, activateModal} from "../actions";
+import { uploadPreview } from "../actions/FileIO";
 
 //rendering tools
 import initREGL from 'regl';
@@ -180,8 +181,8 @@ class DatasetContainer extends RenderContainer {
     }
     
     exportPng(){
-	var backend = this.backend_ref.current;
-	var rcanvas = backend.getStorageCanvas();
+	const backend = this.backend_ref.current;
+	const rcanvas = backend.getStorageCanvas();
 
 	var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
 
@@ -198,6 +199,21 @@ class DatasetContainer extends RenderContainer {
 	document.body.removeChild(link);
     }
 
+    choosePreview(){
+	const backend = this.backend_ref.current;
+	const rcanvas = backend.getStorageCanvas();
+	const metadata =  _.find(this.props.datasets,(d)=>d.dataset==this.props.which_dataset);
+
+	var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
+
+	export_canvas.width=600;
+	export_canvas.height=600;
+	export_canvas.getContext("2d").drawImage(rcanvas,0,0,export_canvas.height,export_canvas.width);
+	export_canvas.toBlob((blob)=>{
+	    uploadPreview(metadata,blob);
+	}, 'image/jpeg', 0.95);
+    }
+    
     drawFromBuffer(child_context,block_render = false){
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.props.viewport;
 	var backend = this.backend_ref.current;
@@ -214,6 +230,7 @@ class DatasetContainer extends RenderContainer {
 	} else {
 	    console.log("no image, skipping draw");
 	}
+	
     }
 
     forcedRefresh(){
@@ -332,6 +349,7 @@ class DatasetContainer extends RenderContainer {
 		</table>
 		<button onClick={this.resetDataset.bind(this)}>RESET DATASET</button>
 		<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
+		<button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
 	      </DebugConsole>
 	    </div>);	
     }
@@ -385,7 +403,7 @@ position:absolute;
 `;
 
 const DebugConsole=styled.div`
-display:none;
+display:block;
 position:fixed;
 left:0px;
 bottom:0px;
