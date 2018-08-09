@@ -14,6 +14,7 @@ import viewport from "./viewportReducer";
 import mouse from "./mouseReducer";
 import selection from "./selectionReducer";
 import query from "./queryReducer";
+import demos from "./demosReducer";
 
 
 const appReducer = combineReducers({
@@ -24,6 +25,7 @@ const appReducer = combineReducers({
     viewport,
     selection,
     query,
+    demos,
 });
 
 

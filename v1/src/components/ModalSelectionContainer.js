@@ -22,8 +22,11 @@ export default class ModalSelectionContainer extends RenderContainer{
 	var y0 = sel.y - 2;
 	var x1 = sel.x + 2;
 	var y1 = sel.y + 2;
+
+	this.range = {x0,y0,x1,y1};
 	
-	this.neighborhood=new Neighborhood(this.props.dataset, x0,y0,x1,y1);
+	//this.neighborhood=new Neighborhood(this.props.dataset, x0,y0,x1,y1);
+	this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
 	this.selected = sel;
 	this.canvas_width=400;
 	this.canvas_height=400;
@@ -32,10 +35,10 @@ export default class ModalSelectionContainer extends RenderContainer{
 	var view = this.view_ref.current;
 	var child_context = view.getContext();
 	var backend = this.backend_ref.current;
-	var image_canvas = backend.getImage(this.neighborhood.x0,
-					    this.neighborhood.y0,
-					    this.neighborhood.x1,
-					    this.neighborhood.y1,
+	var image_canvas = backend.getImage(this.range.x0,
+					    this.range.y0,
+					    this.range.x1,
+					    this.range.y1,
 					    this.canvas_width,this.canvas_height,
 					    block_render);
 	if (image_canvas){
@@ -69,16 +72,16 @@ export default class ModalSelectionContainer extends RenderContainer{
 			      canvas_height={this.canvas_height}
 			      canvas_width={this.canvas_width}/>
 		  <SvgSelectionView umis={[this.selected]}
-				    x0={this.neighborhood.x0}
-				    y0={this.neighborhood.y0}
-				    x1={this.neighborhood.x1}
-				    y1={this.neighborhood.y1}
+				    x0={this.range.x0}
+				    y0={this.range.y0}
+				    x1={this.range.x1}
+				    y1={this.range.y1}
 				    />
 		</div>
 		<TwoModeCanvas
 		   ref={this.backend_ref}
 		   markFresh={this.forcedRefresh.bind(this)}
-		   dataset={this.neighborhood}
+		   dataset={this.data_subset}
 		   />
 	      </div>
 	    </ModalSelectionComponent>

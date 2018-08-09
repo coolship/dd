@@ -12,6 +12,7 @@ class GalleryList extends Component {
     render(){
 	return (
 	    <section><h1>explore our datasets</h1>
+	      
 	      <GalleryItem dataset="190" clickHandler={()=>{this.context.router.history.push("/gallery/190");}}/>
 		<GalleryItem dataset="34" clickHandler={()=>{this.context.router.history.push("/gallery/34");}}/>
 	    </section>
@@ -19,8 +20,8 @@ class GalleryList extends Component {
     }
     
 }
-	     
-    
+
+
 export default class Gallery extends Component {
     static contextTypes = {
 	router: PropTypes.object
@@ -28,12 +29,10 @@ export default class Gallery extends Component {
     
     render(){
 	return (
-	    <div>
 	      <Switch>
-		<Route title="Gallery" exact path='/gallery' component={GalleryList}/>
-		<CrumbRoute title="Demo" path='/gallery/:number' component={GalleryDemo}/>
+		<Route title="List" exact path='/gallery' component={GalleryList}/>
+		<Route path='/gallery/:number' component={GalleryDemo}/>
 	      </Switch>
-	    </div>
 	);
     }
 

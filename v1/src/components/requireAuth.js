@@ -25,12 +25,12 @@ export default function(ComposedComponent) {
 	};
 	componentWillMount() {
 	    if (! this.props.auth) {
-		this.context.router.history.push("/");
+		this.context.router.history.push("/signin");
 	    }	  
 	}
 	componentWillUpdate(nextProps) {
 	    if (!nextProps.auth) {
-		this.context.router.history.push("/");
+		this.context.router.history.push("/signin");
 	    }
 	}
 

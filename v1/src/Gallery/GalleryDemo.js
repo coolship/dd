@@ -1,11 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import {Breadcrumb} from 'react-breadcrumbs';
+import DatasetContainer from "../components/DatasetContainer";
 
 const GalleryDemo = (props)=>(
-    <StyledGalleryDemo>
-      <h1>{props.match.params.number}</h1>
-    </StyledGalleryDemo>
+    <Breadcrumb data={{
+    		    title: <b>Sample Dataset {props.match.params.number}</b>,
+    		    pathname: props.match.url,
+    		    search: null
+		}}>
+      <StyledGalleryDemo>
+	<DatasetContainer which_dataset={props.match.params.number}/>
+      </StyledGalleryDemo>
+    </Breadcrumb>
+
 );
 
 const StyledGalleryDemo=styled.div`
@@ -14,14 +22,7 @@ height:100vh;
 top:0vh;
 left:0vw;
 position:fixed;
-background-color:rgba(255, 0, 0, .25);
 
-h1{
-position:absolute;
-left:50%;
-top:50%;
-transform:translate(-50%, -50%);
-}
 `;
 
 export default GalleryDemo;

@@ -12,7 +12,7 @@ class Signin extends Component {
 
     componentWillUpdate(nextProps) {
 	if (nextProps.auth) {
-	    this.context.router.history.push("/app");
+	   this.context.router.history.goBack();
 	}
     }
 

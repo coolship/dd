@@ -2,7 +2,7 @@
 import { todosRef, authRef, provider, storageRef, datasetTestRef, databasesStorageRef, datasetsRef } from "../config/firebase";
 
 import { userIdFromEmail } from "./FileIO";
-import { FETCH_TODOS,  FETCH_USER, FETCH_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP , SET_MOUSE_XY, SET_VIEWPORT_WH, SET_VIEWPORT_TRANSFORM, SET_VIEWPORT_XY, SET_QUERY_UMI_SUBSTRING, SET_QUERY_UMI_TYPE, SET_APP_MODAL, COMPONENTS_REGISTER_IMAGE_CONTAINER, CLEAN_RESET_WITH_JSON, UPDATE_STATE_WITH_JSON, RESET,RESET_UI_ONLY } from "./types";
+import {  FETCH_USER, FETCH_DATASETS, FETCH_DEMO_DATASETS, SET_CURRENT_DATASET, SET_COLORMAP, SET_POINTSIZE, SET_FULLSCREEN , SET_SELECT_UMI_IDX, SET_SELECT_TYPE, RESET_APP , SET_MOUSE_XY, SET_VIEWPORT_WH, SET_VIEWPORT_TRANSFORM, SET_VIEWPORT_XY, SET_QUERY_UMI_SUBSTRING, SET_QUERY_UMI_TYPE, SET_APP_MODAL, COMPONENTS_REGISTER_IMAGE_CONTAINER, CLEAN_RESET_WITH_JSON, UPDATE_STATE_WITH_JSON, RESET,RESET_UI_ONLY } from "./types";
 
 
 export const reset = () => dispatch =>{
@@ -147,16 +147,27 @@ export const setFullscreen = (fullscreen) => dispatch =>{
     dispatch({
 	type:SET_FULLSCREEN,
 	payload:fullscreen
-    })
-}
+    });
+};
+
+export const fetchDemoDatasets = ()=>dispatch=>{
+    datasetsRef.child("demos/datasets").on("value",snapshot=>{
+	console.log("updating value of demos")
+	console.log(snapshot.val())
+	dispatch({
+	    type:FETCH_DEMO_DATASETS,
+	    payload:snapshot.val()
+	});
+    });
+};
 
 export const fetchDatasets = email =>  dispatch => {
     datasetsRef.child(userIdFromEmail(email)).on("value", snapshot => {
-    dispatch({
-      type: FETCH_DATASETS,
-      payload: snapshot.val()
+	dispatch({
+	    type: FETCH_DATASETS,
+	    payload: snapshot.val()
+	});
     });
-  });
 };
 
 export const signIn = () => dispatch => {

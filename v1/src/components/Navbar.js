@@ -13,7 +13,7 @@ import Home from 'react-icons/lib/md/home';
 
 //global state
 import {MODALS} from "../layout";
-import { signOut, activateModal, resetUIOnly } from "../actions";
+import { signOut, signIn, activateModal, resetUIOnly } from "../actions";
 
 
 class Navbar extends Component {
@@ -28,7 +28,7 @@ class Navbar extends Component {
 		  <ExitToApp className="icon" onClick={this.props.signOut}/>
 		  <Refresh className="icon" onClick={this.props.resetUIOnly}/>
 		  <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/>
-		    <AccountCircle className="icon" onClick={()=>{throw Error("unimplemented");}}/>
+		    <AccountCircle className="icon" onClick={this.props.signIn}/>
 	      </div>
 	    </StyledNavbar>
 	);
@@ -52,7 +52,6 @@ export default connect(mapStateToProps, { resetUIOnly, signOut , activateModal})
 	right:0px;
 	top:0px;
 	height:auto;
-background-color:black;
 
 	.nav-right{
 	    text-align:right;

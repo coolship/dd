@@ -85,8 +85,11 @@ export class Dataset{
 	this.coordinate_data = coordinate_data;
 	this.name = name;
 	this.annotations = null;
-	this.sequences = null;			    
+	this.sequences = null;
+	if(this.annotations_url){this.fetchAnnotations();};
+
     }
+
     
     async initializeAsync(statusCallback, completionCallback){
 		
@@ -104,7 +107,6 @@ export class Dataset{
 	    });
 	}
 	
-	this.fetchAnnotations();
 	statusCallback(0,"initializing umi data");
 	this.umis = await breakFromThread(()=>makeUmis(this.coordinate_data,this.sequences));
 	statusCallback(20,"initializing point geometry");
@@ -126,6 +128,27 @@ export class Dataset{
 
     }
 
+    initialize(){
+	this.umis = makeUmis(this.coordinate_data,this.sequences);
+	this.points = makePointsFromUmis(this.umis);
+	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
+	this.kd = kdbush(coord_data);
+	this.makeColorBuffers();
+	this.makeCoordBuffers();
+    }
+
+  
+    getSubset(x0,y0,x1,y1){ /*returns a Dataset from a range of this current dataset*/
+
+	var idxs = this.kd.range(x0,y0,x1,y1);
+	var coords = idxs.map((e)=>this.coordinate_data[e]);
+	const ds = new Dataset(this.name+"_subs"+[x0,y0,x1,y1].join("_"),coords,null);
+	console.log("inititalizing")
+	ds.initialize();
+	console.log(ds)
+	return ds;
+    }
+    
     makeColorBuffers(){
 	this.r = Float32Array.from(this.points.map((p)=>p.color[0]));
 	this.g = Float32Array.from(this.points.map((p)=>p.color[1]));
@@ -176,6 +199,8 @@ export class Dataset{
 	    }
 	},{u:undefined,d:Infinity})["u"];
     }
+
+    
 }
 
 

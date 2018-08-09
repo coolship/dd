@@ -18,7 +18,6 @@ import {FILETYPES} from "../actions/FileIO";
 
 
 
-var pako = require('pako');
 
 class UserManager extends Component {
     constructor(props){
