@@ -23,6 +23,7 @@
     "rbush": "^2.0.2",
     "rbush-knn": "^2.1.0",
     "react": "^16.4.1",
+    "react-breadcrumbs": "^2.1.6",
     "react-color": "^2.14.1",
     "react-dom": "^16.4.1",
     "react-fileupload-progress": "^0.4.1",

@@ -16,39 +16,35 @@ redirect to that page after signin is successful
 
 this will require that signin and requireAuth somehow communcate on the level
 of the router. Not sure exactly how to accomplish this...
-*/
+ */
 
 export default function(ComposedComponent) {
-  class Authentication extends Component {
-    static contextTypes = {
-      router: PropTypes.object
-    };
+    class Authentication extends Component {
+	static contextTypes = {
+	    router: PropTypes.object
+	};
+	componentWillMount() {
+	    if (! this.props.auth) {
+		this.context.router.history.push("/");
+	    }	  
+	}
+	componentWillUpdate(nextProps) {
+	    if (!nextProps.auth) {
+		this.context.router.history.push("/");
+	    }
+	}
 
-      componentWillMount() {
-
-	  if (! this.props.authenticated) {
-              this.context.router.history.push("/");
-      }
-	  
+	render() {
+	    if (this.props.auth) {
+		return <ComposedComponent {...this.props} />;
+	    }
+	    return null;
+	}
     }
 
-    componentWillUpdate(nextProps) {
-      if (!nextProps.authenticated) {
-        this.context.router.history.push("/");
-      }
+    function mapStateToProps({auth}) {
+	return {auth};
     }
 
-    render() {
-      if (this.props.authenticated) {
-        return <ComposedComponent {...this.props} />;
-      }
-      return null;
-    }
-  }
-
-  function mapStateToProps(state) {
-    return { authenticated: state.auth };
-  }
-
-  return connect(mapStateToProps)(Authentication);
+    return connect(mapStateToProps)(Authentication);
 }
