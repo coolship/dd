@@ -10,7 +10,6 @@ import AccountCircle from 'react-icons/lib/md/account-circle';
 import ExitToApp from 'react-icons/lib/md/exit-to-app';
 import Settings from 'react-icons/lib/md/settings';
 import CloudUpload from 'react-icons/lib/md/cloud-upload';
-import Refresh from 'react-icons/lib/md/refresh';
 import Visibility from 'react-icons/lib/md/visibility';
 import Home from 'react-icons/lib/md/home';
 

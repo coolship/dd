@@ -1,21 +1,30 @@
 import GalleryItem from "./GalleryItem";
-import {NavLink} from "react-router-dom";
 import {connect} from "react-redux";
+import styled from 'styled-components';
 import React from 'react';
 import _ from "lodash";
 
 const GalleryList = (props)=>(
-    <section><h1>explore our datasets</h1>
-      {_.map(props.demos,
-	     (d,k)=>{return <span key={d.dataset}>
-		     <NavLink to={"/gallery/"+d.dataset}><GalleryItem dataset={d.dataset}/></NavLink>
-		     </span>;}
-      )}
-      
+    <StyledGalleryList>
+      <h1>explore our datasets</h1>
+      <ul>
+	{_.map(props.demos,
+	       (d,k)=><li  key={d.dataset}><GalleryItem dataset={d.dataset} meta={d}/></li>
+	      )}
+    </ul>
+    </StyledGalleryList>
 
-    </section>
 );
 
+
+const StyledGalleryList = styled.section`
+ul{
+li{
+list-style:none;
+display:inline-block;
+}
+}
+`;
 
 export default connect(({demos})=>{return {demos};})(GalleryList);
 

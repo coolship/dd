@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { signIn } from "../actions";
 import PropTypes from "prop-types";
 import styled, { css } from 'styled-components';
-
+import LoginWithGoogle from "./LoginWithGoogle";
 
 class Signin extends Component {
     static contextTypes = {
@@ -21,13 +21,7 @@ class Signin extends Component {
 	    <StyledSignIn className="signin main">
 	      <div className="welcome">
 		<h1>Welcome to DNA microscopy</h1>
-
-		<a href="#" className="login" onClick={this.props.signIn}>
-		  <div  className="login-container">
-		    
-		    Log in with Google
-		  </div>
-		</a>
+		<LoginWithGoogle/>
 	      </div>
 	    </StyledSignIn>
 	);
@@ -37,7 +31,6 @@ class Signin extends Component {
 function mapStateToProps({ auth }) {
     return { auth };
 }
-
 
 export default connect(mapStateToProps, { signIn })(Signin);
 
@@ -51,17 +44,4 @@ background-color:red;
   left: 50%;
     margin-left: -10em;
 
-	.login {
-    border: 2px solid;
-    padding: 10px;
-    border-radius: 5px;
-    color: white;
-    text-decoration: none;
-    display: block;
-	    margin-top: 20px; }
-    
-.login:hover {
-      color: black;
-    background-color: white; }
-}
 `;

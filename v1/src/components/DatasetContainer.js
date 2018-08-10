@@ -202,15 +202,21 @@ class DatasetContainer extends RenderContainer {
     choosePreview(){
 	const backend = this.backend_ref.current;
 	const rcanvas = backend.getStorageCanvas();
-	const metadata =  _.find(this.props.datasets,(d)=>d.dataset==this.props.which_dataset);
-
+	const inverted = {};
+	_.each(
+	    this.props.datasets,
+	    (v,k)=>{inverted[v["dataset"]]=k }
+	);
+	
+	const key = inverted[this.props.which_dataset];
+	const meta = this.props.datasets[key];
 	var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
 
 	export_canvas.width=600;
 	export_canvas.height=600;
 	export_canvas.getContext("2d").drawImage(rcanvas,0,0,export_canvas.height,export_canvas.width);
 	export_canvas.toBlob((blob)=>{
-	    uploadPreview(metadata,blob);
+	    uploadPreview(key, meta,blob);
 	}, 'image/jpeg', 0.95);
     }
     

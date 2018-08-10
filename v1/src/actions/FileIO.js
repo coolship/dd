@@ -47,9 +47,8 @@ export const userIdFromEmail = function(email){
     return email.replace(/[^a-zA-Z0-9]/g,"_");
 }
 
-
-export const deleteDataset = (metadata) => dispatch => {
-    const {email, dataset, key} = metadata;    
+export const deleteDataset = (key,metadata) => dispatch => {
+    const {email, dataset} = metadata;    
     dispatch({
 	type:SET_CURRENT_DATASET,
 	payload:null
@@ -63,9 +62,8 @@ export const deleteDataset = (metadata) => dispatch => {
     });    
 };
 
-export const uploadPreview = (metadata, blob) => {
-    const {email, dataset, key} = metadata;
-    console.log(metadata)
+export const uploadPreview = (key, metadata, blob) => {
+    const {email, dataset} = metadata;
     const filename = filenameFromMetadata(metadata, FILETYPES.PREVIEW);
     var filetype_meta = {
 	contentType: 'image/jpeg',
@@ -145,38 +143,11 @@ export const activateDataset = (metadata) => dispatch => {
 
 
 
-
-
-export const deleteAnnotation= (meta, type) => dispatch =>{
-    const {key,email} = meta;
-
-    if(type == FILETYPES.UMIS){
-	datasetsRef.child(userIdFromEmail(email)).child(key).update({
-	    umis_url:null
-	});
-	dispatch({
-	    type:SET_CURRENT_UMIS_JSON,
-	    payload:null
-	});
-    } else if (type== FILETYPES.TYPES){
-
-	datasetsRef.child(userIdFromEmail(email)).child(key).update({
-	    types_url:null
-	});
-	dispatch({
-	    type:SET_CURRENT_TYPES_JSON,
-	    payload:null
-	});
-    }
-}
-
 /*
 takes upload form input of a coordinate and annotation file and sequentially posts these to the server, creating a database entry when both are successfully submitted
  */
 
 export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations_file, meta, callbacks) => dispatch => {
-
-    console.log(coords_file)
     const cfname = filenameFromMetadata(meta,FILETYPES.COORDS);
     const afname = filenameFromMetadata(meta,FILETYPES.ANNOTATIONS);
     var filetype_meta = {
@@ -208,9 +179,7 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
     		    callbacks.error,
 		    ()=>{
 			aUploadTask.snapshot.ref.getDownloadURL().then(function(aDownloadURL) {
-			    console.log("completed annotations resource upload");
 			    var newObject=datasetsRef.child(userIdFromEmail(email)).push();
-			    var key = newObject.key;
 			    newObject.set({
 				dataset:dataset,
 				email:email,
@@ -218,7 +187,6 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
 				annotations_url:aDownloadURL,
 				userId:userId,
 				filename:cfname,
-				key:key,
 				og_filesize:og_filesize,
 				og_filename:og_filename,
 			    });
@@ -230,97 +198,5 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
 	}
     );
 };
-
-export const uploadFiletypeWithCallbacks = (file,type,meta,callbacks) => dispatch => {
-    const filename = filenameFromMetadata(meta,type);
-
-
-    /*
-    console.log(file)
-    var metadata = {
-	contentType: 'application/json',
-	contentEncoding: 'gzip'
-    };
-     */
-    
-    var fileSize = file.size;
-    var fileName = file.name;
-    
-    var uploadTask = storageRef.child(filename).put(file);
-    var {dataset,email} = meta;
-    const userId = userIdFromEmail(email);
-
-    console.log(callbacks.progress)
-    
-    uploadTask.on(
-	firebase.storage.TaskEvent.STATE_CHANGED,
-	(snapshot)=>{callbacks.progress(100* snapshot.bytesTransferred/snapshot.totalBytes);},
-	callbacks.error,
-	()=>{
-	    if(type===FILETYPES.UMIS){
-		uploadTask.snapshot.ref.getDownloadURL().then(
-		    function(downloadURL) {
-
-			datasetsRef
-			    .child(userIdFromEmail(meta.email))
-			    .child(meta.key)
-			    .update({umis_url:downloadURL});
-			
-			var xhr2 = new XMLHttpRequest();
-			xhr2.responseType = 'json';
-			xhr2.onload = function(event) {
-			    var jsondata = xhr2.response;
-			    dispatch({
-				type:SET_CURRENT_UMIS_JSON,
-				payload: jsondata
-			    });
-			};
-			xhr2.open('GET',downloadURL);
-			xhr2.send();
-		    }
-		);
-	    } else if (type ===FILETYPES.TYPES){
-		uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-
-		    datasetsRef
-			.child(userIdFromEmail(meta.email))
-			.child(meta.key)
-			.update({types_url:downloadURL});
-		    
-		    var xhr2 = new XMLHttpRequest();
-		    xhr2.responseType = 'json';
-		    xhr2.onload = function(event) {
-			var jsondata = xhr2.response;
-			dispatch({
-			    type:SET_CURRENT_TYPES_JSON,
-			    payload: jsondata
-			});
-		    };
-		    xhr2.open('GET',downloadURL);
-		    xhr2.send();
-		});
-	    } else {
-
-		// Upload completed successfully, now we can get the download URL
-		uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-		    var newObject=datasetsRef.child(userIdFromEmail(email)).push();
-		    var key = newObject.key;
-		    newObject.set({
-			dataset:dataset,
-			email:email,
-			downloadUrl:downloadURL,
-			userId:userId,
-			filename:filename,
-			key:key,
-			fileSize:fileSize,
-			fileName:fileName,
-		    });
-		});   
-	    }
-	    callbacks.complete();
-	}
-    );
-};
-
 
 
