@@ -12,17 +12,17 @@ const makePointsFromUmis = (umis)=>{
 
 
 const default_types = {"-1":{
-        "color":[255,255,255,.5],
-        "size":1,
+        "color":[255,255,255,.25],
+        "size":1, //ACTB
     },"0":{
-        "color":[0,0,255,.7],
-        "size":1,
+        "color":[255,255,255,1],
+        "size":1, //GAPDH --opaque white
     },"1":{
-        "color":[255,0,0,.7],
-        "size":1,
-    },"2":{
         "color":[0,255,0,.7],
-        "size":1,
+        "size":1, // GFP
+    },"2":{
+        "color":[255,0,0,.7],
+        "size":1, // RFP
     }};
 
 
