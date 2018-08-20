@@ -9,45 +9,7 @@ import  SvgSelectionView from "./SvgSelectionView";
 
 import styled, { css } from 'styled-components';
 
-/**
- * Performs equality by iterating through keys on an object and returning false
- * when any key has values which are not strictly equal between the arguments.
- * Returns true when the values of all keys are strictly equal.
- */
-function shallowEqual(objA: mixed, objB: mixed): boolean {
-  if (objA === objB) {
-    return true;
-  }
 
-  if (typeof objA !== 'object' || objA === null ||
-      typeof objB !== 'object' || objB === null) {
-    return false;
-  }
-
-  var keysA = Object.keys(objA);
-  var keysB = Object.keys(objB);
-
-    if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  // Test for A's keys different from B.
-  var bHasOwnProperty = hasOwnProperty.bind(objB);
-  for (var i = 0; i < keysA.length; i++) {
-      if (!bHasOwnProperty(keysA[i]) || objA[keysA[i]] !== objB[keysA[i]]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function shallowCompare(instance, nextProps, nextState) {
-  return (
-    !shallowEqual(instance.props, nextProps) ||
-    !shallowEqual(instance.state, nextState)
-  );
-}
 
 
 
@@ -59,10 +21,6 @@ class MultiResView extends Component {
 	this.context_ref=null;
     }
 
-    shouldComponentUpdate(nextProps,nextState){
-	return shallowCompare(this, nextProps, nextState);
-    }
-    
     render(){
 	return (
 	    <div
@@ -74,19 +32,20 @@ class MultiResView extends Component {
 	       ><FullscreenCanvas
 		     ref={this.canvas_ref}
 
-		     width={this.props.viewport.clientWidth}
-		     height={this.props.viewport.clientHeight}
+		   width={this.props.clientWidth}
+		   height={this.props.clientHeight}
 		     id="regl-canvas"/>
 	      	    {this.props.selection.select_umi_idx?
-		<SvgSelectionView umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
-	    x0={this.props.viewport.x0}
-	    y0={this.props.viewport.y0}
-	    x1={this.props.viewport.x0+this.props.viewport.clientWidth/this.props.viewport.zoom}
-	    y1={this.props.viewport.y0+this.props.viewport.clientHeight/this.props.viewport.zoom}
-	     clickFun={this.props.clickFun} />
-	     :null}
+		     <SvgSelectionView
+			    umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+			    x0={this.props.x0}
+			    y0={this.props.y0}
+			    x1={this.props.x1}
+			    y1={this.props.y1}
+			    clickFun={this.props.clickFun}
+			    />
+		     :null}
 		
-	      <FullscreenLogoContainer waiting={this.props.app.waiting_for_data}><img src={logo} className="App-logo logo" alt="logo" /></FullscreenLogoContainer>
 	    </div>
 	    
 	);
@@ -109,8 +68,8 @@ class MultiResView extends Component {
     }
 }
 
-function mapStateToProps({ viewport, app, selection}){
-    return { viewport, app, selection};
+function mapStateToProps({ selection}){
+    return {selection};
 }
 
 export default connect(mapStateToProps, {},null,  { withRef: true })(MultiResView);

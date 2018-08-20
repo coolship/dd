@@ -80,7 +80,7 @@ export const uploadPreview = (key, metadata, blob) => {
 	    uploadTask.snapshot.ref.getDownloadURL()
 		.then((url)=>{
 		    datasetsRef
-			.child(userIdFromEmail(email))
+			.child("all")
 			.child(key)
 			.update({preview_url:url});		    
 		});

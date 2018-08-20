@@ -10,7 +10,6 @@ import datasets from "./datasetsReducer";
 
 //ui reducers
 import app from "./appReducer";
-import viewport from "./viewportReducer";
 import mouse from "./mouseReducer";
 import selection from "./selectionReducer";
 import query from "./queryReducer";
@@ -22,7 +21,6 @@ const appReducer = combineReducers({
     datasets,
     app,
     mouse,
-    viewport,
     selection,
     query,
     demos,

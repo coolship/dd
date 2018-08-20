@@ -5,9 +5,11 @@ import { signOut, fetchDatasets, activateModal, resetUIOnly } from "../actions";
 import { connect } from "react-redux";
 import styled, { css } from 'styled-components';
 
+import {NavLink} from "react-router-dom";
 
-import DatasetContainer from './DatasetContainer';
+import DatasetLoadingContainer from './DatasetLoadingContainer';
 import HeadsUp from './HeadsUp';
+import _ from "lodash";
 
 
 class DnaMicroscope extends Component {
@@ -15,44 +17,44 @@ class DnaMicroscope extends Component {
 	this.props.fetchDatasets(this.props.auth.email);
     }
     
-    activateUser(){
-	var list_directory_url = "https://www.googleapis.com/storage/v1/b/slides.dna-microscopy.org/o";
-	const token = this.state.access_token;
-	var that = this;
-
-	fetch(list_directory_url,{
-	    method:'GET',
-	    headers:{
-		"Content-Type": "application/json",
-		'Authorization': 'Bearer ' + token,
-	    }
-	}).then(function(response){
-	    return response.json()
-	}).then(function(success){
-
-	    var result = success
-	    that.setState({datasets:result.items.map(function(e,i){return e.name})
-			   .filter(function(e){return e.search("dataset")>=0
-					       && e.split("/").slice(-1) !== "" })
-			  });
-	    that.setState({directoryListing:result});
-	});
-    }
-  
     render() {
 
 
-	return (
-
-	    <div className="App">
-	      {this.props.app.current_dataset!=null?<DatasetContainer which_dataset={this.props.app.current_dataset}/>:<CenterContainer><h1>Welcome to DNA microscopy</h1>
-<DatasetSelect></DatasetSelect></CenterContainer>}
-
-	      
-	    </div>
-	);
+	if(this.props.datasets && Object.keys(this.props.datasets).length >0 && this.props.app.current_dataset){
+	    
+	    const inverted = {};
+	    _.each(
+		this.props.datasets,
+		(v,k)=>{inverted[v["dataset"]]=k}
+	    );
+	    
+	    const key = inverted[this.props.app.current_dataset];
+	    const meta = this.props.datasets[key];
+	    
+	    return (
+		<div className="App">
+		  <DatasetLoadingContainer
+		     which_dataset={this.props.app.current_dataset}
+		     metadata={meta}
+		     metadata_key={key}/>
+		</div>
+	    );
+	} else if(this.props.datasets && Object.keys(this.props.datasets).length >0){
+	    return(
+		<CenterContainer><h1>Welcome to DNA microscopy</h1>
+		  <DatasetSelect></DatasetSelect>
+		</CenterContainer>
+	    );
+	} else {
+	    return (
+		<CenterContainer><h1>Welcome to DNA microscopy</h1>
+		  To get started please <NavLink to="/admin">upload some data</NavLink> or view our <NavLink to="/gallery">demo datasets</NavLink>!
+		</CenterContainer>
+	    );
+	}
     }
 }
+
 
 
 function mapStateToProps({ auth, datasets, dataset, app }) {

@@ -3,34 +3,37 @@ import styled from 'styled-components';
 import {NavLink} from "react-router-dom";
 
 const GalleryItem = (props)=>(
+  
 
     <StyledGalleryItem>
-      <div className="preview-container">
+      <NavLink to={"/gallery/"+props.dataset}><div className="preview-container">
 	<h1>{props.dataset}</h1>
-	<NavLink to={"/gallery/"+props.dataset}>
 
-	  <img className="preview" src={props.meta.preview_url}></img>
-	</NavLink>
-      </div>
+	<img className="preview" src={props.meta.preview_url}></img>
+      </div></NavLink>
+      	<div>view <NavLink to={"/gallery/"+props.dataset}> sample dataset {props.dataset}</NavLink>, generated using DNA microscopy on an in vitro sample.</div>
     </StyledGalleryItem>
+
 );
 
 const StyledGalleryItem = styled.div`
 color:white;
-border:2px solid;
-border-radius:3px;
-height:150px;
-width:150px;
+height:auto;
+width:250px;
 position:relative;
 display:inline-block;
 margin:20px;
 
-&:hover{
-cursor:pointer;
+a{
+color:white;
 }
 
-.preview-container{
 
+.preview-container{
+height:250px;
+width:100%;
+position:relative;
+display:block;
 }
 
 .preview{
@@ -39,6 +42,7 @@ position:absolute;
 z-index:-1;
 left:0px;
 top:0px;
+height
 }
 
 h1{

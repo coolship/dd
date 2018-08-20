@@ -27,13 +27,12 @@ class Navbar extends Component {
 	return (
 	    <StyledNavbar>
 	      <div className="nav-right">
-		<CloudUpload className="icon" onClick={()=>{throw Error("unimplemented");}}/>
 		  <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/>
 		    <StyledSignedIn className="user-nav" hasAuth={this.props.auth?true:false}>
 		      {this.props.auth?<ExitToApp className="icon" onClick={this.props.signOut}/>:null}
 		      {this.props.auth?<NavLink to="/admin"><Settings className="icon"/></NavLink>:null}
 		      {this.props.auth?<NavLink to="/app"><Visibility className="icon"/></NavLink>:null}
-		      <AccountCircle className="icon signin" onClick={this.props.signIn}/>
+		      {this.props.auth?<NavLink to="/admin"><AccountCircle className="icon signin"/></NavLink>:<AccountCircle className="icon" onClick={this.props.signIn}/>}
 		    </StyledSignedIn>
 	      </div>
 	    </StyledNavbar>

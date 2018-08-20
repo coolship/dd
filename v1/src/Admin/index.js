@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import DatasetDropForm from "./DatasetDropForm";
 import withDatasetFolderUpload from "./withDatasetFolderUpload";
 import _ from "lodash";
-import {datasetToDemo, demoToDataset} from './fbDatasetServices'; 
+import {datasetToDemo, demoToDataset, datasetsToAll} from './fbDatasetServices'; 
 import {fetchDatasets, fetchDemoDatasets} from '../actions';
 
 
@@ -20,30 +20,31 @@ class Admin extends Component{
     render(props){
 	return (
 	    <div>
-	      <h1>/admin</h1>
 	      <section><h1>upload datasets</h1>
 		<DatasetDrop/>
 	      </section>
-	      <section><h1>manage sample datasets</h1>
-		
-		<div><h3>unpublished datasets</h3>
-		  {_.map(this.props.datasets,
-			 (d,k)=>{return <div key={d.dataset}>{d.dataset}
-				 <button onClick={()=>{
-				       datasetToDemo(this.props.auth.email, k );
-				       }}> publish demo</button></div>;
-				}
-		  )}
-		</div>
-		<div><h3>published (demo) datasets</h3>
-		  {_.map(this.props.demos,
-			 (d,k)=>{return <div key={d.dataset}>{d.dataset}
-				 <button onClick={()=>{
-				       demoToDataset(this.props.auth.email, k );
-				       }}> unpublish</button></div>;}
-		  )}
-		</div>
-	      </section>
+	      {this.props.auth.has_admin?
+		  <section><h1>manage sample datasets</h1>
+
+			<div><h3>unpublished datasets</h3>
+			      {_.map(this.props.datasets,
+				     (d,k)=>{return <div key={d.dataset}>{d.dataset}
+					     <button onClick={()=>{
+						   datasetToDemo(this.props.auth.email, k );
+						   }}> publish demo</button></div>;
+					    }
+				    )}
+			    </div>
+			    <div><h3>published (demo) datasets</h3>
+				  {_.map(this.props.demos,
+					 (d,k)=>{return <div key={d.dataset}>{d.dataset}
+						 <button onClick={()=>{
+						       demoToDataset(this.props.auth.email, k );
+						       }}> unpublish</button></div>;}
+					)}
+				</div>
+		      </section>
+		  :null}
 	    </div>
 	);
     };

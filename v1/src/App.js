@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
-import { fetchUser, fetchDatasets } from "./actions";
+import { fetchUser, fetchDemoDatasets } from "./actions";
 import styled, { css } from 'styled-components';
 
 //components
@@ -20,6 +20,8 @@ import {Breadcrumbs} from "react-breadcrumbs";
 class App extends Component {    
   componentWillMount() {
       this.props.fetchUser();
+      this.props.fetchDemoDatasets();
+
   }
     
     render() {
@@ -71,7 +73,7 @@ box-sizing:border-box;
 padding-top:20px;
     color:white;
 `;
-export default connect(null, { fetchUser })(App);
+export default connect(null, { fetchUser, fetchDemoDatasets })(App);
 
 
 

@@ -27,14 +27,13 @@ class FovControls extends Component {
 
 	return 	(
 	    <FovControlsStyled>
-	      <Refresh className="boxed-icon" onClick={this.props.resetUIOnly}/>
 
-	      <ArrowBack className="boxed-icon" onClick={(event)=>{this.props.panRight(-100);}} />
-		<ArrowUpward className="boxed-icon" onClick={(event)=>{this.props.panUp(100)}}/>
-		  <ArrowDownward className="boxed-icon" onClick={(event)=>{this.props.panUp(-100)}}/>
-		    <ArrowForward className="boxed-icon" onClick={(event)=>{this.props.panRight(100)}}/>
-		      <ZoomIn className="boxed-icon" onClick={(event)=>{this.props.zoomIn(100)}}/>
-			<ZoomOut className="boxed-icon" onClick={(event)=>{this.props.zoomIn(-100)}}/>
+	      <ArrowBack className="boxed-icon" onClick={(event)=>{this.props.panRight(6);}} />
+		<ArrowUpward className="boxed-icon" onClick={(event)=>{this.props.panUp(6)}}/>
+		  <ArrowDownward className="boxed-icon" onClick={(event)=>{this.props.panUp(-6)}}/>
+		    <ArrowForward className="boxed-icon" onClick={(event)=>{this.props.panRight(-6)}}/>
+		      <ZoomIn className="boxed-icon" onClick={(event)=>{this.props.zoomIn(20,{nx:.5,ny:.5})}}/>
+			<ZoomOut className="boxed-icon" onClick={(event)=>{this.props.zoomIn(-20,{nx:.5,ny:.5})}}/>
 
 	    </FovControlsStyled>
 	)

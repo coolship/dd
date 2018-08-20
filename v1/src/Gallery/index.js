@@ -4,20 +4,28 @@ import GalleryDemo from "./GalleryDemo";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import CrumbRoute from "../components/CrumbRoute";
 import GalleryList from "./GalleryList";
+import {connect} from "react-redux";
+import {fetchDemoDatasets} from '../actions';
 
 
-export default class Gallery extends Component {
-    static contextTypes = {
-	router: PropTypes.object
-    };
-    
-    render(){
-	return (
-	      <Switch>
-		<Route title="List" exact path='/gallery' component={GalleryList}/>
-		<Route path='/gallery/:number' component={GalleryDemo}/>
-	      </Switch>
-	);
+class Gallery extends Component {
+    constructor(props){
+	super(props);
+	this.props.fetchDemoDatasets();
+    }    
+    render(){	
+	if(Object.keys(this.props.demos).length > 0){
+	    return (
+		<Switch>
+		  <Route title="List" exact path='/gallery'
+			 render={(props) =><GalleryList {...props} demos={this.props.demos} />}
+		    />
+		    <Route path='/gallery/:number'
+			   render={(props) => <GalleryDemo {...props} demos={this.props.demos} />}
+		      />
+		</Switch>
+	    );
+	} else return null;
     }
 
     
@@ -25,3 +33,6 @@ export default class Gallery extends Component {
 
 
 
+
+const mapStateToProps=({demos})=>{return {demos};};
+export default connect(mapStateToProps,{fetchDemoDatasets})(Gallery);
