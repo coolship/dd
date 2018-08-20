@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
-import { fetchUser, fetchDemoDatasets } from "./actions";
+import { fetchUser, fetchDemoDatasets, signInAnonyously } from "./actions";
 import styled, { css } from 'styled-components';
 
 //components
@@ -18,11 +18,11 @@ import CrumbRoute from "./components/CrumbRoute";
 import {Breadcrumbs} from "react-breadcrumbs";
 
 class App extends Component {    
-  componentWillMount() {
-      this.props.fetchUser();
-      this.props.fetchDemoDatasets();
+    componentWillMount() {
+	this.props.fetchUser();
+	this.props.fetchDemoDatasets();
 
-  }
+    }
     
     render() {
 	return (

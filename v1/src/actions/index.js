@@ -96,7 +96,7 @@ export const fetchUser = () => dispatch => {
 
     const admins=["ben@coolship.io","jwein@broadinstitute.org"];
     authRef.onAuthStateChanged(user => {
-	if (user) {
+	if (user.email) {
 	    const has_admin=admins.findIndex((e)=>e==user.email)>-1;
 	    dispatch({
 		type: FETCH_USER,
@@ -135,6 +135,7 @@ export const setFullscreen = (fullscreen) => dispatch =>{
 
 export const fetchDemoDatasets = ()=>dispatch=>{
     datasetsRef.child("all").orderByChild("isPublished").equalTo(true).on("value",snapshot=>{
+	console.log("DEMO DATASET!");
 	console.log(snapshot.val());
 	dispatch({
 	    type:FETCH_DEMO_DATASETS,
@@ -152,6 +153,19 @@ export const fetchDatasets = email =>  dispatch => {
     });
 };
 
+export const signInAnonymously =() => dispatch => {
+    authRef()
+	.signInAnonymously().then(
+	    result =>{}
+	)
+	.catch(function(error) {
+	    // Handle Errors here.
+	    var errorCode = error.code;
+	    var errorMessage = error.message;
+	    // ...
+	})
+}
+
 export const signIn = () => dispatch => {
     console.log("signing in")
   authRef
@@ -164,7 +178,7 @@ export const signIn = () => dispatch => {
 
 export const signOut = () => dispatch => {
   authRef
-    .signOut()
+    .signInAnonymously()
     .then(() => {
       // Sign-out successful.
     })
