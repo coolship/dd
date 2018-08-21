@@ -6,5 +6,6 @@ export default class RenderContainer extends Component {
 	super(props);
 	this.backend_ref=React.createRef();
 	this.view_ref=React.createRef();
+	this.self_ref=React.createRef();
     }
 }

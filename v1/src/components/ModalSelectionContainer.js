@@ -140,23 +140,16 @@ class StaticView extends Component{
     constructor(props){
 	super(props);
 	this.canvas_ref=React.createRef();
-	console.log("created view")
     }
-
-    componentDidMount(){
-	console.log("mounted child");
-    }
-    
     getContext(){
 	return this.getCanvas().getContext('2d');
     }
-
     getCanvas(){
 	return  ReactDOM.findDOMNode(this.canvas_ref.current);
     }
     render(){
-	console.log("rendered view")
-
-	return (<canvas ref={this.canvas_ref} width={this.props.canvas_width} height={this.props.canvas_height}/>);
+	return (
+	    <canvas ref={this.canvas_ref} width={this.props.canvas_width} height={this.props.canvas_height}/>
+	);
     }
 }

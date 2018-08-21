@@ -31,21 +31,13 @@ const INTERACTION_STATES={
 };
 
 
-class DatasetContainer extends RenderContainer {
+class DatasetStageContainer extends RenderContainer {
 
     //LIFECYCLE METHODS
     constructor(props){
 	super(props);
-	this.state = {
-	    viewport:{
-		clientWidth:window.innerWidth,
-		clientHeight:window.innerHeight,
-		x0:-1*window.innerWidth/2/20,
-		y0:-1*window.innerHeight/2/20,
-		zoom:20,
-	    }
-	};
-
+	this.state = {};
+	
 	this.bound_resize = this.handleResize.bind(this);
 	this.bound_wheel = this.handleScroll.bind(this);
 	this.bound_click = this.onClick.bind(this);
@@ -53,8 +45,29 @@ class DatasetContainer extends RenderContainer {
 	this.export_canvas_ref=React.createRef();
 
     }
+
+    getSize(){
+	if(this.self_ref.current){
+	    const self = ReactDOM.findDOMNode( this.self_ref.current);
+	    return {width:self.offsetWidth,height:self.offsetHeight};
+	} else {
+	    return null;
+	}
+    }
+    
     componentDidMount(){
 	window.addEventListener("resize", this.bound_resize , false);
+	const size = this.getSize();
+	this.setState({
+	    viewport:{
+		clientWidth:size.width,
+		clientHeight:size.height,
+		x0:-1*size.width/2/20,
+		y0:-1*size.height/2/20,
+		zoom:20,
+	    }
+	}
+		     );
 
     };    
     componentWillUnmount(){
@@ -79,11 +92,13 @@ class DatasetContainer extends RenderContainer {
 		INTERACTION_STATES.NONE:
 		INTERACTION_STATES.FREEZE);
     }
-    syncViewport(){	
+    syncViewport(){
+	var size=this.getSize();
+	if (!size) return;
 	this.setState({
 	    viewport:Object.assign({},this.state.viewport,{
-		clientWidth:window.innerWidth,
-		clientHeight:window.innerHeight
+		clientWidth:size.width,
+		clientHeight:size.height
 	    })
 	});
     }
@@ -239,65 +254,87 @@ class DatasetContainer extends RenderContainer {
 	;
 
 
-
+	if(this.state.viewport){
+	    
+	
 	return (
-	    <div className="fov fov-black">
-	      <CanvasContainer>
-		<ExportCanvas ref={this.export_canvas_ref}/>
-		<TwoModeCanvas
-		   ref={this.backend_ref}
-		   markFresh={this.forcedRefresh.bind(this)}
-		   dataset={this.props.dataset}
-		   />
-		<MultiResView
-		   onMouseMove={this.onMouseMove.bind(this)}
-		   onMouseEnter={this.onMouseEnter.bind(this)}
-		   onMouseLeave={this.onMouseLeave.bind(this)}
-		   onKeyDown={this.bound_keydown}
-		   onWheel={this.bound_wheel}
-		   drawFromBuffer={this.drawFromBuffer.bind(this)}
-		   bufferReady={true}
-		   clickFun={this.bound_click}
-		   dataset={this.props.dataset}
-		   ref={this.view_ref}
-		   clientWidth={this.state.viewport.clientWidth}
-		   clientHeight={this.state.viewport.clientHeight}
-		   x0={this.state.viewport.x0}
-		   y0={this.state.viewport.y0}
-		   x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
-		   y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
-		   />
+	    <div className="fov fov-black"
+		 style={{
+		     position:"absolute",
+		     left:"0px",
+		     top:"0px",
+		     right:"0px",
+		 bottom:"0px"}}
+		 ref={this.self_ref}>
+		  <CanvasContainer>
+			<ExportCanvas ref={this.export_canvas_ref}/>
+			    <TwoModeCanvas
+				   ref={this.backend_ref}
+				   markFresh={this.forcedRefresh.bind(this)}
+				   dataset={this.props.dataset}
+				   />
+				<MultiResView
+				       onMouseMove={this.onMouseMove.bind(this)}
+				       onMouseEnter={this.onMouseEnter.bind(this)}
+				       onMouseLeave={this.onMouseLeave.bind(this)}
+				       onKeyDown={this.bound_keydown}
+				       onWheel={this.bound_wheel}
+				       drawFromBuffer={this.drawFromBuffer.bind(this)}
+				       bufferReady={true}
+				       clickFun={this.bound_click}
+				       dataset={this.props.dataset}
+				       ref={this.view_ref}
+				       clientWidth={this.state.viewport.clientWidth}
+				       clientHeight={this.state.viewport.clientHeight}
+				       x0={this.state.viewport.x0}
+				       y0={this.state.viewport.y0}
+				       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+				       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+				       />
 
-		<OverlayControls
-		   centerView={this.centerView.bind(this)}
-		   zoomIn={this.zoomIn.bind(this)}
-		   panRight={this.panRight.bind(this)}
-		   panUp={this.panUp.bind(this)}
-		   exportPng={this.exportPng.bind(this)}
-		   is_demo={this.props.is_demo}
-		  
-		   />
-		
-		{this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
-		    <ModalSelectionContainer
-			   dataset={this.props.dataset}
-			   selected_idx={this.props.selection.select_umi_idx}
-			   close={()=>{
-			       this.props.setSelectType(INTERACTION_STATES.NONE);
-			   }}/>:
-		      null}
-	      </CanvasContainer>
-	      <DebugConsole>
-		<table>
-		  <tbody>
-		    <tr><td>mouse coords: </td><td>{this.getMouseXY().x +", "+ this.getMouseXY().y}</td></tr>
-		    <tr><td>x0, y0: </td><td>{this.state.viewport.x0 + ", " + this.state.viewport.y0}</td></tr>
-		  </tbody>
-		</table>
-		<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
-		<button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
-	      </DebugConsole>
-	    </div>);	
+				    <OverlayControls
+					   centerView={this.centerView.bind(this)}
+					   zoomIn={this.zoomIn.bind(this)}
+					   panRight={this.panRight.bind(this)}
+					   panUp={this.panUp.bind(this)}
+					   exportPng={this.exportPng.bind(this)}
+					   is_demo={this.props.is_demo}
+					   
+					   />
+					
+					{this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
+					 <ModalSelectionContainer
+						dataset={this.props.dataset}
+						selected_idx={this.props.selection.select_umi_idx}
+						close={()=>{
+						    this.props.setSelectType(INTERACTION_STATES.NONE);
+						}}/>:
+					       null}
+		      </CanvasContainer>
+		      <DebugConsole>
+			    <table>
+				  <tbody>
+					<tr><td>mouse coords: </td><td>{this.getMouseXY().x +", "+ this.getMouseXY().y}</td></tr>
+					    <tr><td>x0, y0: </td><td>{this.state.viewport.x0 + ", " + this.state.viewport.y0}</td></tr>
+				      </tbody>
+				</table>
+				<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
+				    <button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
+			  </DebugConsole>
+		      
+	    </div>);
+	} else {
+	    return(
+		<div className="fov fov-black"
+		     style={{
+			 position:"absolute",
+			 left:"0px",
+			 top:"0px",
+			 right:"0px",
+		     bottom:"0px"}}
+		     ref={this.self_ref}></div>
+	    );
+	}
     }
 }
 
@@ -307,7 +344,7 @@ function mapStateToProps( { mouse, selection} ) {
     return {  mouse, selection };
 }
 
-export default connect(mapStateToProps, { setMouse, setSelectUmiIdx, setSelectType} )(DatasetContainer);
+export default connect(mapStateToProps, { setMouse, setSelectUmiIdx, setSelectType} )(DatasetStageContainer);
 
 
 

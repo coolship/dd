@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
-import DatasetContainer from './DatasetContainer';
+import DatasetStageContainer from './DatasetStageContainer';
 import {Dataset} from "../data/Dataset";
 import _ from "lodash";
 
@@ -90,7 +90,7 @@ export default class DatasetLoadingContainer extends Component {
 		</ProgressContainer>		
 		</LoadingScreen>);
 	}  else {	   
-	    return <DatasetContainer
+	    return <DatasetStageContainer
 	    dataset={this.state.dataset}
 	    metadata={this.props.metadata}
 	    metadata_key={this.props.metadata_key}
