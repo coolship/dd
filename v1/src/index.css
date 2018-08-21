@@ -4,11 +4,19 @@
     padding:5px;
 }
 
-.boxed-icon{
+.absolute-fullsize{
+    position:absolute;
+    left:0px;
+    top:0px;
+    right:0px;
+    bottom:0px;
+}
 
-    opacity:1;
-    font-size:1.5em;
-    display:inline;
+ .boxed-icon{
+
+     opacity:1;
+     font-size:1.5em;
+     display:inline;
     padding:5px;
     border:2px solid;
     cursor:points;

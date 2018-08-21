@@ -258,14 +258,7 @@ class DatasetStageContainer extends RenderContainer {
 	    
 	
 	return (
-	    <div className="fov fov-black"
-		 style={{
-		     position:"absolute",
-		     left:"0px",
-		     top:"0px",
-		     right:"0px",
-		 bottom:"0px"}}
-		 ref={this.self_ref}>
+	    <div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
 		  <CanvasContainer>
 			<ExportCanvas ref={this.export_canvas_ref}/>
 			    <TwoModeCanvas
@@ -325,14 +318,7 @@ class DatasetStageContainer extends RenderContainer {
 	    </div>);
 	} else {
 	    return(
-		<div className="fov fov-black"
-		     style={{
-			 position:"absolute",
-			 left:"0px",
-			 top:"0px",
-			 right:"0px",
-		     bottom:"0px"}}
-		     ref={this.self_ref}></div>
+		<div className="fov fov-black absolute-fullsize" ref={this.self_ref}></div>
 	    );
 	}
     }
@@ -354,11 +340,11 @@ height:100%;
 position:absolute;
 top:0px;
 bottom:0px;
-`
+`;
 
 const ExportCanvas=styled.canvas`
 display:none;
-`
+`;
 
 
 
