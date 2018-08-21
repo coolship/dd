@@ -207,9 +207,7 @@ class DatasetStageContainer extends RenderContainer {
 	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
 	var {x0,y0,zoom,clientWidth,clientHeight } = this.state.viewport
-
 	const self = ReactDOM.findDOMNode( this.self_ref.current);
-
 	function normalizedCoords ( event ) {
 	    var bounds = self.getBoundingClientRect();
 	    var nx = (event.clientX - bounds.left) / bounds.width;
@@ -221,8 +219,6 @@ class DatasetStageContainer extends RenderContainer {
 	this.props.setSelectType(INTERACTION_STATES.HOVER);
 	var dataX = this.props.mouse.nx*(clientWidth / zoom) + x0;
 	var dataY = this.props.mouse.ny*(clientHeight / zoom) + y0;
-
-
 
 	var n1 = this.props.dataset.nearest(dataX,dataY,.25);
 	if(n1){
@@ -238,10 +234,8 @@ class DatasetStageContainer extends RenderContainer {
     getMouseXY(){
 	var {nx,ny} = this.props.mouse;
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.state.viewport;
-
 	return {x:nx * clientWidth / zoom + x0,
 		y:ny * clientHeight / zoom + y0};
-
     }
     
     zoomIn(dz, nxy ){
