@@ -43,20 +43,25 @@ export default function withDatasetFolderUpload(WrappedComponent){
 			    for(var i = 0; i < entries.length ;i++){
 				var item = entries[i];
 				if(item.name=="coords.json.gz"){	    
-				    item.file((file)=>{ 
+				    item.file((file)=>{
+					console.log("setting coords", item, file);
 					this.setState({"coords_file": file});
+					if(this.isReady()){
+					    this.autoSubmit();
+					}
 				    });
 				} else if(item.name=="annotations.json.gz"){
 				    item.file((file)=>{ 
 					this.setState({"annotations_file": file});
+					if(this.isReady()){
+					    this.autoSubmit();
+					}
 				    });
 				} else{
-				    throw Error("unrecognized file " + item.name);
+				    console.log("skipping unrecognized file "+ item.name);
 				}
 			    }
-			    if(this.isReady()){
-				this.submit();
-			    }
+
 			});
 		    }
 		}
@@ -67,7 +72,10 @@ export default function withDatasetFolderUpload(WrappedComponent){
 	    }
 	    
 	    
-	    submit(){
+	    autoSubmit(){
+		
+		//ev.preventDefault();
+		console.log("submitting");
 		//callbacks to update state
 		var callbacks = {
 		    progress:(progress)=>{
@@ -75,8 +83,10 @@ export default function withDatasetFolderUpload(WrappedComponent){
 			this.setState({progress:progress});
 		    },
 		    complete:()=>{
-			this.setState();
-			this.setState({status:"complete"});
+			this.setState({dataset_name:null,
+				       annotations_file:null,
+				       coords_file:null});
+			this.setState({status:"complete",progres:100});
 		    },
 		};
 
@@ -88,7 +98,9 @@ export default function withDatasetFolderUpload(WrappedComponent){
 		     email:this.props.auth.email,
 		     key:null},
 		    callbacks);
-		 
+		
+		//return false;
+
 		
 	    }
 	    validateForm(event){
@@ -110,12 +122,13 @@ export default function withDatasetFolderUpload(WrappedComponent){
 		// Inject props into the wrapped component. These are usually state values or
 		// instance methods.
 		const handleDrop = this.handleDrop.bind(this);
-
+		//const handleSubmit = this.handleSubmit.bind(this);
 		
 		// Pass props to wrapped component
 		return (
 		    <WrappedComponent
 		       handleDrop={handleDrop}
+		       //handleSubmit={handleSubmit}
 		       progress={this.state.progress} /* 0-100 with upload progress */
 		       status={this.state.status} /* short string with user-friendly status */
 		       {...passThroughState}

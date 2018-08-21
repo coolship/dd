@@ -2,6 +2,7 @@ import * as firebase from "firebase";
 import FileUploadProgress  from 'react-fileupload-progress';
 import { storageRef, datasetsRef, umiMetasRef,typesMetasRef } from "../config/firebase";
 import { SET_CURRENT_DATASET, SET_WAITING_FOR_DATA , SET_CURRENT_TYPES_JSON, SET_CURRENT_UMIS_JSON } from "./types";
+import _ from "lodash";
 
 
 /*
@@ -39,13 +40,25 @@ export const FILETYPES={
 function filenameFromMetadata({email,dataset},filetype=FILETYPES.DATASET){
     const email_id = userIdFromEmail(email);
     const file_id = dataset.replace(/[^a-zA-Z0-9]/g,"_");
-    const filename = email_id+"/"+(filetype)+"_"+file_id;
+    const filename = "/website_datasets/"+email_id+"/"+(filetype)+"_"+file_id;
     return filename;
 }
 
 export const userIdFromEmail = function(email){
     return email.replace(/[^a-zA-Z0-9]/g,"_");
 }
+
+export const deleteDatasetAndAnnotations = (key, metadata) => dispatch => {
+    //checks the filenames property of the metadata object to determine what files have been associated with this metadata
+
+    Promise.all(_.map(metadata.filenames,function(v,k){
+	return storageRef.child(v).delete();
+    })).then(
+	()=>{
+	    datasetsRef.child("all").child(key).remove();
+	}
+    );  
+};
 
 export const deleteDataset = (key,metadata) => dispatch => {
     const {email, dataset} = metadata;    
@@ -179,7 +192,7 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
     		    callbacks.error,
 		    ()=>{
 			aUploadTask.snapshot.ref.getDownloadURL().then(function(aDownloadURL) {
-			    var newObject=datasetsRef.child(userIdFromEmail(email)).push();
+			    var newObject=datasetsRef.child("all").push();
 			    newObject.set({
 				dataset:dataset,
 				email:email,
@@ -189,6 +202,10 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
 				filename:cfname,
 				og_filesize:og_filesize,
 				og_filename:og_filename,
+				allfiles:{
+				    coords:cfname,
+				    annotations:afname,
+				}
 			    });
 			});
 		    });

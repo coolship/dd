@@ -4,10 +4,10 @@ import styled, { css } from 'styled-components';
 export default function(props){
     /* strips props from the container which will be used to handle events */
 
-    const {handleDrop,progress,dataset_name,status,coords_file,annotations_file,
+    const {handleDrop,handleSubmit,progress,dataset_name,status,coords_file,annotations_file,
 	   ...passedProps} = props;
     return (
-	<StyledUploadForm 
+	<StyledUploadForm
  {...passedProps}>
 	  <div className="status">status: {status}</div>
 	  <div>progress: {status}</div>

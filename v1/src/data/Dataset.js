@@ -203,24 +203,3 @@ export class Dataset{
     
 }
 
-
-export class Neighborhood{
-    range(x0,y0,x1,y1){
-	return this.kd.range(x0,y0,x1,y1).map(idx=>this.umis[idx]);
-    }
-
-    
-    constructor(dataset,x0,y0,x1,y1){
-	this.parent_dataset = dataset;
-	
-	this.x0 = x0;
-	this.y0 = y0;
-	this.x1 = x1;
-	this.y1 = y1;
-
-	this.umis = this.parent_dataset.range(x0,y0,x1,y1);
-	this.points = makePointsFromUmis(this.umis);
-	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
-	this.kd = kdbush(coord_data);
-    }
-}

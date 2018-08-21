@@ -5,8 +5,7 @@ import _ from "lodash";
 import styled, { css } from 'styled-components';
 
 //REDUX ACTIONS
-import { Neighborhood } from "../data/Dataset";
-import  SvgSelectionView from "./SvgSelectionView";
+import SvgSelectionView from "./SvgSelectionView";
 import { connect } from "react-redux";
 import {MODALS} from "../layout";
 import {closeModal} from "../actions";
@@ -24,8 +23,6 @@ export default class ModalSelectionContainer extends RenderContainer{
 	var y1 = sel.y + 2;
 
 	this.range = {x0,y0,x1,y1};
-	
-	//this.neighborhood=new Neighborhood(this.props.dataset, x0,y0,x1,y1);
 	this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
 	this.selected = sel;
 	this.canvas_width=400;
