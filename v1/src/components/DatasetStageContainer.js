@@ -206,10 +206,18 @@ class DatasetStageContainer extends RenderContainer {
     onMouseMove(event){
 	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
-	var {x0,y0,zoom,clientWidth,clientHeight } = this.state.viewport;
-	this.props.setMouse({nx:event.clientX / clientWidth,
-			     ny:event.clientY / clientHeight});
-	
+	var {x0,y0,zoom,clientWidth,clientHeight } = this.state.viewport
+
+	const self = ReactDOM.findDOMNode( this.self_ref.current);
+
+	function normalizedCoords ( event ) {
+	    var bounds = self.getBoundingClientRect();
+	    var nx = (event.clientX - bounds.left) / bounds.width;
+	    var ny = (event.clientY - bounds.top) / bounds.height;
+	    return {nx,ny};
+	};
+
+	this.props.setMouse(normalizedCoords(event));	
 	this.props.setSelectType(INTERACTION_STATES.HOVER);
 	var dataX = this.props.mouse.nx*(clientWidth / zoom) + x0;
 	var dataY = this.props.mouse.ny*(clientHeight / zoom) + y0;
