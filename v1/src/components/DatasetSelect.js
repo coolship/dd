@@ -59,6 +59,6 @@ const DatasetSelectStyled=styled.select`
 	    height: 2.5em;
 	    font-size: .9em;
 	    color:white;
-	    width:325px;
+	    width:225px;
 	    margin-bottom:5px;
 `;

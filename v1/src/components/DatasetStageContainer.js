@@ -259,65 +259,66 @@ class DatasetStageContainer extends RenderContainer {
 	if(this.state.viewport){
 	    
 	
-	return (
-	    <div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
+	    return (
+		<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
 		  <CanvasContainer>
-			<ExportCanvas ref={this.export_canvas_ref}/>
-			    <TwoModeCanvas
-				   ref={this.backend_ref}
-				   markFresh={this.forcedRefresh.bind(this)}
-				   dataset={this.props.dataset}
-				   />
-				<MultiResView
-				       onMouseMove={this.onMouseMove.bind(this)}
-				       onMouseEnter={this.onMouseEnter.bind(this)}
-				       onMouseLeave={this.onMouseLeave.bind(this)}
-				       onKeyDown={this.bound_keydown}
-				       onWheel={this.bound_wheel}
-				       drawFromBuffer={this.drawFromBuffer.bind(this)}
-				       bufferReady={true}
-				       clickFun={this.bound_click}
-				       dataset={this.props.dataset}
-				       ref={this.view_ref}
-				       clientWidth={this.state.viewport.clientWidth}
-				       clientHeight={this.state.viewport.clientHeight}
-				       x0={this.state.viewport.x0}
-				       y0={this.state.viewport.y0}
-				       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
-				       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
-				       />
+		    <ExportCanvas ref={this.export_canvas_ref}/>
+		    <TwoModeCanvas
+		       ref={this.backend_ref}
+		       markFresh={this.forcedRefresh.bind(this)}
+		       dataset={this.props.dataset}
+		       color_config={{by_segment:true}}
+		       />
+		    <MultiResView
+		       onMouseMove={this.onMouseMove.bind(this)}
+		       onMouseEnter={this.onMouseEnter.bind(this)}
+		       onMouseLeave={this.onMouseLeave.bind(this)}
+		       onKeyDown={this.bound_keydown}
+		       onWheel={this.bound_wheel}
+		       drawFromBuffer={this.drawFromBuffer.bind(this)}
+		       bufferReady={true}
+		       clickFun={this.bound_click}
+		       dataset={this.props.dataset}
+		       ref={this.view_ref}
+		       clientWidth={this.state.viewport.clientWidth}
+		       clientHeight={this.state.viewport.clientHeight}
+		       x0={this.state.viewport.x0}
+		       y0={this.state.viewport.y0}
+		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+		       />
 
-				    <OverlayControls
-					   centerView={this.centerView.bind(this)}
-					   zoomIn={this.zoomIn.bind(this)}
-					   panRight={this.panRight.bind(this)}
-					   panUp={this.panUp.bind(this)}
-					   exportPng={this.exportPng.bind(this)}
-					   is_demo={this.props.is_demo}
-					   
-					   />
-					
-					{this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
-					 <ModalSelectionContainer
-						dataset={this.props.dataset}
-						selected_idx={this.props.selection.select_umi_idx}
-						close={()=>{
-						    this.props.setSelectType(INTERACTION_STATES.NONE);
-						}}/>:
-					       null}
-		      </CanvasContainer>
-		      <DebugConsole>
-			    <table>
-				  <tbody>
-					<tr><td>mouse coords: </td><td>{this.getMouseXY().x +", "+ this.getMouseXY().y}</td></tr>
-					    <tr><td>x0, y0: </td><td>{this.state.viewport.x0 + ", " + this.state.viewport.y0}</td></tr>
-				      </tbody>
-				</table>
-				<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
-				    <button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
-			  </DebugConsole>
-		      
-	    </div>);
+		    <OverlayControls
+		       centerView={this.centerView.bind(this)}
+		       zoomIn={this.zoomIn.bind(this)}
+		       panRight={this.panRight.bind(this)}
+		       panUp={this.panUp.bind(this)}
+		       exportPng={this.exportPng.bind(this)}
+		       is_demo={this.props.is_demo}
+		       
+		       />
+		    
+		    {this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
+			<ModalSelectionContainer
+			       dataset={this.props.dataset}
+			       selected_idx={this.props.selection.select_umi_idx}
+			       close={()=>{
+				   this.props.setSelectType(INTERACTION_STATES.NONE);
+			       }}/>:
+			  null}
+		  </CanvasContainer>
+		  <DebugConsole>
+		    <table>
+		      <tbody>
+			<tr><td>mouse coords: </td><td>{this.getMouseXY().x +", "+ this.getMouseXY().y}</td></tr>
+			<tr><td>x0, y0: </td><td>{this.state.viewport.x0 + ", " + this.state.viewport.y0}</td></tr>
+		      </tbody>
+		    </table>
+		    <button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
+		    <button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
+		  </DebugConsole>
+		  
+		</div>);
 	} else {
 	    return(
 		<div className="fov fov-black absolute-fullsize" ref={this.self_ref}></div>

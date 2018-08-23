@@ -80,18 +80,22 @@ export class Umi{
 export class Dataset{
     constructor(name, coordinate_data,annotations_url){
 
-
+	this.annotation_promise = null;
 	this.annotations_url = annotations_url;
 	this.coordinate_data = coordinate_data;
 	this.name = name;
 	this.annotations = null;
 	this.sequences = null;
-	if(this.annotations_url){this.fetchAnnotations();};
+	this.fetchAnnotations();
+
+
+
+	
 
     }
 
     
-    async initializeAsync(statusCallback, completionCallback){
+    async initializeAsync(statusCallback, completionCallback, config){
 		
 	function resolveAfter0Seconds() {
 	    return new Promise(resolve => {
@@ -114,12 +118,17 @@ export class Dataset{
 	statusCallback(40,"initializing coordinates");
 	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
 	
-	statusCallback(60,"sorting with kdbush");
+	statusCallback(50,"sorting with kdbush");
 	this.kd = await breakFromThread(function(){return kdbush(coord_data)});
-
-	statusCallback(75, "buffering color data")
+	
+	
+	statusCallback(60, "buffering color data");
 	await breakFromThread(this.makeColorBuffers.bind(this));
 
+	statusCallback(70, "fetching segmentation annotation");
+	await this.annotation_promise;
+	await breakFromThread(this.makeColorBuffersFromCells.bind(this));
+	
 	statusCallback(90, "buffering coordinate data")
 	await breakFromThread(this.makeCoordBuffers.bind(this));
 	
@@ -127,8 +136,8 @@ export class Dataset{
 	completionCallback();
 
     }
-
-    initialize(){
+    
+    initializeSync(){
 	this.umis = makeUmis(this.coordinate_data,this.sequences);
 	this.points = makePointsFromUmis(this.umis);
 	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
@@ -139,15 +148,17 @@ export class Dataset{
 
   
     getSubset(x0,y0,x1,y1){ /*returns a Dataset from a range of this current dataset*/
-
 	var idxs = this.kd.range(x0,y0,x1,y1);
 	var coords = idxs.map((e)=>this.coordinate_data[e]);
 	const ds = new Dataset(this.name+"_subs"+[x0,y0,x1,y1].join("_"),coords,null);
-	console.log("inititalizing")
-	ds.initialize();
-	console.log(ds)
+	ds.initializeSync();
 	return ds;
     }
+
+    getR({by_segment}){ return by_segment?this.r_seg:this.r;}
+    getG({by_segment}){ return by_segment?this.g_seg:this.g;}
+    getB({by_segment}){ return by_segment?this.b_seg:this.b;}
+    getA({by_segment}){ return by_segment?this.a_seg:this.a;}
     
     makeColorBuffers(){
 	this.r = Float32Array.from(this.points.map((p)=>p.color[0]));
@@ -155,6 +166,27 @@ export class Dataset{
 	this.b = Float32Array.from(this.points.map((p)=>p.color[2]));
 	this.a = Float32Array.from(this.points.map((p)=>p.color[3]));
     }
+
+    makeColorBuffersFromCells(){
+
+	if(!this.segments){throw "no cell segments defined";}
+	const max_segment = this.segments.reduce((next,curr)=>{return Math.max(next,curr)});
+
+	var seed = 1;
+	function seeded_random() {
+	    var x = Math.sin(seed++) * 10000;
+	    return x - Math.floor(x);
+	}
+	
+	const colors = _.map(_.range(max_segment+1),(i)=>[(seeded_random()),
+							  (seeded_random()),
+							  (seeded_random())]);
+	this.r_seg = Float32Array.from(this.segments.map((p)=>colors[p][0] ));
+	this.g_seg = Float32Array.from(this.segments.map((p)=>colors[p][1] ));
+	this.b_seg = Float32Array.from(this.segments.map((p)=>colors[p][2] ));
+	this.a_seg = Float32Array.from(this.segments.map((p)=>.5 ));
+    }
+    
     makeCoordBuffers(){
 
 	this.x = Float32Array.from(this.points.map((p)=>p.x));
@@ -162,18 +194,25 @@ export class Dataset{
 	this.z = Float32Array.from(this.points.map((p)=>p.z));		
     }
     
-    fetchAnnotations(){
+    fetchAnnotations(){ 
 	var ann_url = this.annotations_url;
 	var that = this;
-	fetch(this.annotations_url).then(function(response){
+	this.annotation_promise = fetch(this.annotations_url).then(function(response){
 	    return response.json();
 	}).then(function(myJson){
 	    that.annotations = myJson;
-	    var seq_col = that.annotations.feature_cols.indexOf("seq")
+	    var seq_col = that.annotations.feature_cols.indexOf("seq");
 	    that.sequences = that.annotations["features"].map((e)=>e[seq_col]);
 	    _.each(that.umis,function(e,i){
 		e.seq = that.sequences[i];
 	    });
+
+	    var seg_col = that.annotations.feature_cols.indexOf("seg");
+	    that.segments = that.annotations["features"].map((e)=>e[seg_col]);
+	    _.each(that.umis,function(e,i){
+		e.seg = that.segments[i];
+	    });
+	    
 	    that.points = makePointsFromUmis(that.umis);
 	});
     }

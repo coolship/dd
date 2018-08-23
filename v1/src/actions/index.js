@@ -98,9 +98,11 @@ export const fetchUser = () => dispatch => {
     authRef.onAuthStateChanged(user => {
 	if (user.email) {
 	    const has_admin=admins.findIndex((e)=>e==user.email)>-1;
+	    const {email}=user;
+	   
 	    dispatch({
 		type: FETCH_USER,
-		payload: Object.assign({},user,{has_admin})
+		payload:{email,has_admin},
 	    });
 	} else {
 	    dispatch({

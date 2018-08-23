@@ -66,11 +66,12 @@ export default connect(mapStateToProps, { resetUIOnly, signOut , fetchDatasets, 
 
 
 const CenterContainer = styled.div`
-top:50%;
-left:50%;
+top:50vh;
+left:50vw;
 position:absolute;
 transform: translate(-50%, -50%);
-    height:100vh;
-
+a{
+color:white;
+}
 `;
 
