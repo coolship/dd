@@ -21,6 +21,8 @@ import OverlayControls from "./OverlayControls";
 import SelectionInfo from "./SelectionInfo";
 import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
+import  SvgSelectionView from "./SvgSelectionView";
+import  CellSelectionInteractor from "./CellSelectionInteractor";
 
 
 
@@ -36,7 +38,9 @@ class DatasetStageContainer extends RenderContainer {
     //LIFECYCLE METHODS
     constructor(props){
 	super(props);
-	this.state = {};
+	this.state = {
+	    interactionMode:"drag", // allowable: "select", "cell", "drag", "analyze"
+	};
 	
 	this.bound_resize = this.handleResize.bind(this);
 	this.bound_wheel = this.handleScroll.bind(this);
@@ -252,6 +256,21 @@ class DatasetStageContainer extends RenderContainer {
 	    zoom:z_new,
 	});
     }
+
+    activateCellMode(){
+	this.setState({interactionMode:"cell"})
+    }
+
+    activateSelectMode(){
+	this.setState({interactionMode:"select"})
+
+    }
+    activateDragMode(){
+	this.setState({interactionMode:"drag"})
+
+    }
+
+    
     render(props){
 	;
 
@@ -267,7 +286,7 @@ class DatasetStageContainer extends RenderContainer {
 		       ref={this.backend_ref}
 		       markFresh={this.forcedRefresh.bind(this)}
 		       dataset={this.props.dataset}
-		       color_config={{by_segment:true}}
+		       color_config={{by_segment:this.state.interactionMode=="cell"}}
 		       />
 		    <MultiResView
 		       onMouseMove={this.onMouseMove.bind(this)}
@@ -277,7 +296,6 @@ class DatasetStageContainer extends RenderContainer {
 		       onWheel={this.bound_wheel}
 		       drawFromBuffer={this.drawFromBuffer.bind(this)}
 		       bufferReady={true}
-		       clickFun={this.bound_click}
 		       dataset={this.props.dataset}
 		       ref={this.view_ref}
 		       clientWidth={this.state.viewport.clientWidth}
@@ -288,13 +306,47 @@ class DatasetStageContainer extends RenderContainer {
 		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
 		       />
 
-		    <OverlayControls
-		       centerView={this.centerView.bind(this)}
-		       zoomIn={this.zoomIn.bind(this)}
+		    {this.state.interactionMode =="select"?
+			(this.props.selection.select_umi_idx?		  
+			 <SvgSelectionView
+				umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+		       x0={this.state.viewport.x0}
+		       y0={this.state.viewport.y0}
+		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+				clickFun={this.bound_click}
+				>
+			     </SvgSelectionView>
+			     :null)
+			 :null}
+			 
+			 {this.state.interactionMode =="drag"?null:null}
+			 {this.state.interactionMode =="cell"?
+			     <CellSelectionInteractor
+				    umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+		       x0={this.state.viewport.x0}
+		       y0={this.state.viewport.y0}
+		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+				clickFun={this.bound_click}
+				    />
+
+			 :null}
+			 
+			 
+			 <OverlayControls
+			    centerView={this.centerView.bind(this)}
+			    zoomIn={this.zoomIn.bind(this)}
 		       panRight={this.panRight.bind(this)}
 		       panUp={this.panUp.bind(this)}
 		       exportPng={this.exportPng.bind(this)}
 		       is_demo={this.props.is_demo}
+
+
+		       interactionMode={this.state.interactionMode}
+		       activateCellMode={this.activateCellMode.bind(this)}
+		       activateDragMode={this.activateDragMode.bind(this)}
+		       activateSelectMode={this.activateSelectMode.bind(this)}
 		       
 		       />
 		    

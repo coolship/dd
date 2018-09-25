@@ -42,6 +42,7 @@ class DnaMicroscope extends Component {
 	} else if(this.props.datasets && Object.keys(this.props.datasets).length >0){
 	    return(
 		<CenterContainer><h1>Welcome to DNA microscopy</h1>
+		  <div className="biline">In this section of the app, you can access and analyze your datasets. To upload datasets of your own, please visit our <NavLink to="/admin">user administration page</NavLink>. For sample datasets, please see our <NavLink to="/gallery">demo gallery</NavLink><br/><br/></div>
 		  <DatasetSelect></DatasetSelect>
 		</CenterContainer>
 	    );
@@ -68,6 +69,7 @@ export default connect(mapStateToProps, { resetUIOnly, signOut , fetchDatasets, 
 const CenterContainer = styled.div`
 top:50vh;
 left:50vw;
+width:300px;
 position:absolute;
 transform: translate(-50%, -50%);
 a{

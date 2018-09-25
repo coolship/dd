@@ -19,19 +19,21 @@ export default class OverlayControls extends Component{
     render(){
 	return <StyledOverlayControls>
 	    <div className="left-controls">
-	    <OpenWith className="boxed-icon" onClick={this.props.activatePanZoom}/>
-	    <Adjust className="boxed-icon" onClick={this.props.activateCellSegmentation}/>
-	    <SelectAll className="boxed-icon" onClick={this.props.activateSelection}/>
-	    <CloudDownload className="boxed-icon" onClick={this.props.exportPng}/>
+	    <OpenWith className={"btn boxed-icon "+(this.props.interactionMode=="drag"?"active":"")} onClick={this.props.activateDragMode}/>
+	    <Adjust className={"btn boxed-icon "+(this.props.interactionMode=="cell"?"active":"")} onClick={this.props.activateCellMode}/>
+	    <SelectAll className={"btn boxed-icon "+(this.props.interactionMode=="select"?"active":"")} onClick={this.props.activateSelectMode}/>
+	{ !true? <CloudDownload className="boxed-icon" onClick={this.props.exportPng}/>:null }
 	    <PanZoomControls
 	zoomIn={this.props.zoomIn}
 	panRight={this.props.panRight}
 	panUp={this.props.panUp}
 	centerview={this.props.centerView}
 	    />
+	
+	    
 	</div>
 	{this.props.is_demo?null:<div className="right-controls">
-	<DatasetSelect/>
+	 <DatasetSelect/>
 	 </div>}
 	</StyledOverlayControls>;
     }
@@ -46,13 +48,18 @@ left:0px;
 right:0px;
 text-align:left;
 >*{
+.btn{cursor:pointer;
 pointer-events:auto;
-cursor:pointer;
+
+}
 }
 .right-controls{
 position:absolute;
 right:0px;
 bottom:0px;
 
+}
+.boxed-icon.active{
+background-color:blue;
 }
 `;

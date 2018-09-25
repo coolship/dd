@@ -23,7 +23,7 @@ export default class ModalSelectionContainer extends RenderContainer{
 	var y1 = sel.y + 2;
 
 	this.range = {x0,y0,x1,y1};
-	this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
+	//this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
 	this.selected = sel;
 	this.canvas_width=400;
 	this.canvas_height=400;
@@ -78,7 +78,8 @@ export default class ModalSelectionContainer extends RenderContainer{
 		<TwoModeCanvas
 		   ref={this.backend_ref}
 		   markFresh={this.forcedRefresh.bind(this)}
-		   dataset={this.data_subset}
+		   dataset={this.props.dataset}
+		   color_config={{}}
 		   />
 	      </div>
 	    </ModalSelectionComponent>

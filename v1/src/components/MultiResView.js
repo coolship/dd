@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import logo from '../logo.svg';
 import _ from 'lodash';
 
-import  SvgSelectionView from "./SvgSelectionView";
 
 
 import styled, { css } from 'styled-components';
@@ -35,17 +34,7 @@ class MultiResView extends Component {
 		   width={this.props.clientWidth}
 		   height={this.props.clientHeight}
 		     id="regl-canvas"/>
-	      	    {this.props.selection.select_umi_idx?
-		     <SvgSelectionView
-			    umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
-			    x0={this.props.x0}
-			    y0={this.props.y0}
-			    x1={this.props.x1}
-			    y1={this.props.y1}
-			    clickFun={this.props.clickFun}
-			    />
-		     :null}
-		
+
 	    </div>
 	    
 	);
@@ -68,8 +57,8 @@ class MultiResView extends Component {
     }
 }
 
-function mapStateToProps({ selection}){
-    return {selection};
+function mapStateToProps({ }){
+    return {};
 }
 
 export default connect(mapStateToProps, {},null,  { withRef: true })(MultiResView);
