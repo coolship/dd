@@ -217,8 +217,23 @@ export class Dataset{
 	});
     }
 
+    idxs_by_segment(segment){
+	if(!this.segments_dict){
+	    this.segments_dict = {};
+	    _.each(this.segments,(e,i)=>{
+		if(!this.segments_dict[e]){ this.segments_dict[e] = [];}
+		this.segments_dict[e].push(i);		
+	    });
+	}
+	return this.segments_dict[segment];
+    }
+    
     within(x,y,radius){
 	return this.kd.within(x,y,radius).map(idx=>this.umis[idx]);
+    }
+
+    idxs_within(x,y,radius){
+	return this.kd.within(x,y,radius);
     }
 
     range(x0,y0,x1,y1){

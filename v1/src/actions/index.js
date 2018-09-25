@@ -77,22 +77,6 @@ export const resetApp = () => dispatch => {
     })
 }
 
-
-export const setSelectUmiIdx = (idx) => dispatch => {
-    dispatch({
-	type: SET_SELECT_UMI_IDX,
-	payload:idx
-    })
-}
-
-export const setSelectType = (type) => dispatch => {
-    dispatch({
-	type:SET_SELECT_TYPE,
-	payload:type
-    })
-}
-
-
 export const listenFetchUser = () => dispatch => {
     const admins=["ben@coolship.io","jwein@broadinstitute.org"];
     authRef.onAuthStateChanged(user => {

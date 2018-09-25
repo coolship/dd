@@ -5,9 +5,6 @@ export default class CellSelectionInteractor extends Component{
 
     render(){
 	return (
-	    null
-	);
-	/*
 	    <SvgElement viewBox={""+this.props.x0+" "+this.props.y0+" "
 				 +(this.props.x1-this.props.x0)+" "+
 			(this.props.y1-this.props.y0)}>
@@ -15,13 +12,13 @@ export default class CellSelectionInteractor extends Component{
                   return <circle key={ i }
 				     cx={umi.x}
 				     cy={umi.y}
-				     r={umi.appearance.size}
+				     r={umi.appearance.size/20}
 				     fill={"white"}
 				     onClick={this.props.clickFun}
 				     />;
                   })}</SvgElement>
 	);
-	 */
+	 
     }
 }
 
@@ -32,7 +29,7 @@ position:absolute;
 left:0px;
 pointer-events:none;
 circle{
-pointer-events:auto;
-cursor:pointer;
+//pointer-events:auto;
+//cursor:pointer;
 }
 `;

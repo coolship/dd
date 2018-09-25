@@ -7,7 +7,7 @@ import {MODALS} from "../layout";
 
 
 //actions
-import { setSelectUmiIdx, setSelectType, setMouse, resetApp} from "../actions";
+import { setMouse, resetApp} from "../actions";
 import { uploadPreview } from "../actions/FileIO";
 
 //rendering tools
@@ -29,7 +29,8 @@ import  CellSelectionInteractor from "./CellSelectionInteractor";
 const INTERACTION_STATES={
     "NONE":0,
     "HOVER":1,
-    "FREEZE":2
+    "FREEZE":2,
+    "DRAGGING":3,
 };
 
 
@@ -39,7 +40,8 @@ class DatasetStageContainer extends RenderContainer {
     constructor(props){
 	super(props);
 	this.state = {
-	    interactionMode:"drag", // allowable: "select", "cell", "drag", "analyze"
+	    interactionMode:"select", // allowable: "select", "cell", "drag", "analyze"
+	    selection:{selected_idxs:[],select_type:null},
 	};
 	
 	this.bound_resize = this.handleResize.bind(this);
@@ -77,22 +79,54 @@ class DatasetStageContainer extends RenderContainer {
     componentWillUnmount(){
 	window.removeEventListener('resize', this.bound_resize);
     }
+
+    setSelectType(val){
+	this.setState({selection:Object.assign({},this.state.selection,{select_type:val})});
+    }
+
+    setSelectUmiIdx(val){
+	if(val){
+	    this.setState({selection:Object.assign({},this.state.selection,{selected_idxs:[val]})});	 }else{
+		this.setState({selection:Object.assign({},this.state.selection,{selected_idxs:[]})});	 } 
+    }
+    setSelectManyIdxs(idxs){
+	if(idxs){
+	    this.setState({selection:Object.assign({},this.state.selection,{selected_idxs:idxs})});	} else{
+		this.setState({selection:Object.assign({},this.state.selection,{selected_idxs:[]})});
+
+	    }
+    }
+    
+    getFirstSelected(){
+	if(this.state.selection.selected_idxs && this.state.selection.selected_idxs.length>0){
+	    return this.state.selection.selected_idxs[0];
+	} else{
+	    return null;
+	}
+    }
+    getAllSelected(){
+	if(this.state.selection.selected_idxs){
+	    return this.state.selection.selected_idxs;
+	} else{
+	    return [];
+	}
+    }
+    
     onMouseEnter(event){
-	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){return;}
+	if(this.state.selection.select_type==INTERACTION_STATES.FREEZE){return;}
 
 	var {x0,y0,zoom,clientWidth,clientHeight } = this.state.viewport;
 	this.props.setMouse({nx:event.clientX / clientWidth,
 			     ny:event.clientY / clientHeight});
-
-	this.props.setSelectType(1);	
+	this.setSelectType(1);
     }
     onMouseLeave(event){
-	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){return;}
-	this.props.setSelectType(0);
+	if(this.state.selection.select_type==INTERACTION_STATES.FREEZE){return;}
+	this.setSelectType(0);
     }
     onClick(event){
-	this.props.setSelectType(
-	    this.props.selection.select_type==INTERACTION_STATES.FREEZE?
+	this.setSelectType(
+	    this.state.selection.select_type==INTERACTION_STATES.FREEZE?
 		INTERACTION_STATES.NONE:
 		INTERACTION_STATES.FREEZE);
     }
@@ -208,7 +242,7 @@ class DatasetStageContainer extends RenderContainer {
     };
 
     onMouseMove(event){
-	if(this.props.selection.select_type==INTERACTION_STATES.FREEZE){ return}
+	if(this.state.selection.select_type==INTERACTION_STATES.FREEZE){ return}
 	
 	var {x0,y0,zoom,clientWidth,clientHeight } = this.state.viewport
 	const self = ReactDOM.findDOMNode( this.self_ref.current);
@@ -220,18 +254,27 @@ class DatasetStageContainer extends RenderContainer {
 	};
 
 	this.props.setMouse(normalizedCoords(event));	
-	this.props.setSelectType(INTERACTION_STATES.HOVER);
+	this.setSelectType(INTERACTION_STATES.HOVER);
 	var dataX = this.props.mouse.nx*(clientWidth / zoom) + x0;
 	var dataY = this.props.mouse.ny*(clientHeight / zoom) + y0;
 
 	var n1 = this.props.dataset.nearest(dataX,dataY,.25);
 	if(n1){
-	    const new_idx = n1.idx;
-	    if (this.props.selection.select_umi_idx != new_idx){
-		this.props.setSelectUmiIdx(new_idx);
+	    if(this.state.interactionMode=="cell"){
+		var idxs = this.props.dataset.idxs_by_segment(n1.seg);
+		if(idxs.length >1){
+		    this.setSelectManyIdxs(idxs);
+		}
+	    } else if(this.state.interactionMode=="select"){
+		const new_idx = n1.idx;
+		if (this.getFirstSelected() != new_idx){
+		    this.setSelectUmiIdx(new_idx);
+		}
+	    } else {
+		this.setSelectUmiIdx(null);
 	    }
 	} else {
-	    this.props.setSelectUmiIdx(null);
+	    this.setSelectUmiIdx(null);
 	}
     }
 
@@ -307,9 +350,9 @@ class DatasetStageContainer extends RenderContainer {
 		       />
 
 		    {this.state.interactionMode =="select"?
-			(this.props.selection.select_umi_idx?		  
+			(this.getFirstSelected()?		  
 			 <SvgSelectionView
-				umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+				umis={[this.props.dataset.umis[this.getFirstSelected()]]}
 		       x0={this.state.viewport.x0}
 		       y0={this.state.viewport.y0}
 		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
@@ -323,7 +366,8 @@ class DatasetStageContainer extends RenderContainer {
 			 {this.state.interactionMode =="drag"?null:null}
 			 {this.state.interactionMode =="cell"?
 			     <CellSelectionInteractor
-				    umis={[this.props.dataset.umis[this.props.selection.select_umi_idx]]}
+				    umis={_.map(this.getAllSelected(),(idx)=>{
+					return this.props.dataset.umis[idx]})}
 		       x0={this.state.viewport.x0}
 		       y0={this.state.viewport.y0}
 		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
@@ -350,12 +394,12 @@ class DatasetStageContainer extends RenderContainer {
 		       
 		       />
 		    
-		    {this.props.selection.select_type==INTERACTION_STATES.FREEZE&&this.props.selection.select_umi_idx!=null?
+			 {this.state.selection.select_type==INTERACTION_STATES.FREEZE&&this.getFirstSelected()!=null?
 			<ModalSelectionContainer
 			       dataset={this.props.dataset}
-			       selected_idx={this.props.selection.select_umi_idx}
+			       selected_list={this.getAllSelected()}
 			       close={()=>{
-				   this.props.setSelectType(INTERACTION_STATES.NONE);
+				   this.setSelectType(INTERACTION_STATES.NONE);
 			       }}/>:
 			  null}
 		  </CanvasContainer>
@@ -385,7 +429,7 @@ function mapStateToProps( { mouse, selection} ) {
     return {  mouse, selection };
 }
 
-export default connect(mapStateToProps, { setMouse, setSelectUmiIdx, setSelectType} )(DatasetStageContainer);
+export default connect(mapStateToProps, { setMouse} )(DatasetStageContainer);
 
 
 

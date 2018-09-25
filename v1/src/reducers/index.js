@@ -11,7 +11,6 @@ import datasets from "./datasetsReducer";
 //ui reducers
 import app from "./appReducer";
 import mouse from "./mouseReducer";
-import selection from "./selectionReducer";
 import query from "./queryReducer";
 import demos from "./demosReducer";
 
@@ -21,7 +20,6 @@ const appReducer = combineReducers({
     datasets,
     app,
     mouse,
-    selection,
     query,
     demos,
 });

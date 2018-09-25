@@ -19,7 +19,6 @@ export default class OverlayControls extends Component{
     render(){
 	return <StyledOverlayControls>
 	    <div className="left-controls">
-	    <OpenWith className={"btn boxed-icon "+(this.props.interactionMode=="drag"?"active":"")} onClick={this.props.activateDragMode}/>
 	    <Adjust className={"btn boxed-icon "+(this.props.interactionMode=="cell"?"active":"")} onClick={this.props.activateCellMode}/>
 	    <SelectAll className={"btn boxed-icon "+(this.props.interactionMode=="select"?"active":"")} onClick={this.props.activateSelectMode}/>
 	{ !true? <CloudDownload className="boxed-icon" onClick={this.props.exportPng}/>:null }

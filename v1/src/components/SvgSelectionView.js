@@ -28,7 +28,7 @@ position:absolute;
 left:0px;
 pointer-events:none;
 circle{
-pointer-events:auto;
-cursor:pointer;
+//pointer-events:auto;
+//cursor:pointer;
 }
 `;

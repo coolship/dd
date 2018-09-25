@@ -16,15 +16,31 @@ export default class ModalSelectionContainer extends RenderContainer{
     constructor(props){
 	//view and backend refsare created in super
 	super(props);
-	var sel = this.props.dataset.umis[this.props.selected_idx];
-	var x0 = sel.x - 2;
-	var y0 = sel.y - 2;
-	var x1 = sel.x + 2;
-	var y1 = sel.y + 2;
+
+	
+
+	var selected = _.map(this.props.selected_list,
+			     (e,i)=>{
+				 return this.props.dataset.umis[e];
+			     });
+	
+
+	console.log(selected)
+	
+	
+	const min_x = _.reduce(selected,(memo,next)=>{return Math.min(memo,next.x);},Infinity);
+	const max_x = _.reduce(selected,(memo,next)=>{return Math.max(memo,next.x);},-Infinity);
+	const min_y = _.reduce(selected,(memo,next)=>{return Math.min(memo,next.y);},Infinity);
+	const max_y = _.reduce(selected,(memo,next)=>{return Math.max(memo,next.y);},-Infinity);
+	
+	var x0 = min_x - 2;
+	var y0 = min_y - 2;
+	var x1 = max_x + 2;
+	var y1 = max_y + 2;
 
 	this.range = {x0,y0,x1,y1};
 	//this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
-	this.selected = sel;
+	this.selected = selected;
 	this.canvas_width=400;
 	this.canvas_height=400;
     }
@@ -52,23 +68,37 @@ export default class ModalSelectionContainer extends RenderContainer{
     };
     
     render(){
+	let info;
+	if(this.selected.length ==1){
+	    info = (	<ul>
+			<li><span className="title">X:</span><span>{this.selected.length==1?this.selected[0].x:"multiple xvals"}</span></li>
+			<li><span className="title">Y:</span><span>{this.selected.length==1?this.selected[0].y:"multiple yvals"}</span></li>
+			<li><span className="title">sequence:</span><span><div className="seq">{this.selected.length==1?this.selected[0].seq:"multiple sequences. [TODO] DOWNLOAD FA"}</div></span></li>
+			</ul>);
+	} else {
+
+
+	    var obj =_.map(this.selected,(e,i)=>{return ">"+e.idx +"_("+e.x+","+e.y+")"+"\n"+e.seq+"\n";}).join("");
+	    var data = "text/plain;charset=utf-8," + encodeURIComponent(obj);	    
+	    info = (<ul>
+		    <li>{ this.selected.length } transcripts</li>
+		    <li><a href={"data:" + data} download="sequences.txt">download fasta file</a></li>
+		    </ul>);
+
+	}
 	return(
 	    <ModalSelectionComponent>
 	      <div className="overlay" onClick={this.props.close}></div>
 	      <div className="content">
 		<div className="info">
-		  <ul>
-		    <li><span className="title">X:</span><span>{this.selected.x}</span></li>
-		    <li><span className="title">Y:</span><span>{this.selected.y}</span></li>
-		    <li><span className="title">sequence:</span><span><div className="seq">{this.selected.seq}</div></span></li>
-		    <li><span className="title">metadata:</span><span>{JSON.stringify(this.selected.metadata?this.selected.metdata:{})}</span></li>
-		  </ul>
+		  {info}
+			  
 		</div>
 		<div className="canvas">
 		  <StaticView ref={this.view_ref}
 			      canvas_height={this.canvas_height}
 			      canvas_width={this.canvas_width}/>
-		  <SvgSelectionView umis={[this.selected]}
+		  <SvgSelectionView umis={this.selected}
 				    x0={this.range.x0}
 				    y0={this.range.y0}
 				    x1={this.range.x1}
