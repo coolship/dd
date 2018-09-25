@@ -17,7 +17,7 @@ const HomeLoginCard = (props)=>{
 	    <a href="#" onClick={props.signOut}><li>Sign out</li></a>
 	</ul>
 	</div>;
-    } else if (props.auth) {
+    } else if (props.auth&&props.auth.email) {
 	SignInComponent =
 	    <div>Logged in as user, {props.auth.email}.
 	    <ul>

@@ -92,23 +92,36 @@ export const setSelectType = (type) => dispatch => {
     })
 }
 
-export const fetchUser = () => dispatch => {
 
+export const listenFetchUser = () => dispatch => {
     const admins=["ben@coolship.io","jwein@broadinstitute.org"];
     authRef.onAuthStateChanged(user => {
-	if (user.email) {
+	//this code is always reached, even if there is no user
+	//it is run on startup
+	if (user && user.email) {
 	    const has_admin=admins.findIndex((e)=>e==user.email)>-1;
 	    const {email}=user;
-	   
+	    
 	    dispatch({
 		type: FETCH_USER,
-		payload:{email,has_admin},
+		payload:{email,anonymous:false,has_admin},
 	    });
 	} else {
-	    dispatch({
-		type: FETCH_USER,
-		payload: null
-	    });
+	    authRef.signInAnonymously().then(
+		result =>{
+		    dispatch({
+			type:FETCH_USER,
+			payload:{email:null, anonymous:true, as_admin:false}
+		    });
+		}
+	    )
+		.catch(function(error) {
+		    // Handle Errors here.
+		    var errorCode = error.code;
+		    var errorMessage = error.message;
+		    // ...
+		})
+	    
 	}
     });
 };
@@ -180,7 +193,7 @@ export const signIn = () => dispatch => {
 
 export const signOut = () => dispatch => {
   authRef
-    .signInAnonymously()
+    .signOut()
     .then(() => {
       // Sign-out successful.
     })

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
-import { fetchUser, fetchDemoDatasets, signInAnonyously } from "./actions";
+import {  listenFetchUser, fetchDemoDatasets, signInAnonyously } from "./actions";
 import styled, { css } from 'styled-components';
 
 //components
@@ -19,12 +19,14 @@ import {Breadcrumbs} from "react-breadcrumbs";
 
 class App extends Component {    
     componentWillMount() {
-	this.props.fetchUser();
+	//this.props.defaultLogin();
+	this.props.listenFetchUser();
 	this.props.fetchDemoDatasets();
 
     }
     
     render() {
+
 	return (
 	    <BrowserRouter>
 	      <StyledAppContainer className="container">
@@ -43,6 +45,7 @@ class App extends Component {
 	    </StyledAppContainer>
 	    </BrowserRouter>
 	);
+	
     }
 }
 
@@ -73,7 +76,7 @@ box-sizing:border-box;
 padding-top:20px;
     color:white;
 `;
-export default connect(null, { fetchUser, fetchDemoDatasets })(App);
+export default connect(({auth})=>{return{auth}}, { listenFetchUser, fetchDemoDatasets })(App);
 
 
 

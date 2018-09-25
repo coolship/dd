@@ -24,18 +24,18 @@ export default function(ComposedComponent) {
 	    router: PropTypes.object
 	};
 	componentWillMount() {
-	    if (! this.props.auth) {
+	    if (!(this.props.auth&&this.props.auth.email)) {
 		this.context.router.history.push("/signin");
 	    }	  
 	}
 	componentWillUpdate(nextProps) {
-	    if (!nextProps.auth) {
+	    if (!(nextProps.auth&&nextProps.auth.email)) {
 		this.context.router.history.push("/signin");
 	    }
 	}
 
 	render() {
-	    if (this.props.auth) {
+	    if (this.props.auth&&this.props.auth.email){
 		return <ComposedComponent {...this.props} />;
 	    }
 	    return null;

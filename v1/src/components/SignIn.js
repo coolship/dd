@@ -4,6 +4,8 @@ import { signIn } from "../actions";
 import PropTypes from "prop-types";
 import styled, { css } from 'styled-components';
 import LoginWithGoogle from "./LoginWithGoogle";
+import {NavLink} from "react-router-dom";
+
 
 class Signin extends Component {
     static contextTypes = {
@@ -11,19 +13,17 @@ class Signin extends Component {
     };
 
     componentWillUpdate(nextProps) {
-	if (nextProps.auth) {
+	if (nextProps.auth.email) {
 	   this.context.router.history.goBack();
 	}
     }
 
     render() {
 	return (
-	    <StyledSignIn className="signin main">
-	      <div className="welcome">
-		<h1>Welcome to DNA microscopy</h1>
-		<LoginWithGoogle/>
-	      </div>
-	    </StyledSignIn>
+	    <CenterContainer><h1>Welcome to DNA microscopy</h1>
+	      <div className="biline">This section the DNA Microscopy app is for logged in users. Please sig in with google to create an acocunt! For sample datasets, please see our <NavLink to="/gallery">demo gallery</NavLink><br/><br/></div>
+	      <LoginWithGoogle/>
+	    </CenterContainer>
 	);
     }
 }
@@ -34,14 +34,16 @@ function mapStateToProps({ auth }) {
 
 export default connect(mapStateToProps, { signIn })(Signin);
 
-const StyledSignIn=styled.div`
-background-color:red;
-.welcome {
-  max-width: 20em;
-  position: fixed;
-  top: 50%;
-  margin-top: -150px;
-  left: 50%;
-    margin-left: -10em;
 
+const CenterContainer = styled.div`
+top:50vh;
+left:50vw;
+width:300px;
+position:absolute;
+transform: translate(-50%, -50%);
+a{
+color:white;
+}
 `;
+
+

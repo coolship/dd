@@ -23,16 +23,15 @@ class Navbar extends Component {
 	router: PropTypes.object
     };
     render(){
-	console.log(this.props.auth);
 	return (
 	    <StyledNavbar>
 	      <div className="nav-right">
 		  <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/>
-		    <StyledSignedIn className="user-nav" hasAuth={this.props.auth?true:false}>
-		      {this.props.auth?<ExitToApp className="icon" onClick={this.props.signOut}/>:null}
-		      {this.props.auth?<NavLink to="/admin"><Settings className="icon"/></NavLink>:null}
-		      {this.props.auth?<NavLink to="/app"><Visibility className="icon"/></NavLink>:null}
-		      {this.props.auth?<NavLink to="/admin"><AccountCircle className="icon signin"/></NavLink>:<AccountCircle className="icon" onClick={this.props.signIn}/>}
+		    <StyledSignedIn className="user-nav" hasAuth={this.props.auth.email?true:false}>
+		      {this.props.auth.email?<ExitToApp className="icon" onClick={this.props.signOut}/>:null}
+		      {this.props.auth.email?<NavLink to="/admin"><Settings className="icon"/></NavLink>:null}
+		      {this.props.auth.email?<NavLink to="/app"><Visibility className="icon"/></NavLink>:null}
+		      {this.props.auth.email?<NavLink to="/admin"><AccountCircle className="icon signin"/></NavLink>:<AccountCircle className="icon" onClick={this.props.signIn}/>}
 		    </StyledSignedIn>
 	      </div>
 	    </StyledNavbar>
