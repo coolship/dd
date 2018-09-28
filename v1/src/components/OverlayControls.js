@@ -26,7 +26,7 @@ export default class OverlayControls extends Component{
 	zoomIn={this.props.zoomIn}
 	panRight={this.props.panRight}
 	panUp={this.props.panUp}
-	centerview={this.props.centerView}
+	centerView={this.props.centerView}
 	    />
 	
 	    
@@ -47,7 +47,8 @@ left:0px;
 right:0px;
 text-align:left;
 >*{
-.btn{cursor:pointer;
+.btn{
+cursor:pointer;
 pointer-events:auto;
 
 }

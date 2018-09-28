@@ -22,20 +22,13 @@ class MultiResView extends Component {
 
     render(){
 	return (
-	    <div
-		     onMouseMove={this.props.onMouseMove}
-		     onMouseEnter={this.props.onMouseEnter}
-		     onMouseLeave={this.props.onMouseLeave}
-		     onKeyDown={this.props.onKeyDown}
-		     onWheel={this.props.onWheel}
-	       ><FullscreenCanvas
+	    <FullscreenCanvas
 		     ref={this.canvas_ref}
 
 		   width={this.props.clientWidth}
 		   height={this.props.clientHeight}
 		     id="regl-canvas"/>
 
-	    </div>
 	    
 	);
     }

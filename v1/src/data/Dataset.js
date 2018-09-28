@@ -13,16 +13,21 @@ const makePointsFromUmis = (umis)=>{
 
 const default_types = {"-1":{
         "color":[255,255,255,.25],
-        "size":1, //ACTB
+    "size":1, //ACTB
+    name:"ACTB",
+    
     },"0":{
         "color":[255,255,255,1],
         "size":1, //GAPDH --opaque white
+	"name":"GAPDH",
     },"1":{
         "color":[0,255,0,.7],
         "size":1, // GFP
+	"name":"GFP",
     },"2":{
         "color":[255,0,0,.7],
         "size":1, // RFP
+	"name":"RFP"
     }};
 
 
@@ -72,6 +77,9 @@ export class Umi{
 	const {x,y,id,type,idx,seq} = this;
 	const {z,color,size} = this.appearance;
 	return {x,y,id,type,idx,seq,z,color,size};
+    }
+    typeName(){
+	return default_types[this.type].name;
     }
 }
 

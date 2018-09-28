@@ -23,10 +23,7 @@ export default class ModalSelectionContainer extends RenderContainer{
 			     (e,i)=>{
 				 return this.props.dataset.umis[e];
 			     });
-	
-
-	console.log(selected)
-	
+		
 	
 	const min_x = _.reduce(selected,(memo,next)=>{return Math.min(memo,next.x);},Infinity);
 	const max_x = _.reduce(selected,(memo,next)=>{return Math.max(memo,next.x);},-Infinity);
@@ -71,18 +68,20 @@ export default class ModalSelectionContainer extends RenderContainer{
 	let info;
 	if(this.selected.length ==1){
 	    info = (	<ul>
-			<li><span className="title">X:</span><span>{this.selected.length==1?this.selected[0].x:"multiple xvals"}</span></li>
-			<li><span className="title">Y:</span><span>{this.selected.length==1?this.selected[0].y:"multiple yvals"}</span></li>
-			<li><span className="title">sequence:</span><span><div className="seq">{this.selected.length==1?this.selected[0].seq:"multiple sequences. [TODO] DOWNLOAD FA"}</div></span></li>
+			<li><h1>TRANSCRIPT VIEWER</h1></li>
+			<li>Viewing one  UMI-barcoded RNA transcript corresponding to gene {this.selected[0].typeName()} at X={this.selected[0].x}, Y={this.selected[0].y}. All spatial information information displayed in the DNA Microscopy assay is generated from UEI counts between observed transcripts as described in [REFERENCE].</li>
+			<li><span className="title">Transcript sequence:</span><span><div className="seq">{this.selected[0].seq}</div></span></li>
 			</ul>);
 	} else {
 
 
-	    var obj =_.map(this.selected,(e,i)=>{return ">"+e.idx +"_("+e.x+","+e.y+")"+"\n"+e.seq+"\n";}).join("");
+	    var obj =_.map(this.selected,(e,i)=>{return ">"+e.idx +" "+ e.typeName() + " at ("+e.x+","+e.y+")"+"\n"+e.seq+"\n";}).join("");
 	    var data = "text/plain;charset=utf-8," + encodeURIComponent(obj);	    
 	    info = (<ul>
-		    <li>{ this.selected.length } transcripts</li>
-		    <li><a href={"data:" + data} download="sequences.txt">download fasta file</a></li>
+		    <li><h1>CELL SEGMENT VIEWER</h1></li>
+		    <li>Selected { this.selected.length } transcripts, comprising a segmented cell. This segmentation is produced by iterative min-cut on transcript adjacency with a stopping condition [XXX] and may be a useful proxy for spatial colocalization of transcripts in cells. All spatial information and clustering is generated from UEI counts between observed transcripts as described in [REFERENCE].</li>
+		    <li></li>
+		    <li>For full transcript identities and sequence information, <a href={"data:" + data} download="sequences.txt">download this cell as a fasta file</a>.</li>
 		    </ul>);
 
 	}
@@ -103,8 +102,9 @@ export default class ModalSelectionContainer extends RenderContainer{
 				    y0={this.range.y0}
 				    x1={this.range.x1}
 				    y1={this.range.y1}
+				    hull={this.selected.length >2}
 				    />
-		</div>
+		</div>		
 		<TwoModeCanvas
 		   ref={this.backend_ref}
 		   markFresh={this.forcedRefresh.bind(this)}
@@ -130,7 +130,7 @@ left:0px;
 top:0px;
 right:0px;
 bottom:0px;
-background-color:rgba(0, 0, 0, .45);
+background-color:rgba(0, 0, 0, .75);
 }
 
 .content{
@@ -146,7 +146,7 @@ border-radius:3px;
 background-color:black;
 
 .info{
-width:200px;
+width:350px;
 right:100%;
 position:absolute;
 margin-right:20px;
@@ -180,7 +180,7 @@ class StaticView extends Component{
     }
     render(){
 	return (
-	    <canvas ref={this.canvas_ref} width={this.props.canvas_width} height={this.props.canvas_height}/>
+	    <canvas style={{opacity:.25}} ref={this.canvas_ref} width={this.props.canvas_width} height={this.props.canvas_height}/>
 	);
     }
 }

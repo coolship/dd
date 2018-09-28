@@ -21,7 +21,7 @@ import OverlayControls from "./OverlayControls";
 import SelectionInfo from "./SelectionInfo";
 import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
-import  SvgSelectionView from "./SvgSelectionView";
+import  TranscriptSelectionInteractor from "./TranscriptSelectionInteractor";
 import  CellSelectionInteractor from "./CellSelectionInteractor";
 
 
@@ -169,6 +169,7 @@ class DatasetStageContainer extends RenderContainer {
 	this.setViewportXY({x0,y0});
     }
     centerView(){
+	console.log("CETERING")
 	var {x0,y0,zoom,clientWidth,clientHeight} = this.state.viewport;
 	this.setViewportXY({x0:-1*clientWidth/2/zoom,
 				  y0:-1*clientHeight/2/zoom});
@@ -331,77 +332,83 @@ class DatasetStageContainer extends RenderContainer {
 		       dataset={this.props.dataset}
 		       color_config={{by_segment:this.state.interactionMode=="cell"}}
 		       />
-		    <MultiResView
-		       onMouseMove={this.onMouseMove.bind(this)}
-		       onMouseEnter={this.onMouseEnter.bind(this)}
-		       onMouseLeave={this.onMouseLeave.bind(this)}
-		       onKeyDown={this.bound_keydown}
-		       onWheel={this.bound_wheel}
-		       drawFromBuffer={this.drawFromBuffer.bind(this)}
-		       bufferReady={true}
-		       dataset={this.props.dataset}
-		       ref={this.view_ref}
-		       clientWidth={this.state.viewport.clientWidth}
-		       clientHeight={this.state.viewport.clientHeight}
-		       x0={this.state.viewport.x0}
-		       y0={this.state.viewport.y0}
-		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
-		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
-		       />
 
-		    {this.state.interactionMode =="select"?
-			(this.getFirstSelected()?		  
-			 <SvgSelectionView
-				umis={[this.props.dataset.umis[this.getFirstSelected()]]}
-		       x0={this.state.viewport.x0}
-		       y0={this.state.viewport.y0}
-		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
-		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
-				clickFun={this.bound_click}
-				>
-			     </SvgSelectionView>
-			     :null)
-			 :null}
-			 
-			 {this.state.interactionMode =="drag"?null:null}
-			 {this.state.interactionMode =="cell"?
-			     <CellSelectionInteractor
-				    umis={_.map(this.getAllSelected(),(idx)=>{
-					return this.props.dataset.umis[idx]})}
-		       x0={this.state.viewport.x0}
-		       y0={this.state.viewport.y0}
-		       x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
-		       y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
-				clickFun={this.bound_click}
-				    />
+		    	    <div
+			       onMouseMove={this.onMouseMove.bind(this)}
+			       onMouseEnter={this.onMouseEnter.bind(this)}
+			       onMouseLeave={this.onMouseLeave.bind(this)}
+			       onKeyDown={this.bound_keydown}
+			       onWheel={this.bound_wheel}
+			       >
+			      
+			      <MultiResView
 
-			 :null}
-			 
-			 
-			 <OverlayControls
-			    centerView={this.centerView.bind(this)}
-			    zoomIn={this.zoomIn.bind(this)}
-		       panRight={this.panRight.bind(this)}
-		       panUp={this.panUp.bind(this)}
-		       exportPng={this.exportPng.bind(this)}
-		       is_demo={this.props.is_demo}
+				 drawFromBuffer={this.drawFromBuffer.bind(this)}
+				 bufferReady={true}
+				 dataset={this.props.dataset}
+				 ref={this.view_ref}
+				 clientWidth={this.state.viewport.clientWidth}
+				 clientHeight={this.state.viewport.clientHeight}
+				 x0={this.state.viewport.x0}
+				 y0={this.state.viewport.y0}
+				 x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+				 y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+				 />
+
+			      {this.state.interactionMode =="select"?
+				  (this.getFirstSelected()?		  
+				   <TranscriptSelectionInteractor
+					  umis={[this.props.dataset.umis[this.getFirstSelected()]]}
+					  x0={this.state.viewport.x0}
+					  y0={this.state.viewport.y0}
+					  x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+					  y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+					  clickFun={this.bound_click}
+					  >
+				       </TranscriptSelectionInteractor>
+				       :null)
+				   :null}
+				   
+				   {this.state.interactionMode =="drag"?null:null}
+				   {this.state.interactionMode =="cell"?
+				       <CellSelectionInteractor
+					      umis={_.map(this.getAllSelected(),(idx)=>{
+						  return this.props.dataset.umis[idx]})}
+					     x0={this.state.viewport.x0}
+					     y0={this.state.viewport.y0}
+					     x1={this.state.viewport.x0+this.state.viewport.clientWidth/this.state.viewport.zoom}
+					     y1={this.state.viewport.y0+this.state.viewport.clientHeight/this.state.viewport.zoom}
+					     clickFun={this.bound_click}
+					     />
+
+					 :null}
+			    </div>
+			    
+			    
+			    <OverlayControls
+			       centerView={this.centerView.bind(this)}
+			       zoomIn={this.zoomIn.bind(this)}
+			       panRight={this.panRight.bind(this)}
+			       panUp={this.panUp.bind(this)}
+			       exportPng={this.exportPng.bind(this)}
+			       is_demo={this.props.is_demo}
 
 
-		       interactionMode={this.state.interactionMode}
-		       activateCellMode={this.activateCellMode.bind(this)}
-		       activateDragMode={this.activateDragMode.bind(this)}
-		       activateSelectMode={this.activateSelectMode.bind(this)}
-		       
-		       />
-		    
-			 {this.state.selection.select_type==INTERACTION_STATES.FREEZE&&this.getFirstSelected()!=null?
-			<ModalSelectionContainer
-			       dataset={this.props.dataset}
-			       selected_list={this.getAllSelected()}
-			       close={()=>{
-				   this.setSelectType(INTERACTION_STATES.NONE);
-			       }}/>:
-			  null}
+			       interactionMode={this.state.interactionMode}
+			       activateCellMode={this.activateCellMode.bind(this)}
+			       activateDragMode={this.activateDragMode.bind(this)}
+			       activateSelectMode={this.activateSelectMode.bind(this)}
+			       
+			       />
+			    
+			    {this.state.selection.select_type==INTERACTION_STATES.FREEZE&&this.getFirstSelected()!=null?
+				<ModalSelectionContainer
+				       dataset={this.props.dataset}
+				       selected_list={this.getAllSelected()}
+				       close={()=>{
+					   this.setSelectType(INTERACTION_STATES.NONE);
+				       }}/>:
+				  null}
 		  </CanvasContainer>
 		  <DebugConsole>
 		    <table>
@@ -455,7 +462,9 @@ bottom:0px;
 margin:0px;
 z-index:1000;
 padding:20px;
-background-color:"red"};
+background-color:"red"
+width:400px;
+};
 `;
 
 

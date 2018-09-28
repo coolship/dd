@@ -30,15 +30,15 @@ class PanZoomControls extends Component {
 	return 	(
 	    <PanZoomControlsStyled>
 
-	      <ArrowBack className="boxed-icon" onClick={(event)=>{this.props.panRight(-6);}} />
-		<ArrowForward className="boxed-icon" onClick={(event)=>{this.props.panRight(6)}}/>
+	      <ArrowBack className="btn boxed-icon" onClick={(event)=>{this.props.panRight(-6);}} />
+		<ArrowForward className="btn boxed-icon" onClick={(event)=>{this.props.panRight(6)}}/>
 
-		<ArrowUpward className="boxed-icon" onClick={(event)=>{this.props.panUp(-6)}}/>
-		  <ArrowDownward className="boxed-icon" onClick={(event)=>{this.props.panUp(6)}}/>
-		      <ZoomIn className="boxed-icon" onClick={(event)=>{this.props.zoomIn(20,{nx:.5,ny:.5})}}/>
-			<ZoomOut className="boxed-icon" onClick={(event)=>{this.props.zoomIn(-20,{nx:.5,ny:.5})}}/>
+		<ArrowUpward className="btn boxed-icon" onClick={(event)=>{this.props.panUp(-6)}}/>
+		  <ArrowDownward className="btn boxed-icon" onClick={(event)=>{this.props.panUp(6)}}/>
+		      <ZoomIn className="btn boxed-icon" onClick={(event)=>{this.props.zoomIn(20,{nx:.5,ny:.5})}}/>
+			<ZoomOut className="btn boxed-icon" onClick={(event)=>{this.props.zoomIn(-20,{nx:.5,ny:.5})}}/>
 
-			  <CenterFocusStrong className="boxed-icon" onClick={this.props.centerView}/>
+			  <CenterFocusStrong className="btn boxed-icon" onClick={this.props.centerView}/>
 
 	    </PanZoomControlsStyled>
 	)
@@ -59,4 +59,9 @@ const PanZoomControlsStyled=styled.span`
 position:absolute;
 left:50%;
 transform:translate(-50%, 0px);
+
+btn{
+cursor:pointer;
+pointer-events:auto;
+}
 `;

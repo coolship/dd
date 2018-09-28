@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 
-export default class CellSelectionInteractor extends Component{
+export default class SvgSelectionView extends Component{
 
     render(){
-
-
-	
 	return (
 	    <SvgElement viewBox={""+this.props.x0+" "+this.props.y0+" "
 				 +(this.props.x1-this.props.x0)+" "+
@@ -15,15 +12,12 @@ export default class CellSelectionInteractor extends Component{
                   return <circle key={ i }
 				     cx={umi.x}
 				     cy={umi.y}
-				     r={umi.appearance.size/20}
-				     fill={"white"}
+				     r={umi.appearance.size/5}
+				     fill={"rgba("+umi.appearance.color+")"}
 				     onClick={this.props.clickFun}
 				     />;
-              })}
-	      
-	    </SvgElement>
+                  })}</SvgElement>
 	);
-	 
     }
 }
 
