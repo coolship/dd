@@ -18,8 +18,7 @@ class Home extends Component {
 	      
 	      <StyledCenterColumn>
 		
-		<section id="welcome"><h1>WELCOME</h1><div className="biline">To <b>DNA-Microscopy.org</b>,
-	    the web platform for the sequencing-based imaging tool developed  in [REFERENCE].</div></section>
+		<section id="welcome"><h1>WELCOME</h1><div className="biline">To the <b>DNA-Microscope</b>, a new imaging modality for scalable, optics-free mapping of relative biomolecule positions.Read more on: <a href="https://www.biorxiv.org/content/10.1101/471219v1"> bioArxiv </a></div></section>
 		<section className="gallery-section" id="gallery"><StyledGalleryHeader><h1>GALLERY</h1><div className="biline"><NavLink to="/gallery">Explore sample datasets</NavLink></div></StyledGalleryHeader></section>
 
 		<section id="login"><HomeLoginCard/></section>
