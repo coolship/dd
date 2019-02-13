@@ -32,7 +32,7 @@ class App extends Component {
 	      <StyledAppContainer className="container">
 		<StyledBreadcrumbs/>
 
-		<Navbar/>
+		{/* <Navbar/> */}
 		<CrumbRoute title="Home" path="/" render={()=>(
 		    <Switch>
 		      <Route exact path="/" title="Home" component={Home}/>

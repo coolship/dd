@@ -34,6 +34,14 @@ const INTERACTION_STATES={
 };
 
 
+function preventDefault(e) {
+  e = e || window.event;
+  if (e.preventDefault)
+    e.preventDefault();
+  e.returnValue = false;  
+}
+
+
 class DatasetStageContainer extends RenderContainer {
 
     //LIFECYCLE METHODS
@@ -154,6 +162,11 @@ class DatasetStageContainer extends RenderContainer {
     
     handleScroll(event){
 	this.zoomIn(-1 * event.deltaY,null);
+	//document.getElementById('a').onmousewheel = function(e) { 
+	//document.getElementById('a').scrollTop -= e. wheelDeltaY; 
+	preventDefault(event);
+	//}
+
     }    
     handleResize(event){	
 	this.syncViewport();
@@ -384,7 +397,7 @@ class DatasetStageContainer extends RenderContainer {
 					 :null}
 			    </div>
 			    
-			    
+			    {this.props.appearance_props.no_buttons?"":
 			    <OverlayControls
 			       centerView={this.centerView.bind(this)}
 			       zoomIn={this.zoomIn.bind(this)}
@@ -400,7 +413,7 @@ class DatasetStageContainer extends RenderContainer {
 			       activateSelectMode={this.activateSelectMode.bind(this)}
 			       
 			       />
-			    
+			    }
 			    {this.state.selection.select_type==INTERACTION_STATES.FREEZE&&this.getFirstSelected()!=null?
 				<ModalSelectionContainer
 				       dataset={this.props.dataset}

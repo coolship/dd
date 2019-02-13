@@ -25,7 +25,7 @@ class Navbar extends Component {
     render(){
 	return (
 	    <StyledNavbar>
-	      <div className="nav-right">
+	       <div className="nav-right">
 		  <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/>
 		    <StyledSignedIn className="user-nav" hasAuth={this.props.auth.email?true:false}>
 		      {this.props.auth.email?<ExitToApp className="icon" onClick={this.props.signOut}/>:null}

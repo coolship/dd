@@ -34,6 +34,17 @@ export const FILETYPES={
     COORDS:"coords",
     ANNOTATIONS:"annotations",
     PREVIEW:"preview",
+    RBUFFER:"rchannel",
+    GBUFFER:"gchannel",
+    BBUFFER:"bchannel",
+    ABUFFER:"achannel",
+    R_SEGBUFFER:"rschannel",
+    G_SEGBUFFER:"gschannel",
+    B_SEGBUFFER:"bschannel",
+    A_SEGBUFFER:"aschannel",
+    XBUFFER:"xbuffer",
+    YBUFFER:"ybuffer",
+    ZBUFFER:"zbuffer",
 }
 
 
@@ -98,6 +109,35 @@ export const uploadPreview = (key, metadata, blob) => {
 			.update({preview_url:url});		    
 		});
 	});
+}
+
+export const uploadBuffer  = (key, metadata, name, typed_array) => dispatch => {
+
+    const {email,dataset} = metadata;
+    const filename = FILETYPES[name];
+    var filetype_meta = {
+	contentType:'application/octet-stream'
+    };
+
+    console.log("TRYING")
+    var blob = new Blob([typed_array.buffer], {type: 'application/octet-stream'});
+    const uploadTask = storageRef.child(filename).put(blob, filetype_meta);
+    console.log("DONE")
+    uploadTask.on(
+	firebase.storage.TaskEvent.STATE_CHANGED,
+	(snapshot)=>{console.log(50* snapshot.bytesTransferred/snapshot.totalBytes);},
+    	(err)=>{throw err;},
+	()=>{
+	    
+	    // Upload completed successfully, now we can get the download URL
+	    uploadTask.snapshot.ref.getDownloadURL()
+		.then((url)=>{
+		    datasetsRef
+			.child("all")
+			.child(key)
+			.update({[name+"_url"]:url});		    
+		});
+	});    
 }
 
 export const activateDataset = (metadata) => dispatch => {

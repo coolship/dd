@@ -75,11 +75,9 @@ export default function withDatasetFolderUpload(WrappedComponent){
 	    autoSubmit(){
 		
 		//ev.preventDefault();
-		console.log("submitting");
 		//callbacks to update state
 		var callbacks = {
 		    progress:(progress)=>{
-			console.log("submitted, progress: ", progress);
 			this.setState({progress:progress});
 		    },
 		    complete:()=>{

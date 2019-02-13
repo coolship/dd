@@ -89,12 +89,16 @@ export class Dataset{
     constructor(name, coordinate_data,annotations_url){
 
 	this.annotation_promise = null;
-	this.annotations_url = annotations_url;
 	this.coordinate_data = coordinate_data;
 	this.name = name;
 	this.annotations = null;
 	this.sequences = null;
-	this.fetchAnnotations();
+
+	this.annotations_url = annotations_url;
+	//right now, this is only riggered when a url is provided.
+	//probably not the best approach.
+	//should be handled in init
+	if(this.annotations_url){this.fetchAnnotations();}
 
 
 
@@ -102,6 +106,106 @@ export class Dataset{
 
     }
 
+    async initializeFromBuffers(statusCallback,completionCallback,metadata){
+	let that = this;
+	let promises = [];
+	for (let nm of ["r","g","b","a","r_seg","g_seg","b_seg","a_seg","x","y","z"]){
+	    promises.push(
+		fetch(metadata[nm.toUpperCase()+"BUFFER_url"]).then(function(response){
+		    return response.arrayBuffer()
+		}).then(function(buffer){
+		    that[nm] =buffer;
+		})
+	    )
+	}
+
+	function resolveAfter0Seconds() {
+	    return new Promise(resolve => {
+		setTimeout(() => {
+		    resolve('resolved');
+		}, 0);
+	    });
+	}
+
+	function breakFromThread(callback) {
+	    return resolveAfter0Seconds().then(function() {
+		return callback();
+	    });
+	}
+	
+	statusCallback(0,"initializing umi data");
+	this.umis = await breakFromThread(()=>makeUmis(this.coordinate_data,this.sequences));
+	statusCallback(20,"initializing point geometry");
+	this.points = await breakFromThread(()=>makePointsFromUmis(this.umis));
+	statusCallback(40,"initializing coordinates");
+	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
+	statusCallback(50,"sorting with kdbush");
+	this.kd = await breakFromThread(function(){return kdbush(coord_data)});
+	
+	statusCallback(50,"waiting for coord and color data");
+	Promise.all(promises).then(completionCallback)
+	
+    }
+
+    async initializeAsyncWithBuffers(statusCallback, completionCallback, metadata){
+		
+	function resolveAfter0Seconds() {
+	    return new Promise(resolve => {
+		setTimeout(() => {
+		    resolve('resolved');
+		}, 0);
+	    });
+	}
+
+	function breakFromThread(callback) {
+	    return resolveAfter0Seconds().then(function() {
+		return callback();
+	    });
+	}
+
+	let that = this;
+	let promises = [];
+	for (let nm of ["r","g","b","a","r_seg","g_seg","b_seg","a_seg","x","y","z"]){
+	    promises.push(
+		fetch(metadata[nm.toUpperCase()+"BUFFER_url"]).then(function(response){
+		    return response.arrayBuffer()
+		}).then(function(buffer){
+		    that[nm] = new Float32Array(buffer);
+		})
+	    )
+	}
+	
+	statusCallback(0,"initializing umi data");
+	this.umis = await breakFromThread(()=>makeUmis(this.coordinate_data,this.sequences));
+	statusCallback(20,"initializing point geometry");
+	this.points = await breakFromThread(()=>makePointsFromUmis(this.umis));
+	statusCallback(40,"initializing coordinates");
+	var coord_data = this.umis.map(function(e,i){return [e.x,e.y];});
+	
+	statusCallback(50,"sorting with kdbush");
+	this.kd = await breakFromThread(function(){return kdbush(coord_data)});
+	
+	
+	//statusCallback(60, "buffering color data");
+	//await breakFromThread(this.makeColorBuffers.bind(this));
+
+	statusCallback(60, "loading buffers");
+	await Promise.all(promises)
+
+	
+	statusCallback(70, "fetching segmentation annotation");
+	await this.annotation_promise;
+
+	//await breakFromThread(this.makeColorBuffersFromCells.bind(this));
+	
+	//statusCallback(90, "buffering coordinate data")
+	//await breakFromThread(this.makeCoordBuffers.bind(this));
+	
+	statusCallback(100,"initialized dataset");
+	completionCallback();
+
+    }
+    
     
     async initializeAsync(statusCallback, completionCallback, config){
 		
