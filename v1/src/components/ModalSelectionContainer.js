@@ -69,7 +69,7 @@ export default class ModalSelectionContainer extends RenderContainer{
 	if(this.selected.length ==1){
 	    info = (	<ul>
 			<li><h1>TRANSCRIPT VIEWER</h1></li>
-			<li>Viewing one  UMI-barcoded RNA transcript corresponding to gene {this.selected[0].typeName()} at X={this.selected[0].x}, Y={this.selected[0].y}. All spatial information information displayed in the DNA Microscopy assay is generated from UEI counts between observed transcripts as described in [REFERENCE].</li>
+			<li>Viewing one  UMI-barcoded RNA transcript corresponding to gene {this.selected[0].typeName()} at X={this.selected[0].x}, Y={this.selected[0].y}. All spatial information information displayed in the DNA Microscopy assay is generated from UEI counts between observed transcripts.</li>
 			<li><span className="title">Transcript sequence:</span><span><div className="seq">{this.selected[0].seq}</div></span></li>
 			</ul>);
 	} else {
@@ -79,7 +79,7 @@ export default class ModalSelectionContainer extends RenderContainer{
 	    var data = "text/plain;charset=utf-8," + encodeURIComponent(obj);	    
 	    info = (<ul>
 		    <li><h1>CELL SEGMENT VIEWER</h1></li>
-		    <li>Selected { this.selected.length } transcripts, comprising a segmented cell. This segmentation is produced by iterative min-cut on transcript adjacency with a stopping condition [XXX] and may be a useful proxy for spatial colocalization of transcripts in cells. All spatial information and clustering is generated from UEI counts between observed transcripts as described in [REFERENCE].</li>
+		    <li>Selected { this.selected.length } transcripts, comprising a segmented cell. This segmentation is produced by iterative min-cut on transcript adjacency with a stopping condition [XXX] and may be a useful proxy for spatial colocalization of transcripts in cells. All spatial information and clustering is generated from UEI counts between observed transcripts.</li>
 		    <li></li>
 		    <li>For full transcript identities and sequence information, <a href={"data:" + data} download="sequences.txt">download this cell as a fasta file</a>.</li>
 		    </ul>);

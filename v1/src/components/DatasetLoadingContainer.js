@@ -25,8 +25,7 @@ class DatasetLoadingContainer extends Component {
 	that.setState({loading_progress:5,
 		       loading_status:"fetching dataset from server"});
 
-	console.log(metadata)
-	if(metadata.RBUFFER_url){
+	if(false ){//metadata.RBUFFER_url){
 	    /* we have processed buffer data, initialize the dataset directly */
 
 	    //this part is not necssary, but for now we're keeping around
@@ -114,34 +113,52 @@ class DatasetLoadingContainer extends Component {
 	}).then(function(result){
 	    
 	    return new Promise(resolve=>{
-		that.state.dataset.initializeAsyncWithBuffers(
-		    (loading_progress,loading_status)=>{
-			that.setState({loading_progress:loading_progress* .5+20,loading_status});
-		    },
-		    ()=>{
-			that.setState({
-			    dataset_fetched_name:that.props.which_dataset,
-			    loading_progress:100,
-			    loading_status:"complete",
-			});
-			if(that.props.onReadyHandler){that.props.onReadyHandler();}
+		if(false){//that.props.metadata.RBUFFER_url){
+		    that.state.dataset.initializeAsyncWithBuffers(
+			(loading_progress,loading_status)=>{
+			    that.setState({loading_progress:loading_progress* .5+20,loading_status});
+			},
+			()=>{
+			    that.setState({
+				dataset_fetched_name:that.props.which_dataset,
+				loading_progress:100,
+				loading_status:"complete",
+			    });
+			    if(that.props.onReadyHandler){that.props.onReadyHandler();}
+ 
+			    resolve();
+			},
+		    );
+		} else {
+		    that.state.dataset.initializeAsync(
+			(loading_progress,loading_status)=>{
+			    that.setState({loading_progress:loading_progress* .5+20,loading_status});
+			},
+			()=>{
+			    that.setState({
+				dataset_fetched_name:that.props.which_dataset,
+				loading_progress:100,
+				loading_status:"complete",
+			    });
+			    if(that.props.onReadyHandler){that.props.onReadyHandler();}
 
-			/*
-			for (let nm of ["r","g","b","a","r_seg","g_seg","b_seg","a_seg","x","y","z"]){
-			    console.log(nm)
-			    
-			    that.props.uploadBuffer(that.props.metadata_key,
-						    that.props.metadata,
-						    nm.toUpperCase()+"BUFFER",
-						    that.state.dataset[nm]
-						   );
-			}
-			 */
-			resolve();
-		    },
-		    that.props.metadata
-		);
-	    });
+			    /*
+			     for (let nm of ["r","g","b","a","r_seg","g_seg","b_seg","a_seg","x","y","z"]){
+			     console.log(nm)
+			     
+			     that.props.uploadBuffer(that.props.metadata_key,
+			     that.props.metadata,
+			     nm.toUpperCase()+"BUFFER",
+			     that.state.dataset[nm]
+			     );
+			     }
+			     */
+			    resolve();
+			},
+		    );
+		}
+		});
+			     
 	}).then(function(){
 	    that.resetting=false;
 	});
