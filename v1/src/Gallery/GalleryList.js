@@ -24,7 +24,7 @@ const GalleryItem = (props)=>(
 
 const StyledGalleryItem = styled.div`
 
-margin-bottom:50px;
+margin-bottom:0px;
 
 color:white;
 height:60vh;
@@ -165,7 +165,7 @@ overflow-x:hidden;
 text-align:center;
 margin-left:auto;
 margin-right:auto;
-padding:50px;
+padding-top:50px;
 
 .page-header{
 margin-bottom:10vh;
