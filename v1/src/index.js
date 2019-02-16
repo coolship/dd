@@ -9,46 +9,41 @@ import { createStore, applyMiddleware } from "redux";
 import reduxThunk from "redux-thunk";
 import reducers from "./reducers";
 
-
-
 const loadState = () => {
-    try{
-	const serializedState = localStorage.getItem('state');
-	console.log(JSON.parse(serializedState));
-	if (serializedState==null){
-	    return undefined;
-	} else {
-	    return JSON.parse(serializedState);
+	try {
+		const serializedState = localStorage.getItem('state');
+		console.log(JSON.parse(serializedState));
+		if (serializedState == null) {
+			return undefined;
+		} else {
+			return JSON.parse(serializedState);
+		}
+	} catch (err) {
+		console.log("error loading state");
+		return undefined;
 	}
-    } catch(err){
-	console.log("error loading state");
-	return undefined;
-    }
 }
 
-const saveState = (state) =>{
-    try {
-	const serializedState = JSON.stringify(state);
-	localStorage.setItem('state',serializedState);
-	      
-    } catch (err){
-	//ignore write
-	console.log("error saving state");
-    }
+const saveState = (state) => {
+	try {
+		const serializedState = JSON.stringify(state);
+		localStorage.setItem('state', serializedState);
+
+	} catch (err) {
+		//ignore write
+		console.log("error saving state");
+	}
 };
 
-
-
-const store = createStore(reducers,loadState(), applyMiddleware(reduxThunk));
-store.subscribe(()=>{
-    saveState(store.getState());
+const store = createStore(reducers, loadState(), applyMiddleware(reduxThunk));
+store.subscribe(() => {
+	saveState(store.getState());
 });
 
 
 ReactDOM.render(
-      <Provider store={store}>
-
-	<App/>
+	<Provider store={store}>
+		<App />
 	</Provider>
 	, document.getElementById('root'));
 registerServiceWorker();
