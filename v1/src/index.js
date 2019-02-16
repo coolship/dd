@@ -37,7 +37,9 @@ const saveState = (state) =>{
     }
 };
 
-const store = createStore(reducers,{}, applyMiddleware(reduxThunk));
+
+
+const store = createStore(reducers,loadState(), applyMiddleware(reduxThunk));
 store.subscribe(()=>{
     saveState(store.getState());
 });
