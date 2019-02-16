@@ -1,6 +1,14 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
+import DatasetSelect from './DatasetSelect';
+
 import { signOut, fetchDatasets, activateModal, resetUIOnly } from "../actions";
 import { connect } from "react-redux";
+import styled, { css } from 'styled-components';
+
+import { NavLink } from "react-router-dom";
+
+import DatasetLoadingContainer from './DatasetLoadingContainer';
+import HeadsUp from './HeadsUp';
 import _ from "lodash";
 
 
@@ -17,12 +25,12 @@ class DnaMicroscope extends Component {
 				this.props.datasets,
 				(v, k) => { inverted[v["dataset"]] = k }
 			);
+
 			const key = inverted[this.props.app.current_dataset];
 			const meta = this.props.datasets[key];
+
 			return (
-				<div className="App"> 
-		<div className="App">
-				<div className="App"> 
+				<div className="App">
 					<DatasetLoadingContainer
 						which_dataset={this.props.app.current_dataset}
 						metadata={meta}
@@ -54,4 +62,15 @@ function mapStateToProps({ auth, datasets, dataset, app }) {
 
 
 export default connect(mapStateToProps, { resetUIOnly, signOut, fetchDatasets, activateModal })(DnaMicroscope);
+
+const CenterContainer = styled.div`
+				top:50vh;
+				left:50vw;
+				width:300px;
+				position:absolute;
+				transform: translate(-50%, -50%);
+				a{
+					color:white;
+				}
+				`;
 
