@@ -113,16 +113,16 @@ export const uploadPreview = (key, metadata, blob) => {
 
 export const uploadBuffer  = (key, metadata, name, typed_array) => dispatch => {
 
+	var blob = new Blob([typed_array.buffer], {type: 'application/octet-stream'});
     const {email,dataset} = metadata;
-    const filename = FILETYPES[name];
+	const filename = filenameFromMetadata(metadata,FILETYPES[name]);
     var filetype_meta = {
 	contentType:'application/octet-stream'
     };
 
-    console.log("TRYING")
-    var blob = new Blob([typed_array.buffer], {type: 'application/octet-stream'});
-    const uploadTask = storageRef.child(filename).put(blob, filetype_meta);
-    console.log("DONE")
+	var newfile = storageRef.child(filename)
+    const uploadTask = newfile.put(blob, filetype_meta);
+
     uploadTask.on(
 	firebase.storage.TaskEvent.STATE_CHANGED,
 	(snapshot)=>{console.log(50* snapshot.bytesTransferred/snapshot.totalBytes);},
