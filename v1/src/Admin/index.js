@@ -5,6 +5,7 @@ import withDatasetFolderUpload from "./withDatasetFolderUpload";
 import _ from "lodash";
 import {datasetToDemo, demoToDataset, datasetsToAll} from './fbDatasetServices'; 
 import {fetchDatasets, fetchDemoDatasets} from '../actions';
+import { userIdFromEmail } from "../actions/FileIO";
 
 
 /* HOC withDatasetFolderUpload interacts with redux to handle auth*/
@@ -13,7 +14,7 @@ let DatasetDrop = withDatasetFolderUpload(DatasetDropForm);
 class Admin extends Component{
     constructor(props){
 	super(props);
-	this.props.fetchDatasets(this.props.auth.email);
+	this.props.fetchDatasets(userIdFromEmail(this.props.auth.email));
 	this.props.fetchDemoDatasets();  
 
     }

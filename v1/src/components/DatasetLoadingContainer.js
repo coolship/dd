@@ -32,6 +32,7 @@ class DatasetLoadingContainer extends Component {
 	    //the coordinates, just to initialize the kd tree.
 	    //still not setting "annotations_url"
 	    fetch(url).then(function(response) {
+			console.log(response)
 		return response.json();
 	    }).then(function(myJson) {
 		const coords_data = myJson;
@@ -50,8 +51,11 @@ class DatasetLoadingContainer extends Component {
 	    }).catch((err)=>{throw err;});
 	    
 	} else{
+
+
 	    /* no process buffer data. Download unprocessed coordinates and annotations */
 	    fetch(url).then(function(response) {
+
 		return response.json();
 	    }).then(function(myJson) {
 		const coords_data = myJson;
@@ -73,8 +77,10 @@ class DatasetLoadingContainer extends Component {
 	const that = this;
 	that.resetting=true;
 	console.log("BEGINNING RESET")
+
 	this.setState({"dataset_fetched_name":null,
-		       dataset:null});
+			   dataset:null});
+			   console.log("SETSTATE!")
 /*
 	var p = new Promise(resolve =>{
 	    that.fetchDataset(resolve);
@@ -130,6 +136,9 @@ class DatasetLoadingContainer extends Component {
 			},
 		    );
 		} else {
+			//[TODO] fix the mount / unmount issue in DNAMicroscope load which makes this check necessary.
+			
+			if(!that.state.dataset){return}
 		    that.state.dataset.initializeAsync(
 			(loading_progress,loading_status)=>{
 			    that.setState({loading_progress:loading_progress* .5+20,loading_status});
@@ -142,9 +151,10 @@ class DatasetLoadingContainer extends Component {
 			    });
 			    if(that.props.onReadyHandler){that.props.onReadyHandler();}
 
-			    /*
+			    
 			     for (let nm of ["r","g","b","a","r_seg","g_seg","b_seg","a_seg","x","y","z"]){
-			     console.log(nm)
+				 console.log(nm)
+				 console.log("NM@")
 			     
 			     that.props.uploadBuffer(that.props.metadata_key,
 			     that.props.metadata,
@@ -152,7 +162,7 @@ class DatasetLoadingContainer extends Component {
 			     that.state.dataset[nm]
 			     );
 			     }
-			     */
+			     
 			    resolve();
 			},
 		    );
@@ -164,17 +174,22 @@ class DatasetLoadingContainer extends Component {
 	});
 	 
     }
-
+	componentWillUnmount(){
+		console.log("UNMOUNTING!?")
+	}
     componentDidMount(){
+		console.log("DIDMOUNT")
     	if(this.props.which_dataset != this.state.dataset_fetched_name){
 	    if(!this.resetting){this.resetDataset()}
 	}
     };
     
     componentDidUpdate(){
+		console.log("DIDUPDATE")
 	if(this.props.which_dataset != this.state.dataset_fetched_name){
 	    if(!this.resetting){this.resetDataset();}
 	}	
+	console.log("DONEUPDATE")
     }
 
     render(){

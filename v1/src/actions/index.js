@@ -143,8 +143,8 @@ export const fetchDemoDatasets = ()=>dispatch=>{
     });
 };
 
-export const fetchDatasets = email =>  dispatch => {
-    datasetsRef.child("all").orderByChild("email").equalTo(email).on("value", snapshot => {
+export const fetchDatasets = userId =>  dispatch => {
+    datasetsRef.child("all_v2").orderByChild("userId").equalTo(userId).on("value", snapshot => {
 	dispatch({
 	    type: FETCH_DATASETS,
 	    payload: snapshot.val()

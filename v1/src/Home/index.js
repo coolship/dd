@@ -15,7 +15,6 @@ class Home extends Component {
 	    <StyledPage>
 	      <StyledBackgroundFooter/>
 
-	      
 	      <StyledCenterColumn>
 		
 		<section id="welcome"><h1>WELCOME</h1><div className="biline">Welcome to the web portal for DNA microscopy, a new imaging modality for scalable, optics-free mapping of relative biomolecule positions without specialized equipment. <p>Read more on <a href="https://www.biorxiv.org/content/10.1101/471219v1"> bioArxiv </a></p></div></section>
@@ -24,6 +23,7 @@ class Home extends Component {
 
 		  
 		</section>
+		<section id="login"><HomeLoginCard/></section>
 
 		<section className="about-section" id="about"><StyledAboutHeader><img src="http://slides.dna-microscopy.org/assets/2x/about.png"/><div className="headergroup"><h1>ABOUT</h1><div className="biline">The world's only all-sequencing<br/>imaging technology</div></div></StyledAboutHeader><div className="content"><p>Our technoogy uses a first of its kind methodology to infer spatial relationships between DNA sequences of transcripts in vitro. We use biophysical modeling and a novel strategy for high dimensional data embedding to create 2 dimensional maps of transcript sequences in biological datasets.</p><p>The output of our algorithm is a 2 dimensional image, with transcript sequences sequences mapped to individual pixels in a DNA microscopy image. Each pixel in the inferred image contains biological sequence data and can be used to infer complex spatial characteristics of gene expression on cellular and sub-cellular levels.</p></div></section>
 		<Footer/>

@@ -320,7 +320,8 @@ export class Dataset{
 	    });
 
 	    var seg_col = that.annotations.feature_cols.indexOf("seg");
-	    that.segments = that.annotations["features"].map((e)=>e[seg_col]);
+		that.segments = that.annotations["features"].map((e)=>e[seg_col]);
+		
 	    _.each(that.umis,function(e,i){
 		e.seg = that.segments[i];
 	    });

@@ -10,6 +10,7 @@ import Signin from "./components/SignIn";
 import Home from "./Home";
 import Admin from "./Admin";
 import Gallery from "./Gallery";
+import UploadV2 from "./UploadV2";
 import Navbar from "./components/Navbar";
 
 //hoc
@@ -36,6 +37,7 @@ class App extends Component {
 		<CrumbRoute title="Home" path="/" render={()=>(
 		    <Switch>
 		      <Route exact path="/" title="Home" component={Home}/>
+			  <CrumbRoute path="/upload2" title="2nd Generation Uploads" component={UploadV2} />
 		      <CrumbRoute path="/signin" title="Sign In" component={Signin} />
 		      <CrumbRoute path="/app" title="Microscope" component={requireAuth(DnaMicroscope)} />
 		      <CrumbRoute path="/admin" title="Admin" component={requireAuth(Admin)} />

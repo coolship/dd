@@ -26,7 +26,9 @@ const loadState = () => {
 
 const saveState = (state) => {
 	try {
-		const serializedState = JSON.stringify(state);
+		var tosave = {auth:state.auth}
+
+		const serializedState = JSON.stringify(tosave);
 		localStorage.setItem('state', serializedState);
 
 	} catch (err) {
