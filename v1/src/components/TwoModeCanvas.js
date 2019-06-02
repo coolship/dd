@@ -114,6 +114,12 @@ export default class TwoModeCanvas extends Component {
 			  that.props.dataset.getZ().slice(i*inc,(i+1)*inc),
 			 );
 
+		/* slices currently allow the loading in of extra dataset features
+		however, the rendering buffer and multipass rendering system is not used for these
+		... each is drawn on the first pass.
+		[TODO]: use multipass rendering for dataset slices
+		*/
+
 		if(that.props.dataset.slice && i == 0 ){
 			console.log(i)
 			that.drawRegl(
