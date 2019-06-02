@@ -56,9 +56,6 @@ export default connect( mapStateToProps, { resetUIOnly } )(PanZoomControls);
 
 
 const PanZoomControlsStyled=styled.span`
-position:absolute;
-left:50%;
-transform:translate(-50%, 0px);
 
 btn{
 cursor:pointer;
