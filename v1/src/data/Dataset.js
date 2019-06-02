@@ -93,7 +93,7 @@ export class Dataset{
 	this.name = name;
 	this.annotations = null;
 	this.sequences = null;
-
+	this.slice= null;
 	this.annotations_url = annotations_url;
 	//right now, this is only riggered when a url is provided.
 	//probably not the best approach.
@@ -104,7 +104,50 @@ export class Dataset{
 
 	
 
-    }
+	}
+	sliceY(){ 
+		const p = this.points;
+		return Float32Array.from(this.slice.map((idx)=>p[idx[0]].y)) }
+	sliceX(){ 
+		const p = this.points;
+
+		return Float32Array.from(this.slice.map((idx)=>p[idx[0]].x)) }
+	sliceZ(){  
+		const p = this.points;
+		return Float32Array.from(this.slice.map((idx)=>p[idx[0]].z)) }
+
+	sliceR(){ return Float32Array.from(this.slice.map((idx)=>idx[1])) }
+	sliceG(){ return Float32Array.from(this.slice.map((idx)=>0)) }
+	sliceB(){ return Float32Array.from(this.slice.map((idx)=>0)) }
+	sliceA(){ return Float32Array.from(this.slice.map((idx)=>1)) }
+
+slice2Y(){ 
+
+	const p = this.points;
+	return Float32Array.from(this.slice2.map((idx)=>p[idx[0]].y)) }
+slice2X(){ 
+	const p = this.points;
+
+	return Float32Array.from(this.slice2.map((idx)=>p[idx[0]].x)) }
+slice2Z(){  
+	const p = this.points;
+	return Float32Array.from(this.slice2.map((idx)=>p[idx[0]].z)) }
+	slice2R(){ return Float32Array.from(this.slice2.map((idx)=>0)) }
+	slice2G(){ return Float32Array.from(this.slice2.map((idx)=>0)) }
+	slice2B(){ return Float32Array.from(this.slice2.map((idx)=>idx[1])) }
+	slice2A(){ return Float32Array.from(this.slice2.map((idx)=>1)) }
+
+
+	setUmiSlice(umis){
+		this.slice2 = umis;
+	}
+	unsetUmiSlice(){
+		this.slice2 = null;
+	}
+
+	hasSlice(){
+		return this.slice2 == null;
+	}
 
     async initializeFromBuffers(statusCallback,completionCallback,metadata){
 	let that = this;
@@ -271,7 +314,11 @@ export class Dataset{
     getG({by_segment}){ return by_segment?this.g_seg:this.g;}
     getB({by_segment}){ return by_segment?this.b_seg:this.b;}
     getA({by_segment}){ return by_segment?this.a_seg:this.a;}
-    
+	
+	getX(){return this.x;}
+	getY(){return this.y;}
+	getZ(){return this.z;}
+
     makeColorBuffers(){
 	this.r = Float32Array.from(this.points.map((p)=>p.color[0]));
 	this.g = Float32Array.from(this.points.map((p)=>p.color[1]));

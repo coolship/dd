@@ -109,10 +109,48 @@ export default class TwoModeCanvas extends Component {
 			  that.props.dataset.getG(that.props.color_config).slice(i*inc,(i+1)*inc),
 			  that.props.dataset.getB(that.props.color_config).slice(i*inc,(i+1)*inc),
 			  that.props.dataset.getA(that.props.color_config).slice(i*inc,(i+1)*inc),
-			  that.props.dataset.x.slice(i*inc,(i+1)*inc),
-			  that.props.dataset.y.slice(i*inc,(i+1)*inc),
-			  that.props.dataset.z.slice(i*inc,(i+1)*inc),
+			  that.props.dataset.getX().slice(i*inc,(i+1)*inc),
+			  that.props.dataset.getY().slice(i*inc,(i+1)*inc),
+			  that.props.dataset.getZ().slice(i*inc,(i+1)*inc),
 			 );
+
+		if(that.props.dataset.slice && i == 0 ){
+			console.log(i)
+			that.drawRegl(
+				that.getRenderRegl(),
+				rescale,
+				that.getBackendOriginX(x0,y0,dataLen),
+				that.getBackendOriginY(x0,y0,dataLen),
+				that.props.dataset.sliceR(),
+				that.props.dataset.sliceG(),
+				that.props.dataset.sliceB(),
+				that.props.dataset.sliceA(),
+				that.props.dataset.sliceX(),
+				that.props.dataset.sliceY(),
+				that.props.dataset.sliceZ(),
+				3
+			)
+		}
+		if(that.props.dataset.slice2 && i == 0){
+			that.drawRegl(
+				that.getRenderRegl(),
+				rescale,
+				that.getBackendOriginX(x0,y0,dataLen),
+				that.getBackendOriginY(x0,y0,dataLen),
+				that.props.dataset.slice2R(),
+				that.props.dataset.slice2G(),
+				that.props.dataset.slice2B(),
+				that.props.dataset.slice2A(),
+				that.props.dataset.slice2X(),
+				that.props.dataset.slice2Y(),
+				that.props.dataset.slice2Z(),
+				3
+			)
+		}
+		
+
+		
+
 	    i++;
 	   	    
 	    
@@ -216,7 +254,7 @@ export default class TwoModeCanvas extends Component {
 	return output_canvas;
     }
 
-    drawRegl(regl_object, zoom, cx, cy, r,g,b,a,x,y,z){	
+    drawRegl(regl_object, zoom, cx, cy, r,g,b,a,x,y,z,size){	
 	const drawDots = {
 	    blend: {
 		enable: true,
@@ -310,7 +348,7 @@ attribute float a;
 	    primitive: 'points'
 	};
 
-
+	let size_mult = size?size:1;
 	regl_object(drawDots)({
 	    x:x,
 	    y:y,
@@ -320,7 +358,7 @@ attribute float a;
 	    b:b,
 	    a:a,
 	    rescale:zoom,
-	    pointWidth:50*zoom*this.resolution/1200,
+	    pointWidth:50*zoom*this.resolution/1200*size_mult,
 	    cx:cx,
 	    cy:cy,
 	});
