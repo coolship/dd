@@ -17,4 +17,11 @@
       "method": ["GET", "HEAD", "DELETE"],
       "maxAgeSeconds": 3600
     }
+    ,
+    {
+      "origin": ["http://35.237.243.111:5000"],
+      "responseHeader": ["Content-Type"],
+      "method": ["GET", "HEAD", "DELETE"],
+      "maxAgeSeconds": 3600
+    }
 ]
