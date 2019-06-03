@@ -50,7 +50,7 @@ bottom:0px;
 left:0px;
 right:0px;
 text-align:left;
->*{
+>*>{
 pointer-events:auto;
 
 }

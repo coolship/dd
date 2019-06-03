@@ -18,7 +18,8 @@ import _ from 'lodash';
 import TwoModeCanvas from "./TwoModeCanvas";
 import MultiResView from "./MultiResView";
 import OverlayControls from "./OverlayControls";
-import SearchBox from "./SearchBox";
+import DatasetWrangler from './DatasetWrangler';
+
 import SelectionInfo from "./SelectionInfo";
 import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
@@ -405,9 +406,11 @@ class DatasetStageContainer extends RenderContainer {
 
 								: null}
 						</div>
-						<SearchBox which_dataset={this.props.metadata.dataset} 
-							dataset={this.props.dataset}
-							style={{left:"500px",position:"relative"}}/>
+
+						<DatasetWrangler 
+						which_dataset={this.props.metadata.dataset} 
+						dataset={this.props.dataset}
+						></DatasetWrangler>
 
 						{this.props.appearance_props.no_buttons ? "" :
 							<OverlayControls
