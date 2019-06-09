@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import SearchBox from './SearchBox';
 import styled, {css} from 'styled-components';
-//import Search from 'react-icons/lib/md/search';
+import Search from 'react-icons/lib/md/search';
 import FileDownload from 'react-icons/lib/md/file-download';
+import Accordion from 'react-tiny-accordion'
 
 export default class DatasetWrangler extends Component {
     constructor(props) {
@@ -13,47 +14,89 @@ export default class DatasetWrangler extends Component {
     // dataset manipulation controls respectively
     render() {
         return <StyledDatasetWrangler className="hello">
-			<StyledAccordionItem className="item-hidden">
-                <SearchBox
-                    which_dataset={this.props.which_dataset}
-                    dataset={this.props.dataset}
-                    style={{
-                    left: "500px",
-                    position: "relative"
-                }}/>
-				</StyledAccordionItem>
-<StyledAccordionItem>
-			<ExportBox></ExportBox>
-			</StyledAccordionItem>	
+
+            <Accordion className='accordion'
+			transitionDuration='200'
+			openClassName="selected"
+			>
+                <div data-header={<div><Search/>QUERY</div>} >
+                    <SearchBox
+                        which_dataset={this.props.which_dataset}
+                        dataset={this.props.dataset}
+                        style={{
+                        left: "500px",
+                        position: "relative"
+                    }}/>
+                </div>
+                <div data-header={< DataHeaderTest />}>
+                    <ExportBox></ExportBox>
+                </div>
+            </Accordion>
         </StyledDatasetWrangler>
-		
+
     }
 };
 
-const ExportBox = (props) =><StyledExportBox className={props.className}> <FileDownload/> </StyledExportBox>
+const DataHeaderTest = (props) =><div><FileDownload/>EXPORT</div>
 
-const StyledAccordionItem=styled.li`
-	&.item-hidden{
-		height:20px;
-	}
-	&:not(.item-hidden){
-		height:auto;
-	}
-`
-
-const StyledDatasetWrangler=styled.div`
-background-color: blue;
-width:300px;
-position:absolute;
-height:400px;
-top:50vh;
-margin-top:-200px;
-
-`;
+const ExportBox = (props) =><StyledExportBox>
+	--EXPORT SELECTION--
+		<form>
+	<div class="radio">
+  <label><input type="radio" value="all" name="export_which" checked/>selected umis</label>
+</div>
+<div class="radio">
+  <label><input type="radio" value="selected" name="export_which" disabled/>all umis</label>
+</div>
+<br/>
+	--EXPORT TYPE--
+	<div class="radio">
+  <label><input type="radio" value="fasta" name="export_what" checked/>fasta format sequences and coordinates</label>
+</div>
+<div class="radio">
+  <label><input type="radio" value="umis csv" name="export_what"/>.csv file, (?) --> sequences, coordinates and GO terms</label>
+</div>
+<div class="radio disabled">
+  <label><input type="radio" value="segments csv" name="export_what" disabled/>segments file, (?) --> segments, with aggregrate statistics</label>
+</div>
+--SUBMIT--
+<input type="submit"/>
+</form>
+</StyledExportBox>
 
 const StyledExportBox=styled.div`
 width:100%;
-height:50px;
 position:relative;
-background-color:red;
+`;
+
+const StyledDatasetWrangler=styled.div`
+width:200px;
+position:absolute;
+height:auto;
+top:50%;
+transform:translate(0, -50%);
+
+
+.accordion {
+	border-bottom: 1px solid #999;
+  }
+  
+  /* Header */
+  .accordion > div > div:first-of-type {
+	
+	border: 2px solid white;
+	border-radius:3px;
+	border-bottom: 0px;
+	padding: .5em;
+	font-size:1.3em;
+
+  }
+  
+  /* Content */
+  .accordion > div > div:last-of-type {
+	border-left: 2px solid white;
+	border-right: 2px solid white;
+	border-radius:3px;
+  }
+
 `;

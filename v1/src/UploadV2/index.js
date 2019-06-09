@@ -1,198 +1,241 @@
-import React, { Component } from 'react';
-import { connect } from "react-redux";
-import { uploadXumi } from "../actions/FileIO";
-import DatasetDropForm from "../Admin/DatasetDropForm";
-import styled, { css } from 'styled-components';
+import React, {Component} from 'react';
+import {connect} from "react-redux";
+
+import styled, {css} from 'styled-components';
+import {Breadcrumb} from 'react-breadcrumbs';
+import {NavLink} from "react-router-dom";
+import ProgressContainer from "../display/ProgressContainer";
+
+import {fetchDatasets} from '../actions';
+import {userIdFromEmail, deleteXumiDataset} from "../actions/FileIO";
+import _ from "lodash";
+import { Route, Switch} from "react-router-dom";
+import XumiDropperContainer from "./XumiUploads"
 
 
-
-
-/** HANDLE XUMI FILE UPLOADS
- * User drags folder on to drop zone for client side form validation. 
- * Upon form validation, uploads to firebase in files:
- *     /[datasetID]/xumi_data
- *     /[datasetID]/xumi_features
- * Server listens and processes the data
- * Server sets a flag on the Dataset object in firebase, at which time client has access to
- * raw data in previous format. Client accesses this data and processes in javascript (display)
- * optimized formats, allowing rapid access of channels served by Google Cloud
- */
-
-function withXumiUpload(WrappedComponent) {
-
-  return connect(({ auth }) => { return { auth }; }, { uploadXumi })(
-    class extends Component {
-      constructor(props) {
-        super(props);
-        this.state = { files: {} };
-      }
-
-      handleDrop(event) {
-        event.preventDefault();
-
-        const addFile = (file, name) => {
-          this.setState({ files: Object.assign(this.state.files, { [name]: file }) });
-          console.log(this.state.files);
-          if (this.isReady()) {
-            this.autoSubmit();
-          }
-        }
-
-        var items = event.dataTransfer.items;
-        for (var i = 0; i < items.length; i++) {
-
-          // webkitGetAsEntry is where the magic happens
-          var folder = items[i].webkitGetAsEntry();
-          if (folder) {
-            if (!folder.isDirectory) { throw Error("please drop a directory"); }
-            const r = folder.createReader();
-            this.setState({ "dataset_name": String(Math.random()).slice(2) });
-
-            //starts an async read process to look through the folder system
-            r.readEntries((entries) => {
-              for (var i = 0; i < entries.length; i++) {
-                var item = entries[i];
-                if (item.name.includes("segment")) {
-                  if (item.name.includes("feat")) {
-                    item.file(file => addFile(file, "segment_feat_file"))
-                  } else if (item.name.includes("_data")) {
-                    item.file(file => addFile(file, "segment_base_file"))
-                  }
-                } else if (item.name.includes("feat_Xumi_smle")) {
-                  item.file(file => addFile(file, "feat_file"))
-                } else if (item.name.includes("Xumi_smle_data")) {
-                  item.file(file => addFile(file, "base_file"))
-                } else {
-                  console.log("skipping unrecognized file " + item.name);
-                }
-              }
-
-            });
-          }
-        }
-      }
-
-      isReady() {
-        console.log(this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_feat_file && this.state.files.segment_base_file)
-        return this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_feat_file && this.state.files.segment_base_file
-      }
-
-
-      autoSubmit() {
-
-        //ev.preventDefault();
-        //callbacks to update state
-        var callbacks = {
-          progress: (progress) => {
-            this.setState({ progress: progress });
-          },
-          complete: () => {
-            this.setState({
-              dataset_name: null,
-              files: {},
-            });
-            this.setState({ status: "complete", progress: 100 });
-          },
-        };
-
-        //upload method using global redux store
-        this.props.uploadXumi(
-          this.state.files,
-          {
-            dataset: this.state.dataset_name,
-            email: this.props.auth.email,
-            key: null
-          },
-          callbacks);
-
-        //return false;
-
-
-      }
-      validateForm(event) {
-
-      }
-      distributeFiles(event) {
-
-      }
-      render() {
-        // Filter out extra props that are specific to this HOC and shouldn't be
-        // passed through
-        const { auth, ...passThroughProps } = this.props;
-        let passThroughState = {
-          progress: this.state.progress,
-          state: this.state.state,
-          base_file: this.state.files.base_file,
-          feat_file: this.state.files.feat_file,
-          segment_base_file: this.state.files.segment_base_file,
-          segment_feat_file: this.state.files.segment_feat_file,
-          dataset_name: this.state.dataset_name
-        };
-
-        // Inject props into the wrapped component. These are usually state values or
-        // instance methods.
-        const handleDrop = this.handleDrop.bind(this);
-        //const handleSubmit = this.handleSubmit.bind(this);
-
-        // Pass props to wrapped component
-        return (
-          <WrappedComponent
-            handleDrop={handleDrop}
-            //handleSubmit={handleSubmit}
-            progress={this.state.progress} /* 0-100 with upload progress */
-            status={this.state.status} /* short string with user-friendly status */
-            {...passThroughState}
-            {...passThroughProps}
-          />
-        );
-      }
-    });
+function loadingMessage(dataset) {
+    const inprogress = _.pickBy(dataset.server_job_statuses, (v, k) => v == "RUNNING")
+    console.log(inprogress)
+    if (inprogress) {
+        return Object.keys(inprogress)[0];
+    } else {
+        return "PROCESSING"
+    }
+}
+function isComplete(dataset) {
+    console.log(dataset.server_process_status)
+    if (dataset.server_process_status!="COMPLETE"){return false;}
+    else{return true }
 }
 
+function totalProgress(dataset) {
+
+    return (100 * (_.sum(_.map(dataset.server_job_statuses, (status, k) => status == "COMPLETE"
+        ? 1
+        : 0))) / _.reduce(dataset.server_job_statuses, (k, cur) => {
+        return k + 1
+    }, 0));
+}
+
+class InProgressDatasetitem extends Component {
+    constructor(props) {
+        super(props)
+    }
+    render() {
+        const props = this.props
+        return (
+
+            <StyledInProgressDatasetItem className={"dataset-item item-" + props.dataset}>
+
+                <ProgressContainer progress={totalProgress(this.props.meta)}>
+                    <span className="fill"></span>
+                    <div className="message">{loadingMessage(this.props.meta)}</div>
+                </ProgressContainer>
+
+                <div>Pre-processing alignment and annotation data for {props.dataset}.</div>
+            </StyledInProgressDatasetItem>
+
+        );
+    }
+}
+
+const CompleteDatasetItem = (props) => (
+    <StyledCompleteDatasetItem className={"dataset-item item-" + props.dataset}>
+
+        <button
+            onClick={() => {
+            props.deleteXumiDataset(props.dataset_key)
+        }}>DELETE</button>
+        <NavLink to={"/app/" + props.dataset}>
+            <div className="preview-content">
+                <h3>{props.dataset}</h3>
+            </div>
+        </NavLink>
+        <div>View {props.dataset}
+            in the DNA Microscope</div>
+
+    </StyledCompleteDatasetItem>
+
+);
+
+const StyledInProgressDatasetItem = styled.div `
+width:300px;
+height:auto;
+color:yellow;
+margin-bottom:0px;
+border:2px solid yellow;
+border-radius : 3px;
+padding:10px;
+`
+const StyledCompleteDatasetItem = styled.div `
+width:300px;
+height:auto;
+color:green;
+margin-bottom:0px;
+border:2px solid green;
+border-radius : 3px;
+padding:10px;
+
+`
+
+const StyledUploadListContainer = styled.div `
+  /* We first create a flex layout context */
+  display: flex;
+  
+  /* Then we define the flow direction 
+     and if we allow the items to wrap 
+   * Remember this is the same as:
+   * flex-direction: row;
+   * flex-wrap: wrap;
+   */
+  flex-flow: row wrap;
+  
+  /* Then we define how is distributed the remaining space */
+  justify-content: space-around;
+
+`
+
+class SimpleUploadView extends Component {
+
+    render() {
+        let props = this.props
+        return (
+            <div>
+                <section>
+                    <h1>upload datasets</h1>
+                    <XumiDropperContainer/>
+                </section>
+
+                <section>
+                    <StyledUploadListContainer>
+                        {_.map(_.fromPairs(_.compact(_.map(this.props.datasets, (d, k) => {
+                            return !isComplete(d)
+                                ? [k, d]
+                                : undefined
+                        }))), (d, k) =>< InProgressDatasetitem key = {
+                            d.dataset
+                        }
+                        dataset = {
+                            d.dataset
+                        }
+                        dataset_key = {
+                            k
+                        }
+                        deleteXumiDataset = {
+                            this.props.deleteXumiDataset
+                        }
+                        meta = {
+                            d
+                        } />)}
+
+                        {_.map(_.fromPairs(_.compact(_.map(this.props.datasets, (d, k) => {
+                            return isComplete(d)
+                                ? [k, d]
+                                : undefined
+                        }))), (d, k) =>< CompleteDatasetItem key = {
+                            d.dataset
+                        }
+                        dataset = {
+                            d.dataset
+                        }
+                        dataset_key = {
+                            k
+                        }
+                        deleteXumiDataset = {
+                            this.props.deleteXumiDataset
+                        }
+                        meta = {
+                            d
+                        } />)}
+                    </StyledUploadListContainer>
+
+                </section>
+            </div>
+        )
+    }
+}
+
+class UploadProgressView extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            which_dataset: props.match.params.number,
+            metadata: _.find(props.datasets, (d) => d.dataset == props.match.params.number)
+        }
+        console.log(this.state)
+    }
+    render() {
+        console.log(this.props)
+        let props = this.props
+        return (
+            <div>
+                <Breadcrumb
+                    data={{
+                    title: <b>Sample Dataset {props.match.params.number}</b>,
+                    pathname: props.match.url,
+                    search: null
+                }}></Breadcrumb>
+                < div >
+                    <section>
+                        <b>Uploading Dataset {props.match.params.number}</b>
+                    </section>
+                </div>
+            </div>
+        )
+    }
+}
 
 class UploadV2View extends Component {
-  render(props) {
-    return (
-      <div>
-        <section><h1>upload datasets</h1>
-          <XumiDropperContainer />
-        </section>
-      </div>
-    );
-  };
+    constructor(props) {
+        super(props)
+        this
+            .props
+            .fetchDatasets(userIdFromEmail(this.props.auth.email));
+        this.props.datasets
+    }
+    render(props) {
+        console.log("RERENDINGER BIG")
+        return (
+
+            <Switch>
+                <Route
+                    title="List"
+                    exact
+                    path='/upload2'
+                    render={(props) => <SimpleUploadView
+                    {...props}
+                    deleteXumiDataset={this.props.deleteXumiDataset}
+                    datasets={this.props.datasets}/>}/>
+                <Route
+                    path='/upload2/:number'
+                    render={(props) => <UploadProgressView {...props} datasets={this.props.datasets}/>}/>
+            </Switch>
+
+        );
+    };
 }
 
-
-function XumiDropperView(props) {
-  /* strips props from the container which will be used to handle events */
-
-  const { handleDrop, handleSubmit, progress, dataset_name, status, base_file, feat_file, segment_base_file, segment_feat_file,
-    ...passedProps } = props;
-  return (
-    <StyledUploadForm
-      {...passedProps}>
-      <div className="status">status: {status}</div>
-      <div>progress: {status}</div>
-      <div>dataset_name: {dataset_name}</div>
-      <div>base_file: {base_file ? base_file.name : "no base file selected"}</div>
-      <div>feat_file: {feat_file ? feat_file.name : "no feature file selected"}</div>
-      <div>segmentation_base_file: {segment_base_file ? segment_base_file.name : "no segmentation base file selected"}</div>
-      <div>segmentation_feat_file: {segment_feat_file ? segment_feat_file.name : "no segmentation feature file selected"}</div>
-      <input type="file"
-        name="file"
-        id="file"
-        onDrop={handleDrop}
-      />
-    </StyledUploadForm>
-  );
-}
-
-let XumiDropperContainer = withXumiUpload(XumiDropperView);
-
-const StyledUploadForm = styled.form`
-.status{color:red;}
-`;
-
-
-const mapStateToProps = ({ auth }) => { return { auth }; };
-export default connect(mapStateToProps, {})(UploadV2View);
+const mapStateToProps = ({auth, datasets}) => {
+    return {auth, datasets};
+};
+export default connect(mapStateToProps, {fetchDatasets, deleteXumiDataset})(UploadV2View)

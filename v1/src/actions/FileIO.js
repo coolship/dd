@@ -262,6 +262,11 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
  * requesting further processing
   */
 
+export const deleteXumiDataset = (dataset_key)=>{
+
+	datasetsRef.child("all_v2").child(dataset_key).remove()
+}
+
 export const uploadXumi = (files, meta, callbacks) => dispatch => {
 
 	const { dataset, email } = meta;
@@ -303,6 +308,7 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 					xumi_segment_base:sbfname,
 				}
 			});
+			callbacks.complete()
 		})
 		.catch((error) => {
 			throw error;
@@ -318,7 +324,7 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 			});
 		uploadTask.on(
 		firebase.storage.TaskEvent.STATE_CHANGED,
-		(snapshot) => { console.log(snapshot.bytesTransferred / snapshot.totalBytes);}//,callbacks.progress(50 * snapshot.bytesTransferred / snapshot.totalBytes); },
+		(snapshot) => { callbacks.progress( snapshot.bytesTransferred / snapshot.totalBytes); },
 		)
 		return uploadTask;
 			
