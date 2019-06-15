@@ -34,13 +34,12 @@ export default class SearchBox extends Component{
 
         let val = e.target.value
         this.setState({search_value:val})
-        let ds = this.props.dataset;
         let which = this.props.which_dataset;
                 
 
         console.log("@SearchBox.js running a serverside query for " + val + "... feature is still in experimental mode. \n[TODO]: implement as production feature. ")
         if (val.length < 4){
-            ds.unsetUmiSlice()
+            this.props.setActiveSlice(null)
             return
         }        
 
@@ -50,7 +49,7 @@ export default class SearchBox extends Component{
         })
 
         .then(function(myJson) {
-          ds.setUmiSlice(myJson)
+          this.props.setActiveSlice(myJson)
         });
 
     }

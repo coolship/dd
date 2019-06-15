@@ -11,6 +11,7 @@ import Home from "./Home";
 import Admin from "./Admin";
 import Gallery from "./Gallery";
 import UploadV2 from "./UploadV2";
+import Workspace from "./Workspace";
 import Navbar from "./components/Navbar";
 
 //hoc
@@ -31,9 +32,10 @@ class App extends Component {
 	return (
 	    <BrowserRouter>
 	      <StyledAppContainer className="container">
-		<StyledBreadcrumbs/>
+		{/* <StyledBreadcrumbs/> */}
 
-		{<Navbar/>}
+		{/* {window.location.pathname.includes("orkspace")?null:<Navbar/>} */}
+		<Navbar/>
 		<CrumbRoute title="Home" path="/" render={()=>(
 		    <Switch>
 		      <Route exact path="/" title="Home" component={Home}/>
@@ -42,6 +44,7 @@ class App extends Component {
 		      <CrumbRoute path="/app" title="Microscope" component={requireAuth(DnaMicroscope)} />
 		      <CrumbRoute path="/admin" title="Admin" component={requireAuth(Admin)} />
 		      <CrumbRoute path="/gallery" title="Gallery" component={Gallery} />
+		      <CrumbRoute path="/workspace" title="Workspace" component={Workspace} />
 		    </Switch>
 		)}/>
 	    </StyledAppContainer>
@@ -71,13 +74,13 @@ cursor:caret;
 
 `;
 
+
+
 const StyledAppContainer=styled.div`
-    text-align: center;
-    height:100vh;
-box-sizing:border-box;
-padding-top:20px;
-    color:white;
 `;
+
+
+
 export default connect(({auth})=>{return{auth}}, { listenFetchUser, fetchDemoDatasets })(App);
 
 

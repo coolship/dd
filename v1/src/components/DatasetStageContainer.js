@@ -18,7 +18,6 @@ import _ from 'lodash';
 import TwoModeCanvas from "./TwoModeCanvas";
 import MultiResView from "./MultiResView";
 import OverlayControls from "./OverlayControls";
-import DatasetWrangler from './DatasetWrangler';
 
 import SelectionInfo from "./SelectionInfo";
 import ModalSelectionContainer from "./ModalSelectionContainer";
@@ -226,6 +225,7 @@ class DatasetStageContainer extends RenderContainer {
 	}
 
 	choosePreview() {
+
 		const backend = this.backend_ref.current;
 		const rcanvas = backend.getStorageCanvas();
 		var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
@@ -407,10 +407,6 @@ class DatasetStageContainer extends RenderContainer {
 								: null}
 						</div>
 
-						<DatasetWrangler 
-						which_dataset={this.props.metadata.dataset} 
-						dataset={this.props.dataset}
-						></DatasetWrangler>
 
 						{this.props.appearance_props.no_buttons ? "" :
 							<OverlayControls
@@ -438,16 +434,6 @@ class DatasetStageContainer extends RenderContainer {
 								}} /> :
 							null}
 					</CanvasContainer>
-					<DebugConsole>
-						<table>
-							<tbody>
-								<tr><td>mouse coords: </td><td>{this.getMouseXY().x + ", " + this.getMouseXY().y}</td></tr>
-								<tr><td>x0, y0: </td><td>{this.state.viewport.x0 + ", " + this.state.viewport.y0}</td></tr>
-							</tbody>
-						</table>
-						<button onClick={this.exportPng.bind(this)}>EXPORT PNG</button>
-						<button onClick={this.choosePreview.bind(this)}>CHOOSE PREVIEW</button>
-					</DebugConsole>
 
 				</div>);
 		} else {
@@ -466,8 +452,6 @@ function mapStateToProps({ mouse, selection }) {
 
 export default connect(mapStateToProps, { setMouse })(DatasetStageContainer);
 
-
-
 const CanvasContainer = styled.div`
 width:100%;
 height:100%;
@@ -478,31 +462,4 @@ bottom:0px;
 
 const ExportCanvas = styled.canvas`
 display:none;
-`;
-
-
-
-const DebugConsole = styled.div`
-display:none;
-position:fixed;
-left:0px;
-bottom:0px;
-margin:0px;
-z-index:1000;
-padding:20px;
-background-color:"red"
-width:400px;
-};
-`;
-
-const HeadsUpStyled = styled.div`
-    position:fixed;
-    bottom:0px;
-    right:0px;
-    margin-bottom:40px;
-    margin-right:40px;
-    width:400px;
-    text-align:left;
-    background-color:black;
-    padding:20px;
 `;

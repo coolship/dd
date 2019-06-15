@@ -36,7 +36,6 @@ function withXumiUpload(WrappedComponent) {
         }
 
         handleDrop(event) {
-            console.log("HELLOOOO")
             event.preventDefault();
 
             const addFile = (file, name) => {

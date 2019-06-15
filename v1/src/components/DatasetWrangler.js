@@ -15,14 +15,14 @@ export default class DatasetWrangler extends Component {
     render() {
         return <StyledDatasetWrangler className="hello">
 
-            <Accordion className='accordion'
-			transitionDuration='200'
-			openClassName="selected"
-			>
-                <div data-header={<div><Search/>QUERY</div>} >
+            <Accordion
+                className='accordion'
+                transitionDuration='200'
+                openClassName="selected">
+                <div data-header={< div > <Search/>QUERY </ div>}>
                     <SearchBox
+                        setActiveSlice={this.props.setActiveSlice}
                         which_dataset={this.props.which_dataset}
-                        dataset={this.props.dataset}
                         style={{
                         left: "500px",
                         position: "relative"
@@ -37,27 +37,21 @@ export default class DatasetWrangler extends Component {
     }
 };
 
-const DataHeaderTest = (props) =><div><FileDownload/>EXPORT</div>
+const DataHeaderTest = (props) =>< div > <FileDownload/>EXPORT </div>
 
 const ExportBox = (props) =><StyledExportBox>
 	--EXPORT SELECTION--
 		<form>
-	<div class="radio">
-  <label><input type="radio" value="all" name="export_which" checked/>selected umis</label>
+	<div className="radio">
+  <label><input type="radio" value="all" name="export_which" checked/> selected umis </label>
+</div > <div className="radio">
+    <label><input type="radio" value="selected" name="export_which" disabled/>all umis</label>
+</div> < br /> --EXPORT TYPE-- <div className="radio">
+    <label><input type="radio" value="fasta" name="export_what" checked/>fasta format sequences and coordinates</label>
+</div> < div className = "radio" > <label><input type="radio" value="umis csv" name="export_what"/>.csv file, (?) --> sequences, coordinates and GO terms</label>
 </div>
-<div class="radio">
-  <label><input type="radio" value="selected" name="export_which" disabled/>all umis</label>
-</div>
-<br/>
-	--EXPORT TYPE--
-	<div class="radio">
-  <label><input type="radio" value="fasta" name="export_what" checked/>fasta format sequences and coordinates</label>
-</div>
-<div class="radio">
-  <label><input type="radio" value="umis csv" name="export_what"/>.csv file, (?) --> sequences, coordinates and GO terms</label>
-</div>
-<div class="radio disabled">
-  <label><input type="radio" value="segments csv" name="export_what" disabled/>segments file, (?) --> segments, with aggregrate statistics</label>
+<div className="radio disabled">
+<label><input type="radio" value="segments csv" name="export_what" disabled/>segments file, (?) --> segments, with aggregrate statistics</label>
 </div>
 --SUBMIT--
 <input type="submit"/>
