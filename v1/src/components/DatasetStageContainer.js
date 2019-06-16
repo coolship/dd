@@ -7,7 +7,6 @@ import { MODALS } from "../layout";
 
 
 //actions
-import { setMouse, resetApp } from "../actions";
 import { uploadPreview } from "../actions/FileIO";
 
 //rendering tools
@@ -134,10 +133,11 @@ class DatasetStageContainer extends RenderContainer {
 		if (this.state.selection.select_type == INTERACTION_STATES.FREEZE) { return; }
 
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
-		this.props.setMouse({
+		this.setState({
+			mouse:{
 			nx: event.clientX / clientWidth,
 			ny: event.clientY / clientHeight
-		});
+		}});
 		this.setSelectType(1);
 	}
 	onMouseLeave(event) {
@@ -311,18 +311,14 @@ class DatasetStageContainer extends RenderContainer {
 
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport
 		const self = ReactDOM.findDOMNode(this.self_ref.current);
-		function normalizedCoords(event) {
-			var bounds = self.getBoundingClientRect();
-			var nx = (event.clientX - bounds.left) / bounds.width;
-			var ny = (event.clientY - bounds.top) / bounds.height;
-			return { nx, ny };
-		};
 
-		this.props.setMouse(normalizedCoords(event));
+		const {nx,ny} = this.normalizedCoords(event);
+		this.setState({mouse:{nx,ny}});
+
 		this.setSelectType(INTERACTION_STATES.HOVER);
-		var dataX = this.props.mouse.nx * (clientWidth / zoom) + x0;
-		var dataY = this.props.mouse.ny * (clientHeight / zoom) + y0;
-
+		// TODO: This is broken. The state will not yet be updated...
+		var dataX = nx * (clientWidth / zoom) + x0;
+		var dataY = ny * (clientHeight / zoom) + y0;
 
 		var n1 = this.props.dataset.nearest(dataX, dataY, .25);
 		if (n1) {
@@ -346,7 +342,7 @@ class DatasetStageContainer extends RenderContainer {
 	}
 
 	getMouseXY() {
-		var { nx, ny } = this.props.mouse;
+		var { nx, ny } = this.state.mouse;
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
 		return {
 			x: nx * clientWidth / zoom + x0,
@@ -356,7 +352,7 @@ class DatasetStageContainer extends RenderContainer {
 
 	zoomIn(dz, nxy) {
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
-		let { nx, ny } = nxy ? nxy : this.props.mouse;
+		let { nx, ny } = nxy ? nxy : this.state.mouse;
 		var z_new = Math.max(10, zoom * (1 + dz / 1000));
 
 		var x0_new = nx * clientWidth * (1 / zoom - 1 / z_new) + x0;
@@ -381,77 +377,41 @@ class DatasetStageContainer extends RenderContainer {
 
 	}
 
-	alignTransform(normal_x,normal_y,nx0,ny0){
-
-
-		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
-		this.setState({
-			canvas_css_transform_x:(normal_x-nx0)*clientWidth,
-			canvas_css_transform_y:(normal_y-nx0)*clientHeight
-
-		 })
-
-
-		const container_ref = ReactDOM.findDOMNode(this.view_ref.current);
-		container_ref.style.transform = "translate("+this.state.canvas_css_transform_x+"px ,"+this.state.canvas_css_transform_y+"px )";
-
-	}
-
 	dragMouse(ev){
 		const self = ReactDOM.findDOMNode(this.self_ref.current);
-		function normalizedCoords(ev) {
-			var bounds = self.getBoundingClientRect();
-			var nx = (ev.clientX - bounds.left) / bounds.width;
-			var ny = (ev.clientY - bounds.top) / bounds.height;
-			return { nx, ny };
-		};
-
-		this.props.setMouse(normalizedCoords(ev));
-
-		let {nx0,ny0} = this.state.og_mouse_normal_position
-		let {dataX,dataY} = this.state.fixed_mouse_position
-		let {nx, ny} = this.props.mouse;
-
-		console.log("DRAGGING:", nx,ny)
-
-		//console.log("skipping")
-		//return
-		this.alignTransform(nx,ny,nx0,ny0)
+		this.setState({mouse:this.normalizedCoords(ev)})
 	}
+	normalizedCoords(ev) {
+		var bounds = self.getBoundingClientRect();
+		var nx = (ev.clientX - bounds.left) / bounds.width;
+		var ny = (ev.clientY - bounds.top) / bounds.height;
+		return { nx, ny };
+	};
 	startDrag(ev){
 		const self = ReactDOM.findDOMNode(this.self_ref.current);
-		function normalizedCoords(ev) {
-			var bounds = self.getBoundingClientRect();
-			var nx = (ev.clientX - bounds.left) / bounds.width;
-			var ny = (ev.clientY - bounds.top) / bounds.height;
-			return { nx, ny };
-		};
 
-		let {nx,ny} = normalizedCoords(ev)
-		console.log("STARTING:", nx,ny)
-		this.props.setMouse(normalizedCoords(ev));
-		
 
-		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
-
-		var dataX = this.props.mouse.nx * (clientWidth / zoom) + x0;
-		var dataY = this.props.mouse.ny * (clientHeight / zoom) + y0;
+		const {nx,ny} = this.normalizedCoords(ev)
+		var {x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
+		var dataX = this.state.mouse.nx * (clientWidth / zoom) + x0;
+		var dataY = this.state.mouse.ny * (clientHeight / zoom) + y0;
 
 			this.setState({fixed_mouse_position:{
 				dataX:dataX,
 				dataY:dataY
 			},og_mouse_normal_position:{
-				nx0:this.props.mouse.nx,
-				ny0:this.props.mouse.ny,
-			},
+				nx0:nx,
+				ny0:ny,
+			},mouse:this.normalizedCoords(ev)
 			dragging:true})
 			console.log("STARTING POS: ",this.state.fixed_mouse_position);
-	}
+
+		}
 	releaseDrag(ev){	
 
 		console.log("RELEASE POS: ",this.state.fixed_mouse_position);
-		let {dataX,dataY} = this.state.fixed_mouse_position
-		let {nx, ny} = this.props.mouse;
+		const {dataX,dataY} = this.state.fixed_mouse_position
+		const {nx, ny} = this.state.mouse;
 		this.alignPoint(nx,ny,dataX,dataY)
 		const container_ref = ReactDOM.findDOMNode(this.view_ref.current);
 		container_ref.style.transform = null;
@@ -477,12 +437,17 @@ class DatasetStageContainer extends RenderContainer {
 	}
 
 	render() {
-		console.log("mouse state: ", this.props.mouse)
+		console.log("mouse state: ", this.state.mouse)
 		console.log("selection state: ", this.props.selections)
 		if (this.state.viewport) {
 			return (
 				<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
-					<CanvasContainer ref={this.canvas_container_ref}  >
+					<CanvasContainer ref={this.canvas_container_ref}  
+					style={{transform :this.state.dragging?
+						"translate("+(this.state.mouse.nx - this.state.og_mouse_normal_position.nx0)*this.state.viewport.clientWidth +"px ,"+
+									 (this.state.mouse.ny - this.state.og_mouse_normal_position.ny0)*this.state.viewport.clientHeight+"px )"
+									 :null}
+									} >
 						<ExportCanvas ref={this.export_canvas_ref} />
 						<TwoModeCanvas
 							ref={this.backend_ref}
@@ -603,11 +568,11 @@ class DatasetStageContainer extends RenderContainer {
 
 
 
-function mapStateToProps({ mouse, selections }) {
-	return { mouse, selections };
+function mapStateToProps({  selections }) {
+	return {  selections };
 }
 
-export default connect(mapStateToProps, { setMouse })(DatasetStageContainer);
+export default connect(mapStateToProps, { })(DatasetStageContainer);
 
 const CanvasContainer = styled.div`
 width:100%;

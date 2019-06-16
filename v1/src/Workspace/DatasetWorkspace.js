@@ -65,7 +65,7 @@ position: absolute;
 bottom: 0px;
 right: 0px;
 left: 0px;
-top: 64px;
+top: 0px;
 `
 const LoadingScreen = styled.div `
 left:50%;

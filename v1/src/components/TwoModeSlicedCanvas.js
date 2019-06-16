@@ -110,7 +110,7 @@ export default class TwoModeSlicedCanvas extends Component {
 		// 	 );
 
 
-		if(that.props.sliceReady() && i == 0){
+		if(that.props.sliceReady()){
             console.log("slicing", i)
 
 			const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc)

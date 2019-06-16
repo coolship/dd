@@ -67,13 +67,6 @@ export const activateModal = (name) => dispatch => {
     });
 };
 
-export const setMouse = (mouse) => dispatch => {
-    dispatch({
-	type:SET_MOUSE_XY,
-	payload:mouse
-    });
-}
-
 
 
 export const resetApp = () => dispatch => {
