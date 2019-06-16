@@ -173,7 +173,7 @@ export class Dataset {
 
 
 		if (start || end){
-			print("slicer coords: ", start,end)
+			console.log("slicer coords: ", start,end)
 
 return{
 			R:this.slice2R().slice(start,end),
