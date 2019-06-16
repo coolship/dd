@@ -4,7 +4,7 @@ import withLoadedDataset from './withLoadedDataset'
 import ProgressContainer from "../display/ProgressContainer";
 import DatasetStageContainer from '../components/DatasetStageContainer';
 import styled, {css} from 'styled-components';
-import WorkspaceNav from "../Nav3/WorkspaceNav";
+
 import _ from "lodash";
 
 

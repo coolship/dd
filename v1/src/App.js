@@ -13,7 +13,6 @@ import Gallery from "./Gallery";
 import UploadV2 from "./UploadV2";
 import Workspace from "./Workspace";
 import Navbar from "./components/Navbar";
-import NavbarLight from "./Nav3/Nav3"
 
 //hoc
 import requireAuth from "./components/requireAuth";
