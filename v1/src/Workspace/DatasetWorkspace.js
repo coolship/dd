@@ -4,13 +4,16 @@ import withLoadedDataset from './withLoadedDataset'
 import ProgressContainer from "../display/ProgressContainer";
 import DatasetStageContainer from '../components/DatasetStageContainer';
 import styled, {css} from 'styled-components';
+import WorkspaceNav from "../Nav3/WorkspaceNav";
 import _ from "lodash";
+
 
 // container object responsible for loading in a current dataset and providing
 // props to the view area
 
 class DatasetWorkspaceContainer extends Component{
-    setActiveSlice(data){this.loaded_dataset.setUmiSlice(data);}
+    setActiveSlice(data){
+        this.props.loaded_dataset.setUmiSlice(data);}
     render(){return < DatasetWorkspaceView setActiveSlice={this.setActiveSlice.bind(this)} {...this.props}/>}
 }
 export default withLoadedDataset(DatasetWorkspaceContainer)

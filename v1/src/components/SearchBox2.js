@@ -48,9 +48,21 @@ export class SimpleDropdown extends React.Component {
             Dropdown Button
           </Button>
           <DropdownMenu hidden={hidden}>
-            <DropdownItem>Action</DropdownItem>
-            <DropdownItem>Another action</DropdownItem>
-            <DropdownItem>Something else here</DropdownItem>
+
+          <DropdownItem><input type="radio" name="searchtype" value="umigeneids" id="geneids" disabled={false}       
+            checked={this.state.selectedOption === "umigeneids"}
+            onChange={this.handleOptionChange}
+            /><label htmlFor="geneids">NCBI Gene Ids or Symbols</label></DropdownItem>
+    <DropdownItem><input type="radio" name="searchtype" value="sequences" id="sequences"    disabled={false}      
+            checked={this.state.selectedOption === "sequences"}
+            onChange={this.handleOptionChange}
+            /><label htmlFor="sequences">Sequence Matches</label></DropdownItem>
+    <DropdownItem><input type="radio" name="searchtype" value="cellgoterms" id="cellgoterms"  disabled={false}       
+            checked={this.state.selectedOption === "cellgoterms"}
+            onChange={this.handleOptionChange}
+            /><label htmlFor="cellgoterms">Segment Go Terms</label></DropdownItem>
+
+ 
           </DropdownMenu>
         </Dropdown>
       );
@@ -104,25 +116,11 @@ export default class SearchBox extends Component{
     //and dataset manipulation controls respectively
     render(){
 	return <StyledSearchBox>
-    <input type="search"
-    onChange={this.handleChange.bind(this)}></input><Search className={"btn"}/>
-    <div>  
-    <form action="">
-    <li><input type="radio" name="searchtype" value="umigeneids" id="geneids" disabled={false}       
-            checked={this.state.selectedOption === "umigeneids"}
-            onChange={this.handleOptionChange}
-            /><label htmlFor="geneids">NCBI Gene Ids or Symbols</label></li>
-    <li><input type="radio" name="searchtype" value="sequences" id="sequences"    disabled={false}      
-            checked={this.state.selectedOption === "sequences"}
-            onChange={this.handleOptionChange}
-            /><label htmlFor="sequences">Sequence Matches</label></li>
-    <li><input type="radio" name="searchtype" value="cellgoterms" id="cellgoterms"  disabled={false}       
-            checked={this.state.selectedOption === "cellgoterms"}
-            onChange={this.handleOptionChange}
-            /><label htmlFor="cellgoterms">Segment Go Terms</label></li>
-
-    </form>
-    </div>
+        <input type="search"
+        onChange={this.handleChange.bind(this)}></input><Search className={"btn"}/>
+            <div>  
+            <SimpleDropdown/>
+            </div>
         </StyledSearchBox>;
         }
 

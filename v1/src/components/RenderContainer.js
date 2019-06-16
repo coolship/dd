@@ -7,5 +7,8 @@ export default class RenderContainer extends Component {
 	this.backend_ref=React.createRef();
 	this.view_ref=React.createRef();
 	this.self_ref=React.createRef();
-    }
+	this.canvas_container_ref=React.createRef();
+
+
+}
 }

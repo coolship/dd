@@ -24,6 +24,7 @@ import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
 import TranscriptSelectionInteractor from "./TranscriptSelectionInteractor";
 import CellSelectionInteractor from "./CellSelectionInteractor";
+import DragInteractor from "./DragInteractor";
 
 
 
@@ -49,13 +50,16 @@ class DatasetStageContainer extends RenderContainer {
 	constructor(props) {
 		super(props);
 		this.state = {
-			interactionMode: "select", // allowable: "select", "cell", "drag", "analyze"
+			interactionMode: "drag", // allowable: "select", "cell", "drag", "analyze"
 			selection: { selected_idxs: [], select_type: null },
 		};
 
 		this.bound_resize = this.handleResize.bind(this);
 		this.bound_wheel = this.handleScroll.bind(this);
 		this.bound_click = this.onClick.bind(this);
+		this.bound_mousedown = this.mouseDown.bind(this);
+		this.bound_mouseup = this.mouseUp.bind(this);
+
 		this.bound_keydown = this.handleKeyDown.bind(this);
 		this.export_canvas_ref = React.createRef();
 
@@ -139,11 +143,26 @@ class DatasetStageContainer extends RenderContainer {
 		this.setSelectType(0);
 	}
 	onClick(event) {
+		if(this.state.interactionMode=="drag"){
+			return
+		} else {
 		this.setSelectType(
 			this.state.selection.select_type == INTERACTION_STATES.FREEZE ?
 				INTERACTION_STATES.NONE :
 				INTERACTION_STATES.FREEZE);
+		}
 	}
+	mouseDown(event) {
+		if(this.state.interactionMode=="drag"){
+			this.startDrag(event)
+		} 
+	}
+	mouseUp(event) {
+		if(this.state.interactionMode=="drag"){
+			this.releaseDrag(event)
+		} 
+	}
+
 	syncViewport() {
 		var size = this.getSize();
 		if (!size) return;
@@ -168,27 +187,24 @@ class DatasetStageContainer extends RenderContainer {
 
 	handleScroll(event) {
 		this.zoomIn(-1 * event.deltaY, null);
-		//document.getElementById('a').onmousewheel = function(e) { 
-		//document.getElementById('a').scrollTop -= e. wheelDeltaY; 
 		preventDefault(event);
-		//}
-
 	}
 	handleResize(event) {
 		this.syncViewport();
 	}
+
 	panRight(dx) {
 		var { x0, y0 } = this.state.viewport;
 		x0 += dx;
 		this.setViewportXY({ x0, y0 });
 	}
+
 	panUp(dy) {
 		var { x0, y0 } = this.state.viewport;
 		y0 += dy;
 		this.setViewportXY({ x0, y0 });
 	}
 	centerView() {
-		console.log("CETERING")
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
 		this.setViewportXY({
 			x0: -1 * clientWidth / 2 / zoom,
@@ -266,6 +282,14 @@ class DatasetStageContainer extends RenderContainer {
 
 	onMouseMove(event) {
 		if (this.state.selection.select_type == INTERACTION_STATES.FREEZE) { return }
+		if(this.state.interactionMode == "drag"){
+			if(this.state.dragging){
+				this.dragMouse(event)
+			
+			} else{ 
+				return 
+			}
+		} else{
 
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport
 		const self = ReactDOM.findDOMNode(this.self_ref.current);
@@ -280,6 +304,7 @@ class DatasetStageContainer extends RenderContainer {
 		this.setSelectType(INTERACTION_STATES.HOVER);
 		var dataX = this.props.mouse.nx * (clientWidth / zoom) + x0;
 		var dataY = this.props.mouse.ny * (clientHeight / zoom) + y0;
+
 
 		var n1 = this.props.dataset.nearest(dataX, dataY, .25);
 		if (n1) {
@@ -299,6 +324,7 @@ class DatasetStageContainer extends RenderContainer {
 		} else {
 			this.setSelectUmiIdx(null);
 		}
+	}
 	}
 
 	getMouseXY() {
@@ -325,6 +351,98 @@ class DatasetStageContainer extends RenderContainer {
 		});
 	}
 
+	alignPoint(normal_x,normal_y,data_x,data_y){
+		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
+		var upper_left_datapoint_x = -1 * normal_x * clientWidth / zoom + data_x;
+		var upper_left_datapoint_y = -1 * normal_y * clientHeight/ zoom + data_y;
+		this.setViewportTransform({
+			x0:upper_left_datapoint_x,
+			y0:upper_left_datapoint_y,
+			zoom:zoom
+		})
+
+	}
+
+	alignTransform(normal_x,normal_y,nx0,ny0){
+
+
+		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
+		this.setState({
+			canvas_css_transform_x:(normal_x-nx0)*clientWidth,
+			canvas_css_transform_y:(normal_y-nx0)*clientHeight
+
+		 })
+
+
+		const container_ref = ReactDOM.findDOMNode(this.view_ref.current);
+		container_ref.style.transform = "translate("+this.state.canvas_css_transform_x+"px ,"+this.state.canvas_css_transform_y+"px )";
+
+	}
+
+	dragMouse(ev){
+		const self = ReactDOM.findDOMNode(this.self_ref.current);
+		function normalizedCoords(ev) {
+			var bounds = self.getBoundingClientRect();
+			var nx = (ev.clientX - bounds.left) / bounds.width;
+			var ny = (ev.clientY - bounds.top) / bounds.height;
+			return { nx, ny };
+		};
+
+		this.props.setMouse(normalizedCoords(ev));
+
+		let {nx0,ny0} = this.state.og_mouse_normal_position
+		let {dataX,dataY} = this.state.fixed_mouse_position
+		let {nx, ny} = this.props.mouse;
+
+		console.log("DRAGGING:", nx,ny)
+
+		//console.log("skipping")
+		//return
+		this.alignTransform(nx,ny,nx0,ny0)
+	}
+	startDrag(ev){
+		const self = ReactDOM.findDOMNode(this.self_ref.current);
+		function normalizedCoords(ev) {
+			var bounds = self.getBoundingClientRect();
+			var nx = (ev.clientX - bounds.left) / bounds.width;
+			var ny = (ev.clientY - bounds.top) / bounds.height;
+			return { nx, ny };
+		};
+
+		let {nx,nx} = normalizedCoords(ev)
+		console.log("STARTING:", nx,ny)
+		this.props.setMouse(normalizedCoords(ev));
+		
+
+		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
+
+		var dataX = this.props.mouse.nx * (clientWidth / zoom) + x0;
+		var dataY = this.props.mouse.ny * (clientHeight / zoom) + y0;
+
+		this.setState({fixed_mouse_position:{
+			dataX:dataX,
+			dataY:dataY
+		},og_mouse_normal_position:{
+			nx0:this.props.mouse.nx,
+			ny0:this.props.mouse.ny,
+		},
+	dragging:true})
+	}
+	releaseDrag(ev){	
+
+		let {dataX,dataY} = this.state.fixed_mouse_position
+		let {nx, ny} = this.props.mouse;
+		this.alignPoint(nx,ny,dataX,dataY)
+		const container_ref = ReactDOM.findDOMNode(this.view_ref.current);
+		container_ref.style.transform = null;
+
+
+		this.setState({
+			fixed_mouse_position:null,
+			og_mouse_normal_position:null,
+			dragging:false})
+	}
+
 	activateCellMode() {
 		this.setState({ interactionMode: "cell" })
 	}
@@ -340,13 +458,10 @@ class DatasetStageContainer extends RenderContainer {
 
 
 	render(props) {
-		;
-
-
 		if (this.state.viewport) {
 			return (
 				<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
-					<CanvasContainer>
+					<CanvasContainer ref={this.canvas_container_ref}  >
 						<ExportCanvas ref={this.export_canvas_ref} />
 						<TwoModeCanvas
 							ref={this.backend_ref}
@@ -364,7 +479,6 @@ class DatasetStageContainer extends RenderContainer {
 						>
 
 							<MultiResView
-
 								drawFromBuffer={this.drawFromBuffer.bind(this)}
 								bufferReady={true}
 								dataset={this.props.dataset}
@@ -391,7 +505,16 @@ class DatasetStageContainer extends RenderContainer {
 									: null)
 								: null}
 
-							{this.state.interactionMode == "drag" ? null : null}
+							{this.state.interactionMode == "drag" ? <DragInteractor 
+								clickFun={this.bound_click}
+								x0={this.state.viewport.x0}
+								y0={this.state.viewport.y0}
+								x1={this.state.viewport.x0 + this.state.viewport.clientWidth / this.state.viewport.zoom}
+								y1={this.state.viewport.y0 + this.state.viewport.clientHeight / this.state.viewport.zoom}
+								mouseDown={this.mouseDown.bind(this)}
+								mouseUp={this.mouseUp.bind(this)}
+
+								/> : null}
 							{this.state.interactionMode == "cell" ?
 								<CellSelectionInteractor
 									umis={_.map(this.getAllSelected(), (idx) => {

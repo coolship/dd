@@ -108,7 +108,7 @@ export default function withLoadedDataset(WrappedComponent) {
             // Inject props into the wrapped component. These are usually state values or
             // instance methods. const setActiveSlice = this    .setActiveSlice .bind(this);
             // const handleSubmit = this.handleSubmit.bind(this); Pass props to wrapped
-            // component
+            // componentconsole
             return (
                 <WrappedComponent
                     test_prop={"hi"}

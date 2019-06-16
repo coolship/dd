@@ -1,9 +1,10 @@
-import {connect} from "react-redux";
+
 import {fetchDatasets} from '../actions';
 import {userIdFromEmail} from "../actions/FileIO";
 import React, {Component} from "react";
 import {Route, Switch} from "react-router-dom";
 import DatasetWorkspaceContainer from "./DatasetWorkspace"
+import {connect} from "react-redux";
 
 
 // High level workspace component is responsible for dataset Selection

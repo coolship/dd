@@ -79,6 +79,8 @@ export default class TwoModeCanvas extends Component {
     }
     renderImage(x0, y0, x1, y1, width, height){
 
+		console.log("STARTING MULTIPASS RENDER")
+
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
 	let points;
@@ -120,24 +122,7 @@ export default class TwoModeCanvas extends Component {
 		[TODO]: use multipass rendering for dataset slices
 		*/
 
-		if(that.props.dataset.slice && i == 0 ){
-			console.log(i)
-			that.drawRegl(
-				that.getRenderRegl(),
-				rescale,
-				that.getBackendOriginX(x0,y0,dataLen),
-				that.getBackendOriginY(x0,y0,dataLen),
-				that.props.dataset.sliceR(),
-				that.props.dataset.sliceG(),
-				that.props.dataset.sliceB(),
-				that.props.dataset.sliceA(),
-				that.props.dataset.sliceX(),
-				that.props.dataset.sliceY(),
-				that.props.dataset.sliceZ(),
-				3
-			)
-		}
-		if(that.props.dataset.slice2 && i == 0){
+		if(that.props.dataset.hasSlice() && i == 0){
 			that.drawRegl(
 				that.getRenderRegl(),
 				rescale,
@@ -163,6 +148,7 @@ export default class TwoModeCanvas extends Component {
 	    if(i < passes){
 		that.nextPass = window.setTimeout(timeoutFun,0);
 	    } else {
+			that.has_drawn_dataset=true;
 		window.setTimeout(function(){
 		that.last_draw_params = {lx0:x0,
 					 ly0:y0,
@@ -181,7 +167,6 @@ export default class TwoModeCanvas extends Component {
 	//set a cooldown which will trigger the same async render
 	this.cooldown = window.setTimeout( ()=>{
 	    if(this.needs_render){
-		
 		//delayed async render does not delete the cooldown
 		var {x0,x1,y0,y1,width,height} = this.next_render;
 		this.renderImage(x0,y0,x1,y1,width,height);
@@ -208,6 +193,7 @@ export default class TwoModeCanvas extends Component {
 	var has_moved;
 
 	if(this.has_drawn_dataset){
+
 	    var center_motion_x = Math.abs(( lx0 + lDataLen / 2) - (x0 + nDataLen /2));
 	    var center_motion_y = Math.abs(( ly0 + lDataLen / 2) - (y0 + nDataLen / 2));
 	    var change_width = Math.abs(nDataLen - lDataLen);
@@ -215,6 +201,7 @@ export default class TwoModeCanvas extends Component {
 	    max_delta = Math.max(center_motion_x,center_motion_y,change_width);
 	    has_moved = (center_motion_x > delta || center_motion_y > delta || change_width > delta);
 	} else {
+
 	    max_delta = -1;
 	    has_moved = true;
 	}
