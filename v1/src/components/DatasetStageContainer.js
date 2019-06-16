@@ -268,23 +268,18 @@ class DatasetStageContainer extends RenderContainer {
 					clientWidth, clientHeight,
 					block_render);
 					
-					console.log("getting image from backend 2")
-					
 					var image_canvas2 = backend2.getImage(x0,
 						y0,
 						x0 + clientWidth / zoom,
 						y0 + clientHeight / zoom,
 						clientWidth, clientHeight,
 						block_render);
-						
-						
-						
+
 						if (image_canvas) {
 							child_context.setTransform(1, 0, 0, 1, 0, 0);
 							child_context.clearRect(-5000, -5000, 10000, 10000);
 							child_context.drawImage(image_canvas, 0, 0);
-							child_context.drawImage(image_canvas2, 0, 0);
-							
+							child_context.drawImage(image_canvas2, 0, 0);``
 						} else {
 							console.log("no image, skipping draw");
 						}
@@ -404,29 +399,22 @@ class DatasetStageContainer extends RenderContainer {
 						mouse:this.normalizedCoords(ev),
 						dragging:true
 					})
-					console.log("STARTING POS: ",this.state.fixed_mouse_position);
+
 					
 				}
 				releaseDrag(ev){	
 					
-					console.log("RELEASE POS: ",this.state.fixed_mouse_position);
 					const {dataX,dataY} = this.state.fixed_mouse_position
 					const {nx, ny} = this.normalizedCoords(ev)
-					this.alignPoint(nx,ny,dataX,dataY)
-					const container_ref = ReactDOM.findDOMNode(this.view_ref.current);
-					container_ref.style.transform = null;
-					
-					
+					this.alignPoint(nx,ny,dataX,dataY)					
 					this.setState({
 						fixed_mouse_position:null,
 						og_mouse_normal_position:null,
 						dragging:false})
 					}
-					
 					activateCellMode() {
 						this.setState({ interactionMode: "cell" })
 					}
-					
 					activateSelectMode() {
 						this.setState({ interactionMode: "select" })
 						
@@ -437,8 +425,6 @@ class DatasetStageContainer extends RenderContainer {
 					}
 					
 					render() {
-						console.log("mouse state: ", this.state.mouse)
-						console.log("selection state: ", this.props.selections)
 						if (this.state.viewport) {
 							return (
 								<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>

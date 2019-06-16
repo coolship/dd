@@ -111,8 +111,6 @@ export default class TwoModeSlicedCanvas extends Component {
 
 
 		if(that.props.sliceReady()){
-            console.log("slicing", i)
-
 			const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc)
 			that.drawRegl(
 				that.getRenderRegl(),
@@ -131,7 +129,7 @@ export default class TwoModeSlicedCanvas extends Component {
 	   	    
 	    
 	    if(i < passes){
-            console.log("PASSING!")
+
 		 that.nextPass = window.setTimeout(timeoutFun,0);
 	     } else {
 		that.has_drawn_dataset=true;
@@ -141,8 +139,7 @@ export default class TwoModeSlicedCanvas extends Component {
 					 lr:rescale,
                      lDataLen:dataLen,
                      last_slice_time:that.props.getLastSliceTime()};
-        that.exchangeBuffers();
-        console.log("marking fresh from slicer...");		
+        that.exchangeBuffers();	
 		that.props.markFresh();
 		    that.releaseOrResetCooldown();
 		},0);
@@ -177,7 +174,7 @@ export default class TwoModeSlicedCanvas extends Component {
     var output_context = output_canvas.getContext("2d");
     
     var {lx0, ly0, lr, lDataLen,last_slice_time} = this.last_draw_params?this.last_draw_params:{};
-    console.log("SLICE TIMES COMPARISON: ", last_slice_time, this.props.getLastSliceTime())
+
     
 	var nDataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var nFullLen = this.getBackendFullLen(nDataLen);
@@ -205,6 +202,7 @@ export default class TwoModeSlicedCanvas extends Component {
 	//do not render if we haven't moved, or if render is explicitly blocked
     var do_render = (has_moved || has_sliced) && !block_render;
 	if(do_render){	    
+
 	    if(this.cooldown==null){
 		//if not in cooldown state, trigger an async render
 		this.cooldown=window.setTimeout(()=>{this.renderImage(x0,y0,x1,y1,width,height);},0);
