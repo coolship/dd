@@ -16,6 +16,8 @@ import _ from 'lodash';
 
 //child components
 import TwoModeCanvas from "./TwoModeCanvas";
+import TwoModeSlicedCanvas from "./TwoModeSlicedCanvas";
+
 import MultiResView from "./MultiResView";
 import OverlayControls from "./OverlayControls";
 
@@ -257,16 +259,32 @@ class DatasetStageContainer extends RenderContainer {
 	drawFromBuffer(child_context, block_render = false) {
 		var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
 		var backend = this.backend_ref.current;
+		var backend2 = this.backend_ref2.current;
+
 		var image_canvas = backend.getImage(x0,
 			y0,
 			x0 + clientWidth / zoom,
 			y0 + clientHeight / zoom,
 			clientWidth, clientHeight,
 			block_render);
+
+		console.log("getting image from backend 2")
+
+		var image_canvas2 = backend2.getImage(x0,
+				y0,
+				x0 + clientWidth / zoom,
+				y0 + clientHeight / zoom,
+				clientWidth, clientHeight,
+				block_render);
+
+
+
 		if (image_canvas) {
 			child_context.setTransform(1, 0, 0, 1, 0, 0);
 			child_context.clearRect(-5000, -5000, 10000, 10000);
 			child_context.drawImage(image_canvas, 0, 0);
+			child_context.drawImage(image_canvas2, 0, 0);
+
 		} else {
 			console.log("no image, skipping draw");
 		}
@@ -409,7 +427,7 @@ class DatasetStageContainer extends RenderContainer {
 			return { nx, ny };
 		};
 
-		let {nx,nx} = normalizedCoords(ev)
+		let {nx,ny} = normalizedCoords(ev)
 		console.log("STARTING:", nx,ny)
 		this.props.setMouse(normalizedCoords(ev));
 		
@@ -419,17 +437,19 @@ class DatasetStageContainer extends RenderContainer {
 		var dataX = this.props.mouse.nx * (clientWidth / zoom) + x0;
 		var dataY = this.props.mouse.ny * (clientHeight / zoom) + y0;
 
-		this.setState({fixed_mouse_position:{
-			dataX:dataX,
-			dataY:dataY
-		},og_mouse_normal_position:{
-			nx0:this.props.mouse.nx,
-			ny0:this.props.mouse.ny,
-		},
-	dragging:true})
+			this.setState({fixed_mouse_position:{
+				dataX:dataX,
+				dataY:dataY
+			},og_mouse_normal_position:{
+				nx0:this.props.mouse.nx,
+				ny0:this.props.mouse.ny,
+			},
+			dragging:true})
+			console.log("STARTING POS: ",this.state.fixed_mouse_position);
 	}
 	releaseDrag(ev){	
 
+		console.log("RELEASE POS: ",this.state.fixed_mouse_position);
 		let {dataX,dataY} = this.state.fixed_mouse_position
 		let {nx, ny} = this.props.mouse;
 		this.alignPoint(nx,ny,dataX,dataY)
@@ -456,8 +476,9 @@ class DatasetStageContainer extends RenderContainer {
 
 	}
 
-
-	render(props) {
+	render() {
+		console.log("mouse state: ", this.props.mouse)
+		console.log("selection state: ", this.props.selections)
 		if (this.state.viewport) {
 			return (
 				<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
@@ -468,6 +489,16 @@ class DatasetStageContainer extends RenderContainer {
 							markFresh={this.forcedRefresh.bind(this)}
 							dataset={this.props.dataset}
 							color_config={{ by_segment: this.state.interactionMode == "cell" }}
+						/>
+
+
+						<TwoModeSlicedCanvas
+							ref={this.backend_ref2}
+							markFresh={this.forcedRefresh.bind(this)}
+							slicer={this.props.dataset.slice2Slicer.bind(this.props.dataset)}
+							getSliceTotalLength={this.props.dataset.getSliceTotalLength.bind(this.props.dataset)}
+							sliceReady={this.props.dataset.hasSlice.bind(this.props.dataset)}
+							getLastSliceTime={this.props.dataset.getLastSliceTime.bind(this.props.dataset)}
 						/>
 
 						<div
@@ -489,6 +520,9 @@ class DatasetStageContainer extends RenderContainer {
 								y0={this.state.viewport.y0}
 								x1={this.state.viewport.x0 + this.state.viewport.clientWidth / this.state.viewport.zoom}
 								y1={this.state.viewport.y0 + this.state.viewport.clientHeight / this.state.viewport.zoom}
+								/*here, sliceChangedTime is updated as a prop so that it triggers
+								change events whenever there is a change to the datset prop*/
+								sliceChangedTime={this.props.selections.last_selection_time}
 							/>
 
 							{this.state.interactionMode == "select" ?
@@ -569,8 +603,8 @@ class DatasetStageContainer extends RenderContainer {
 
 
 
-function mapStateToProps({ mouse, selection }) {
-	return { mouse, selection };
+function mapStateToProps({ mouse, selections }) {
+	return { mouse, selections };
 }
 
 export default connect(mapStateToProps, { setMouse })(DatasetStageContainer);

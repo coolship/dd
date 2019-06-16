@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import ReactDOM from "react-dom";
-
-
 //rendering tools
 import _ from 'lodash';
 import initREGL from 'regl';
 
 
-
-
 //this container element generates an invisible canvas element which is used strictly
 //to feed data to the view widgets
 
-export default class TwoModeCanvas extends Component {
+export default class TwoModeSlicedCanvas extends Component {
     constructor(props){
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
@@ -79,16 +75,15 @@ export default class TwoModeCanvas extends Component {
     }
     renderImage(x0, y0, x1, y1, width, height){
 
-		console.log("STARTING MULTIPASS RENDER")
 
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
-	let points;
-	var inc = 100000;
-	var passes = Math.ceil(this.props.dataset.points.length / inc);
+	var inc = 1000;
+	var passes = Math.ceil(this.props.getSliceTotalLength() / inc);
 	var i = 0;
 	this.nextPass=null;
 	var that = this;
+
 
 	
 	var timeoutFun =function(){
@@ -96,45 +91,35 @@ export default class TwoModeCanvas extends Component {
 
 	    if(i==0){
 		that.getRenderRegl().clear({
-		    color: [0, 0, 0, 1],
+		    color: [0, 0, 0, 0],
 		    depth: 1,
 		});
 	    }
- 
-	   
 	    
-	    that.drawRegl(that.getRenderRegl(),
-			  rescale,
-			  that.getBackendOriginX(x0,y0,dataLen),
-			  that.getBackendOriginY(x0,y0,dataLen),
-			  that.props.dataset.getR(that.props.color_config).slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getG(that.props.color_config).slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getB(that.props.color_config).slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getA(that.props.color_config).slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getX().slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getY().slice(i*inc,(i+1)*inc),
-			  that.props.dataset.getZ().slice(i*inc,(i+1)*inc),
-			 );
+	    // that.drawRegl(that.getRenderRegl(),
+		// 	  rescale,
+		// 	  that.getBackendOriginX(x0,y0,dataLen),
+		// 	  that.getBackendOriginY(x0,y0,dataLen),
+		// 	  that.props.dataset.getR(that.props.color_config).slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getG(that.props.color_config).slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getB(that.props.color_config).slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getA(that.props.color_config).slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getX().slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getY().slice(i*inc,(i+1)*inc),
+		// 	  that.props.dataset.getZ().slice(i*inc,(i+1)*inc),
+		// 	 );
 
-		/* slices currently allow the loading in of extra dataset features
-		however, the rendering buffer and multipass rendering system is not used for these
-		... each is drawn on the first pass.
-		[TODO]: use multipass rendering for dataset slices
-		*/
 
-		if(that.props.dataset.hasSlice() && i == 0){
+		if(that.props.sliceReady() && i == 0){
+            console.log("slicing", i)
+
+			const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc)
 			that.drawRegl(
 				that.getRenderRegl(),
 				rescale,
 				that.getBackendOriginX(x0,y0,dataLen),
 				that.getBackendOriginY(x0,y0,dataLen),
-				that.props.dataset.slice2R(),
-				that.props.dataset.slice2G(),
-				that.props.dataset.slice2B(),
-				that.props.dataset.slice2A(),
-				that.props.dataset.slice2X(),
-				that.props.dataset.slice2Y(),
-				that.props.dataset.slice2Z(),
+				R,G,B,A,X,Y,Z,
 				3
 			)
 		}
@@ -142,19 +127,22 @@ export default class TwoModeCanvas extends Component {
 
 		
 
-	    i++;
+	     i++;
 	   	    
 	    
 	    if(i < passes){
-		that.nextPass = window.setTimeout(timeoutFun,0);
-	    } else {
-			that.has_drawn_dataset=true;
+            console.log("PASSING!")
+		 that.nextPass = window.setTimeout(timeoutFun,0);
+	     } else {
+		that.has_drawn_dataset=true;
 		window.setTimeout(function(){
 		that.last_draw_params = {lx0:x0,
 					 ly0:y0,
 					 lr:rescale,
-					 lDataLen:dataLen};
-		that.exchangeBuffers();		
+                     lDataLen:dataLen,
+                     last_slice_time:that.props.getLastSliceTime()};
+        that.exchangeBuffers();
+        console.log("marking fresh from slicer...");		
 		that.props.markFresh();
 		    that.releaseOrResetCooldown();
 		},0);
@@ -180,35 +168,42 @@ export default class TwoModeCanvas extends Component {
     }
     
     getImage(x0, y0, x1, y1, width, height, block_render){
+
+
 	var clientDim = Math.max(width,height);
 	var output_canvas = document.createElement("canvas");
 	output_canvas.width = clientDim;
 	output_canvas.height = clientDim;	
-	var output_context = output_canvas.getContext("2d");
-	var {lx0, ly0, lr, lDataLen} = this.last_draw_params?this.last_draw_params:{};
+    var output_context = output_canvas.getContext("2d");
+    
+    var {lx0, ly0, lr, lDataLen,last_slice_time} = this.last_draw_params?this.last_draw_params:{};
+    console.log("SLICE TIMES COMPARISON: ", last_slice_time, this.props.getLastSliceTime())
+    
 	var nDataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var nFullLen = this.getBackendFullLen(nDataLen);
 	var rescale = this.getRescale(x0,y0,nDataLen);
 	var max_delta;
-	var has_moved;
+    var has_moved = false;
+    var has_sliced = false;
 
 	if(this.has_drawn_dataset){
-
 	    var center_motion_x = Math.abs(( lx0 + lDataLen / 2) - (x0 + nDataLen /2));
 	    var center_motion_y = Math.abs(( ly0 + lDataLen / 2) - (y0 + nDataLen / 2));
 	    var change_width = Math.abs(nDataLen - lDataLen);
 	    var delta = 0;
 	    max_delta = Math.max(center_motion_x,center_motion_y,change_width);
-	    has_moved = (center_motion_x > delta || center_motion_y > delta || change_width > delta);
-	} else {
-
+        has_moved = (center_motion_x > delta || center_motion_y > delta || change_width > delta);
+        if(this.props.getLastSliceTime() != last_slice_time ){
+            has_sliced = true
+        }
+    } else {
 	    max_delta = -1;
 	    has_moved = true;
 	}
 
 
 	//do not render if we haven't moved, or if render is explicitly blocked
-	var do_render = has_moved && !block_render;
+    var do_render = (has_moved || has_sliced) && !block_render;
 	if(do_render){	    
 	    if(this.cooldown==null){
 		//if not in cooldown state, trigger an async render
@@ -233,7 +228,7 @@ export default class TwoModeCanvas extends Component {
 	var outputLen = clientDim * (1+ this.margin_percent/100 * 2) ;
 	var marginOffset = outputLen * this.margin_percent/100;
 	var lMarginData = lDataLen * this.margin_percent/100;
-	
+    
 	output_context.drawImage(littleCanvas,
 				 0,
 				 0,

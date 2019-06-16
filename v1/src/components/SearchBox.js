@@ -9,53 +9,16 @@ import {
     DropdownMenu,
   } from 'styled-dropdown-component';
    
+import {setSelectionTime } from "../actions"
 
 import Search from 'react-icons/lib/md/search';
 
 
 
-import { Container } from 'styled-container-component';
+
 import { Button } from 'styled-button-component';
-import { Navbar, NavbarLink } from 'styled-navbar-component';
-import { Nav } from 'styled-nav-component';
-import NavRight from "../Nav3/NavRight";
- 
 
 
-
-
-
-export class SimpleDropdown extends React.Component {
-    constructor(props) {
-      super();
-      this.state = {
-        hidden: true,
-      };
-    }
-   
-    handleOpenCloseDropdown() {
-    }
-   
-    render() {
-      const { hidden } = this.state;
-      return (
-        <Dropdown>
-          <Button
-            secondary
-            dropdownToggle
-            onClick={() => this.handleOpenCloseDropdown()}
-          >
-            Dropdown Button
-          </Button>
-          <DropdownMenu hidden={hidden}>
-            <DropdownItem>Action</DropdownItem>
-            <DropdownItem>Another action</DropdownItem>
-            <DropdownItem>Something else here</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      );
-    }
-  };
 
 
 
@@ -70,7 +33,7 @@ export class SimpleDropdown extends React.Component {
  * [TODO] implement query size limits, and better query handling, etc
  * so that useful data is paged and returned. 
  */
-export default class SearchBox extends Component{
+class SearchBox extends Component{
     constructor(props){
         super(props)
         this.state = {selectedOption:"umigeneids"}
@@ -95,7 +58,12 @@ export default class SearchBox extends Component{
 
         fetch("http://35.237.243.111:5000"+urls[this.state.selectedOption]+which+"/"+val,) 
         .then(function(response) {return response.json();})
-        .then((myJson)=>this.props.setActiveSlice(myJson));
+        .then((myJson)=>{
+          console.log("SLICE WILL BE SET");
+          this.props.setActiveSlice(myJson);
+          console.log("SLICE SET");
+          this.props.setSelectionTime(Date.now());
+        });
 
     }
 
@@ -133,6 +101,8 @@ export default class SearchBox extends Component{
     };
   
 }
+
+export default connect(({})=>{return{}}, { setSelectionTime })(SearchBox);
 
 
 const StyledSearchBox=styled.div`

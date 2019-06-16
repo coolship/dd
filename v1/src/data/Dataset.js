@@ -128,6 +128,7 @@ export class Dataset {
 		if (this.annotations_url) {
 			this.fetchAnnotations();
 		}
+		this.slice_changed_time = Date.now()
 
 
 
@@ -159,6 +160,42 @@ export class Dataset {
 	}
 	sliceA() {
 		return Float32Array.from(this.slice.map((idx) => 1))
+	}
+	getSliceTotalLength(){
+		if(this.slice2){
+		return this.slice2.length;
+		} else { return 0}
+	}
+	getLastSliceTime(){
+		return this.slice_changed_time;
+	}
+	slice2Slicer(start,end){
+
+
+		if (start || end){
+			print("slicer coords: ", start,end)
+
+return{
+			R:this.slice2R().slice(start,end),
+			G:this.slice2G().slice(start,end),
+			B:this.slice2B().slice(start,end),
+			A:this.slice2A().slice(start,end),
+			X:this.slice2X().slice(start,end),
+			Y:this.slice2Y().slice(start,end),
+			Z:this.slice2Z().slice(start,end),
+}
+		}
+		else {
+		return {
+			R:this.slice2R(),
+			G:this.slice2G(),
+			B:this.slice2B(),
+			A:this.slice2A(),
+			X:this.slice2X(),
+			Y:this.slice2Y(),
+			Z:this.slice2Z(),
+		}
+	} 
 	}
 
 	slice2Y() {
@@ -236,9 +273,11 @@ export class Dataset {
 		
 			this.slice2 = umis;
 		}
+		this.slice_changed_time = Date.now()
 	}
 	unsetUmiSlice() {
 		this.slice2 = null;
+		this.slice_changed_time = Date.now()
 	}
 
 	hasSlice() {

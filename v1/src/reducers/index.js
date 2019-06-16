@@ -6,6 +6,8 @@ import { RESET, CLEAN_RESET_WITH_JSON, UPDATE_STATE_WITH_JSON, RESET_UI_ONLY } f
 //data and user reducers
 import auth from "./authReducer";
 import datasets from "./datasetsReducer";
+import selections from "./selectionsReducer";
+
 
 
 //ui reducers
@@ -22,6 +24,7 @@ const appReducer = combineReducers({
     mouse,
     query,
     demos,
+    selections,
 });
 
 
