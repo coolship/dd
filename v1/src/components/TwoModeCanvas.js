@@ -18,7 +18,7 @@ export default class TwoModeCanvas extends Component {
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
 	this.little_canvas_ref_2 = React.createRef();
-	this.resolution = 3000;
+	this.resolution = 500;
 
 	//specify a margin in pixels, currently 10% on each side;
 	this.margin_percent = 15;
@@ -79,7 +79,6 @@ export default class TwoModeCanvas extends Component {
     }
     renderImage(x0, y0, x1, y1, width, height){
 
-		console.log("STARTING MULTIPASS RENDER")
 
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
@@ -234,6 +233,7 @@ export default class TwoModeCanvas extends Component {
 	var marginOffset = outputLen * this.margin_percent/100;
 	var lMarginData = lDataLen * this.margin_percent/100;
 	
+
 	output_context.drawImage(littleCanvas,
 				 0,
 				 0,
@@ -243,6 +243,7 @@ export default class TwoModeCanvas extends Component {
 				 (source_y0 -y0) * clientDim / (nDataLen),
 				 outputLen*lDataLen/nDataLen ,
 				 outputLen*lDataLen/nDataLen );
+
 	   
 	return output_canvas;
     }
@@ -351,7 +352,7 @@ attribute float a;
 	    b:b,
 	    a:a,
 	    rescale:zoom,
-	    pointWidth:50*zoom*this.resolution/1200*size_mult,
+	    pointWidth:100*zoom*this.resolution/1200*size_mult,
 	    cx:cx,
 	    cy:cy,
 	});

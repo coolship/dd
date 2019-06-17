@@ -9,6 +9,11 @@ import Adjust from 'react-icons/lib/md/adjust';
 import PanZoomControls from './PanZoomControls';
 import DatasetSelect from './DatasetSelect';
 
+
+import SearchBox from './SearchBox'
+import ExportBox from './ExportBox'
+
+
 export default class OverlayControls extends Component {
 
     // returns left and right controls containing FOV / camera manipulation and
@@ -16,25 +21,41 @@ export default class OverlayControls extends Component {
     render() {
         return <StyledOverlayControls>
             <div className="left-controls">
-
+                <ul>
+                <li>
                 <Adjust
                     className={"btn boxed-icon " + (this.props.interactionMode == "cell"
                     ? "active"
                     : "")}
                     onClick={this.props.activateCellMode}/>
+                    </li><li>
+
                 <SelectAll
                     className={"btn boxed-icon " + (this.props.interactionMode == "select"
                     ? "active"
                     : "")}
                     onClick={this.props.activateSelectMode}/>
 
+</li><li>
+
                 <CloudDownload className="btn boxed-icon" onClick={this.props.exportPng}/>
 
+                </li><li>
+
+                <SearchBox
+                        setActiveSlice={this.props.setActiveSlice}
+                        which_dataset={this.props.which_dataset}
+                        style={{display:"inline"}}/>
+                                        </li><li>
+
+                <ExportBox style={{display:"inline"}}/></li>
+                </ul>
+{/* 
                 <PanZoomControls
                     zoomIn={this.props.zoomIn}
                     panRight={this.props.panRight}
                     panUp={this.props.panUp}
-                    centerView={this.props.centerView}/>
+                    centerView={this.props.centerView}/> */}
 
             </div>
             {this.props.is_demo
@@ -53,6 +74,10 @@ bottom:0px;
 left:0px;
 right:0px;
 text-align:left;
+
+ul>li{
+    display:inline-block;
+}
 >*>{
 pointer-events:auto;
 

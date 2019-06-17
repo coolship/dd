@@ -188,24 +188,13 @@ class DatasetStageContainer extends RenderContainer {
 			}
 			
 			handleScroll(event) {
-				this.zoomIn(-1 * event.deltaY, null);
+				this.zoomIn(-1 * event.deltaY, this.normalizedCoords(event));
 				preventDefault(event);
 			}
 			handleResize(event) {
 				this.syncViewport();
 			}
 			
-			panRight(dx) {
-				var { x0, y0 } = this.state.viewport;
-				x0 += dx;
-				this.setViewportXY({ x0, y0 });
-			}
-			
-			panUp(dy) {
-				var { x0, y0 } = this.state.viewport;
-				y0 += dy;
-				this.setViewportXY({ x0, y0 });
-			}
 			centerView() {
 				var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
 				this.setViewportXY({
@@ -219,8 +208,6 @@ class DatasetStageContainer extends RenderContainer {
 				if (event.keyCode === 38) { this.panUp(-30 / this.state.viewport.zoom); }
 				if (event.keyCode === 39) { this.panRight(30 / this.state.viewport.zoom); }
 				if (event.keyCode === 40) { this.panUp(30 / this.state.viewport.zoom); }
-				if (event.keyCode === 187) { this.zoomIn(300); }
-				if (event.keyCode === 189) { this.zoomIn(-300); }
 			}
 			
 			exportPng() {
@@ -261,12 +248,16 @@ class DatasetStageContainer extends RenderContainer {
 				var backend = this.backend_ref.current;
 				var backend2 = this.backend_ref2.current;
 				
+
+
 				var image_canvas = backend.getImage(x0,
 					y0,
 					x0 + clientWidth / zoom,
 					y0 + clientHeight / zoom,
 					clientWidth, clientHeight,
 					block_render);
+					
+					let t1 = Date.now()
 					
 					var image_canvas2 = backend2.getImage(x0,
 						y0,
@@ -277,11 +268,12 @@ class DatasetStageContainer extends RenderContainer {
 
 						if (image_canvas) {
 							child_context.setTransform(1, 0, 0, 1, 0, 0);
-							child_context.clearRect(-5000, -5000, 10000, 10000);
+							child_context.clearRect(-2000, -2000, 4000, 4000);
+							const t3 =  Date.now()
 							child_context.drawImage(image_canvas, 0, 0);
-							child_context.drawImage(image_canvas2, 0, 0);``
+							const t2 =  Date.now()
+							child_context.drawImage(image_canvas2, 0, 0);
 						} else {
-							console.log("no image, skipping draw");
 						}
 						
 					}
@@ -294,9 +286,17 @@ class DatasetStageContainer extends RenderContainer {
 					};
 					
 					onMouseMove(event) {
+
+
 						if (this.state.selection.select_type == INTERACTION_STATES.FREEZE) { return }
+						
+						const {nx,ny} = this.normalizedCoords(event);
+						this.setState({mouse:{nx,ny}});
+						
 						if(this.state.interactionMode == "drag"){
+							console.log("dragging?")
 							if(this.state.dragging){
+								console.log("YES!")
 								this.dragMouse(event)
 								
 							} else{ 
@@ -345,22 +345,75 @@ class DatasetStageContainer extends RenderContainer {
 						};
 					}
 					
-					zoomIn(dz, nxy) {
-						var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
-						let { nx, ny } = nxy ? nxy : this.state.mouse;
+					realZoom(dz,nxy, viewport){
+
+
+						var { x0, y0, zoom} = viewport; //this.state.viewport;
+						var {clientWidth, clientHeight } = this.state.viewport;
+
+						let { nx, ny } = nxy;
 						var z_new = Math.max(10, zoom * (1 + dz / 1000));
 						
 						var x0_new = nx * clientWidth * (1 / zoom - 1 / z_new) + x0;
 						var y0_new = ny * clientHeight * (1 / zoom - 1 / z_new) + y0;
 						
+
 						this.setViewportTransform({
 							x0: x0_new,
 							y0: y0_new,
 							zoom: z_new,
 						});
+						this.setState({temp_viewport:null,
+						mouse_zoom_xy:null})
+
+					
+
 					}
+					fakeZoom(dz,nxy,viewport){
+
+
+						var { x0, y0, zoom} = viewport; //this.state.viewport;
+						var {clientWidth, clientHeight } = this.state.viewport;
+						let { nx, ny } = nxy;
+						var z_new = Math.max(10, zoom * (1 + dz / 1000));
+						
+						var x0_new = nx * clientWidth * (1 / zoom - 1 / z_new) + x0;
+						var y0_new = ny * clientHeight * (1 / zoom - 1 / z_new) + y0;
+						
+
+						this.setState({temp_viewport:{
+							x0: x0_new,
+							y0: y0_new,
+							zoom: z_new,
+						},
+						mouse_zoom_xy:nxy
+					})
+
+					}
+					zoomIn(dz, nxy, doReal) {
+
+
+						var accurate_viewport = this.state.temp_viewport? this.state.temp_viewport: this.state.viewport;
+
+						
+						nxy =  this.state.mouse;
+
+						
+						if(doReal){
+
+							this.realZoom(dz,nxy, accurate_viewport)
+						} else {
+
+							this.fakeZoom(dz,nxy, accurate_viewport)
+							if(this.zoomTimer){window.clearTimeout(this.zoomTimer)}
+							this.zoomTimer = window.setTimeout( ()=>{this.zoomIn(dz,nxy,true)}, 300,)
+						}
+
+					}
+
 					
 					alignPoint(normal_x,normal_y,data_x,data_y){
+					
 						var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
 						var upper_left_datapoint_x = -1 * normal_x * clientWidth / zoom + data_x;
 						var upper_left_datapoint_y = -1 * normal_y * clientHeight/ zoom + data_y;
@@ -368,8 +421,7 @@ class DatasetStageContainer extends RenderContainer {
 							x0:upper_left_datapoint_x,
 							y0:upper_left_datapoint_y,
 							zoom:zoom
-						})
-						
+						})	
 					}
 					
 					dragMouse(ev){
@@ -404,8 +456,10 @@ class DatasetStageContainer extends RenderContainer {
 				}
 				releaseDrag(ev){	
 					
+
 					const {dataX,dataY} = this.state.fixed_mouse_position
 					const {nx, ny} = this.normalizedCoords(ev)
+					
 					this.alignPoint(nx,ny,dataX,dataY)					
 					this.setState({
 						fixed_mouse_position:null,
@@ -426,15 +480,24 @@ class DatasetStageContainer extends RenderContainer {
 					
 					render() {
 						if (this.state.viewport) {
+							var transform, trans_origin
+							if(this.state.temp_viewport){
+								var dz = this.state.temp_viewport.zoom / this.state.viewport.zoom
+								transform="scale("+dz+")"// translate("+this.state.mouse.nx*100 dx/dz+"%, "+dy/dz+"px) "
+								trans_origin=(this.state.mouse_zoom_xy.nx*100+"% ")+ (this.state.mouse_zoom_xy.ny*100 +"%")
+							} else if(this.state.dragging){
+								transform= "translate("+(this.state.mouse.nx - this.state.og_mouse_normal_position.nx0)*this.state.viewport.clientWidth +"px ,"+
+								(this.state.mouse.ny - this.state.og_mouse_normal_position.ny0)*this.state.viewport.clientHeight+"px )";
+							} else{
+								transform=null
+							}
 							return (
-								<div className="fov fov-black absolute-fullsize" ref={this.self_ref}>
-								<CanvasContainer ref={this.canvas_container_ref}  
-								style={{transform :this.state.dragging?
-									"translate("+(this.state.mouse.nx - this.state.og_mouse_normal_position.nx0)*this.state.viewport.clientWidth +"px ,"+
-									(this.state.mouse.ny - this.state.og_mouse_normal_position.ny0)*this.state.viewport.clientHeight+"px )"
-									:null}
-								} >
+								<div className="fov fov-black absolute-fullsize" style={{overflow:"hidden"}} ref={this.self_ref}>
+
 								<ExportCanvas ref={this.export_canvas_ref} />
+
+								<CanvasContainer ref={this.canvas_container_ref} style={{transform :transform,
+								  transformOrigin: trans_origin}}>
 								<TwoModeCanvas
 								ref={this.backend_ref}
 								markFresh={this.forcedRefresh.bind(this)}
@@ -451,6 +514,8 @@ class DatasetStageContainer extends RenderContainer {
 								sliceReady={this.props.dataset.hasSlice.bind(this.props.dataset)}
 								getLastSliceTime={this.props.dataset.getLastSliceTime.bind(this.props.dataset)}
 								/>
+
+				
 								
 								<div
 								onMouseMove={this.onMouseMove.bind(this)}
@@ -463,7 +528,6 @@ class DatasetStageContainer extends RenderContainer {
 								<MultiResView
 								drawFromBuffer={this.drawFromBuffer.bind(this)}
 								bufferReady={true}
-								dataset={this.props.dataset}
 								ref={this.view_ref}
 								clientWidth={this.state.viewport.clientWidth}
 								clientHeight={this.state.viewport.clientHeight}
@@ -514,14 +578,13 @@ class DatasetStageContainer extends RenderContainer {
 								
 								: null}
 								</div>
+								</CanvasContainer>
+
 								
 								
 								{this.props.appearance_props.no_buttons ? "" :
 								<OverlayControls
 								centerView={this.centerView.bind(this)}
-								zoomIn={this.zoomIn.bind(this)}
-								panRight={this.panRight.bind(this)}
-								panUp={this.panUp.bind(this)}
 								exportPng={this.exportPng.bind(this)}
 								is_demo={this.props.is_demo}
 								
@@ -541,7 +604,6 @@ class DatasetStageContainer extends RenderContainer {
 									this.setSelectType(INTERACTION_STATES.NONE);
 								}} /> :
 								null}
-								</CanvasContainer>
 								
 								</div>);
 							} else {

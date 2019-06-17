@@ -18,7 +18,6 @@ class MultiResView extends Component {
 	return (
 	    <FullscreenCanvas
 		     ref={this.canvas_ref}
-
 		   width={this.props.clientWidth}
 		   height={this.props.clientHeight}
 		     id="regl-canvas"/>
@@ -40,8 +39,24 @@ class MultiResView extends Component {
     }
     
     componentDidUpdate(prevProps,prevState){
-		console.log(this.props.sliceChangedTime)
+
+// 		clientHeight: 798
+// clientWidth: 974
+// drawFromBuffer: ƒ ()
+// sliceChangedTime: undefined
+// x0: -24.95
+// x1: 23.750000000000004
+// y0: -20.599999999999998
+// y1: 19.3
+		if( (prevProps.clientHeight!= this.props.clientHeight) ||
+		(prevProps.clientWidth!= this.props.clientWidth) ||
+		(prevProps.x0!= this.props.x0) ||
+		(prevProps.y0!= this.props.y0) ||
+		(prevProps.sliceChangedTime  != this.props.sliceChangedTime )){
+
+		console.log("WE UPDATED!")
 	this.props.drawFromBuffer(this.getContext());
+	}
     }
 }
 

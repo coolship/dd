@@ -3,12 +3,7 @@ import React, {Component} from 'react';
 import { connect } from "react-redux";
 import styled from 'styled-components';
 import {NavLink} from "react-router-dom";
-import {
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-  } from 'styled-dropdown-component';
-   
+
 import {setSelectionTime } from "../actions"
 
 import Search from 'react-icons/lib/md/search';
@@ -74,7 +69,7 @@ class SearchBox extends Component{
 	return <StyledSearchBox>
     <input type="search"
     onChange={this.handleChange.bind(this)}></input><Search className={"btn"}/>
-    <div>  
+    <div className="options">  
     <form action="">
     <li><input type="radio" name="searchtype" value="umigeneids" id="geneids" disabled={false}       
             checked={this.state.selectedOption === "umigeneids"}
@@ -108,16 +103,16 @@ export default connect(({})=>{return{}}, { setSelectionTime })(SearchBox);
 const StyledSearchBox=styled.div`
     position:relative;
     width: 200px;
+    border:2px solid blue;
+    border-radius:2px;
+div.options{
+    position:absolute;
+    bottom:100%;
 
     form{   
     li{
         display:block;
     }
     }
-
-.btn{
-cursor:pointer;
-pointer-events:auto;
-
 }
 `
