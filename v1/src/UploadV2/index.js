@@ -12,6 +12,8 @@ import _ from "lodash";
 import { Route, Switch } from "react-router-dom";
 import XumiDropperContainer from "./XumiUploads";
 
+import Close from 'react-icons/lib/md/close';
+
 function loadingMessage(dataset) {
   const inprogress = _.pickBy(
     dataset.server_job_statuses,
@@ -85,13 +87,18 @@ const CompleteDatasetItem = props => (
   <StyledCompleteDatasetItem
     className={"dataset-item item-" + props.dataset + " " + props.className}
   >
-    <button
+    <Close
       onClick={() => {
+        let r = confirm("Press a button!");
+        if (r == true) {
         props.deleteXumiDataset(props.dataset_key);
+        }
       }}
-    >
-      DELETE
-    </button>
+      style={{position:"absolute",
+      right:"0px",
+      top:"0px",}
+    }}
+    ></Close>
     <NavLink to={"/app/" + props.dataset}>
       <div className="preview-content">
         <h3>{props.dataset}</h3>
@@ -121,17 +128,26 @@ const StyledUploadListContainer = styled.div`
   flex-flow: row wrap;
   justify-content: left;
   .item {
-    width: 150px;
+      margin:20px;
+    width: 250px;
     height: 250px;
-
     border: 2px solid;
     border-radius: 3px;
     padding: 10px;
     display: relative;
+    text-alignment: center;
   }
 `;
 
 class SimpleUploadView extends Component {
+    constructor(props){
+        super(props)
+        this.state = {}
+    }
+    uploadCompleteHandler(dataset_key,dataset_name,dataset_display_name){
+        this.setState({upload_complete:true})
+        window.setTimeout( ()=>this.setState({upload_complete:false}),500)
+    }
   render() {
     let props = this.props;
     return (
@@ -144,7 +160,11 @@ class SimpleUploadView extends Component {
           </p>
 
           <StyledUploadListContainer>
-            <StyledDropperContainer className="item" />
+              { !this.state.upload_complete?
+            <StyledDropperContainer className="item" 
+                handleUploadComplete={this.uploadCompleteHandler.bind(this)}
+            /> :null}
+              
 
             {_.map(
               _.fromPairs(

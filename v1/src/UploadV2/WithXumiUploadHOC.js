@@ -86,9 +86,8 @@ export default function withXumiUpload(WrappedComponent) {
                 progress: (progress) => {
                     this.setState({progress: progress});
                 },
-                complete: () => {
-                    this.setState({dataset_name: null, files: {}});
-                    this.setState({status: "complete", progress: 100});
+                complete: (key) => {
+                    this.props.handleUploadComplete(key, this.state.dataset_name,this.state.dataset_display_name)
                 }
             };
 

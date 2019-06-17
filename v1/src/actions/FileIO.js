@@ -309,7 +309,8 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 					xumi_segment_base:sbfname,
 				}
 			});
-			callbacks.complete()
+			console.log(newObject)
+			callbacks.complete(newObject.key)
 		})
 		.catch((error) => {
 			throw error;

@@ -56,43 +56,33 @@ class XumiDropperView extends Component {
 
 
 
-    console.log(this.state);
+
     if (submit_state == "waiting") {
       return (
         <StyledUploadForm
           {...passedProps}
-          className={
-            (isAdvancedUpload ? "has-advanced-upload" : "") +
-            " box " +
-            (this.state.dragging ? " is-dragover " : "") +
-            " " +
-            className
-          }
-          onDragEnter={e => {
-            if (!this.state.dragging) {
-              this.setState({ dragging: true });
-            }
-          }}
-          onDragLeave={e => {
-            if (this.state.dragging) {
-              this.setState({ dragging: false });
-            }
-          }}
-          onDragOver={e => {
-            if (this.state.dragging) {
-              this.setState({ dragging: false });
-            }
-          }}
+          className={className}
+          onDragEnter={e => {if (!this.state.dragging){this.setState({dragging: true })};}}
+          onDragEnter={e => {if (this.state.dragging){this.setState({dragging: false })};}}
         >
-          <div className="status">status: {status}</div>
-          <div>progress: {status}</div>
           <label
             htmlFor="file"
             className="fillsarea"
             onDragOver={onDragOver}
             onDrop={handleDrop}
+            style={{
+                position: absolute;
+                left: 0px;
+                right: 0px;
+                top: 0px;
+                bottom: 0px;
+              }}
+
           >
-            This is the label for the files
+            <p><span style={{fontSize:36}}>+</span></p>
+            <p>Drag folder or click here to choose a Dataset folder for upload. 
+                Dataset folder should contain four files exported by the 
+                DNA Microscopy sequencing toolkit.</p>
             <input
               type="file"
               name="file"
@@ -116,7 +106,7 @@ class XumiDropperView extends Component {
         </div>
       );
     } else if (submit_state == "has_files") {
-      const out = (
+      const out = 
         <div className={className}>
           <div>Choose dataset name</div>
           <input
@@ -127,70 +117,32 @@ class XumiDropperView extends Component {
           <button value="submit" onClick={handleSubmit}>
             SUBMIT
           </button>
-
           <div className="file_desc"> {base_file.name} </div>
           <div className="file_desc"> {feat_file.name}</div>
           <div className="file_desc"> {segment_base_file.name}</div>
           <div className="file_desc"> {segment_feat_file.name}</div>
         </div>
-      );
-      return styled(out)`
-        .file_desc {
-          width: 100%;
-          padding-right: 10px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      `;
+      return Wrapper(out);
     } else {
       return "UNKNOWN SUBMIT STATE";
     }
   }
 }
 
-const StyledUploadForm = styled.form`
-  .dropzone {
-    background-color: red;
-    height: 200px;
-    width: 200px;
-    opacity: 0.3;
-    cursor: pointer;
-    position: absolute;
+const StyledWrapper = styled.div`
+.file_desc {
+    width: 100%;
+    padding-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .fillsarea {
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 0px;
-    bottom: 0px;
-  }
+`
+const Wrapper = ( wrapped_component ) => {
+return <StyledWrapper>{wrapped_component}</StyledWrapper>
+}
 
 
-  font-size: 1.25rem;
-  background-color: #c8dadf;
-  position: relative;
-  padding: 100px 20px;
-
-  color: darkgray;
-  .text-status {
-    position: absolute;
-    opacity: 0.25;
-    z-index: -1;
-  }
-  &.has-advanced-upload {
-    background-color: white;
-    outline: 2px dashed black;
-    outline-offset: -10px;
-  }
-  &.has-advanced-upload .box__dragndrop {
-    display: inline;
-  }
-
-  &.is-dragover {
-    background-color: grey;
-  }
-`;
 
 let XumiDropperContainer = withXumiUpload(XumiDropperView);
 export default XumiDropperContainer;
