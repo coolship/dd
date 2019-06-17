@@ -1,241 +1,291 @@
-import React, {Component} from 'react';
-import {connect} from "react-redux";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 
-import styled, {css} from 'styled-components';
-import {Breadcrumb} from 'react-breadcrumbs';
-import {NavLink} from "react-router-dom";
+import styled, { css } from "styled-components";
+import { Breadcrumb } from "react-breadcrumbs";
+import { NavLink } from "react-router-dom";
 import ProgressContainer from "../display/ProgressContainer";
 
-import {fetchDatasets} from '../actions';
-import {userIdFromEmail, deleteXumiDataset} from "../actions/FileIO";
+import { fetchDatasets } from "../actions";
+import { userIdFromEmail, deleteXumiDataset } from "../actions/FileIO";
 import _ from "lodash";
-import { Route, Switch} from "react-router-dom";
-import XumiDropperContainer from "./XumiUploads"
-
+import { Route, Switch } from "react-router-dom";
+import XumiDropperContainer from "./XumiUploads";
 
 function loadingMessage(dataset) {
-    const inprogress = _.pickBy(dataset.server_job_statuses, (v, k) => v == "RUNNING")
-    console.log(inprogress)
-    if (inprogress) {
-        return Object.keys(inprogress)[0];
-    } else {
-        return "PROCESSING"
-    }
+  const inprogress = _.pickBy(
+    dataset.server_job_statuses,
+    (v, k) => v == "RUNNING"
+  );
+  console.log(inprogress);
+  if (inprogress) {
+    return Object.keys(inprogress)[0];
+  } else {
+    return "PROCESSING";
+  }
 }
 function isComplete(dataset) {
-    console.log(dataset.server_process_status)
-    if (dataset.server_process_status!="COMPLETE"){return false;}
-    else{return true }
+  console.log(dataset.server_process_status);
+  if (dataset.server_process_status != "COMPLETE") {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 function totalProgress(dataset) {
-
-    return (100 * (_.sum(_.map(dataset.server_job_statuses, (status, k) => status == "COMPLETE"
-        ? 1
-        : 0))) / _.reduce(dataset.server_job_statuses, (k, cur) => {
-        return k + 1
-    }, 0));
+  return (
+    (100 *
+      _.sum(
+        _.map(dataset.server_job_statuses, (status, k) =>
+          status == "COMPLETE" ? 1 : 0
+        )
+      )) /
+    _.reduce(
+      dataset.server_job_statuses,
+      (k, cur) => {
+        return k + 1;
+      },
+      0
+    )
+  );
 }
 
 class InProgressDatasetitem extends Component {
-    constructor(props) {
-        super(props)
-    }
-    render() {
-        const props = this.props
-        return (
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    const props = this.props;
+    return (
+      <StyledInProgressDatasetItem
+        className={"dataset-item item-" + props.dataset + " " + props.className}
+      >
+        <ProgressRing
+          radius={60}
+          stroke={10}
+          progress={totalProgress(this.props.dataset_meta)}
+        />
+        <ProgressContainer progress={totalProgress(this.props.dataset_meta)}>
+          <span className="fill" />
+          <div className="message">
+            {loadingMessage(this.props.dataset_meta)}
+          </div>
+        </ProgressContainer>
 
-            <StyledInProgressDatasetItem className={"dataset-item item-" + props.dataset}>
-
-                <ProgressContainer progress={totalProgress(this.props.meta)}>
-                    <span className="fill"></span>
-                    <div className="message">{loadingMessage(this.props.meta)}</div>
-                </ProgressContainer>
-
-                <div>Pre-processing alignment and annotation data for {props.dataset}.</div>
-            </StyledInProgressDatasetItem>
-
-        );
-    }
+        <div>
+          Pre-processing alignment and annotation data for {props.dataset}.
+        </div>
+      </StyledInProgressDatasetItem>
+    );
+  }
 }
 
-const CompleteDatasetItem = (props) => (
-    <StyledCompleteDatasetItem className={"dataset-item item-" + props.dataset}>
-
-        <button
-            onClick={() => {
-            props.deleteXumiDataset(props.dataset_key)
-        }}>DELETE</button>
-        <NavLink to={"/app/" + props.dataset}>
-            <div className="preview-content">
-                <h3>{props.dataset}</h3>
-            </div>
-        </NavLink>
-        <div>View {props.dataset}
-            in the DNA Microscope</div>
-
-    </StyledCompleteDatasetItem>
-
+const CompleteDatasetItem = props => (
+  <StyledCompleteDatasetItem
+    className={"dataset-item item-" + props.dataset + " " + props.className}
+  >
+    <button
+      onClick={() => {
+        props.deleteXumiDataset(props.dataset_key);
+      }}
+    >
+      DELETE
+    </button>
+    <NavLink to={"/app/" + props.dataset}>
+      <div className="preview-content">
+        <h3>{props.dataset}</h3>
+      </div>
+    </NavLink>
+    <div>
+      View {props.dataset}
+      in the DNA Microscope
+    </div>
+  </StyledCompleteDatasetItem>
 );
 
-const StyledInProgressDatasetItem = styled.div `
-width:300px;
-height:auto;
-color:yellow;
-margin-bottom:0px;
-border:2px solid yellow;
-border-radius : 3px;
-padding:10px;
-`
-const StyledCompleteDatasetItem = styled.div `
-width:300px;
-height:auto;
-color:green;
-margin-bottom:0px;
-border:2px solid green;
-border-radius : 3px;
-padding:10px;
+const StyledDropperContainer = styled(XumiDropperContainer)`
+  color: red;
+`;
 
-`
+const StyledInProgressDatasetItem = styled.div`
+  color: yellow;
+`;
+const StyledCompleteDatasetItem = styled.div`
+  color: green;
+`;
 
-const StyledUploadListContainer = styled.div `
-  /* We first create a flex layout context */
+const StyledUploadListContainer = styled.div`
+
   display: flex;
-  
-  /* Then we define the flow direction 
-     and if we allow the items to wrap 
-   * Remember this is the same as:
-   * flex-direction: row;
-   * flex-wrap: wrap;
-   */
   flex-flow: row wrap;
-  
-  /* Then we define how is distributed the remaining space */
-  justify-content: space-around;
+  justify-content: left;
+  .item {
+    width: 150px;
+    height: 250px;
 
-`
+    border: 2px solid;
+    border-radius: 3px;
+    padding: 10px;
+    display: relative;
+  }
+`;
 
 class SimpleUploadView extends Component {
+  render() {
+    let props = this.props;
+    return (
+      <div>
+        <section>
+          <h2>Welcome back!</h2>
+          <p>
+            You're logged in as user {this.props.auth.email}. Manage and upload
+            datasets
+          </p>
 
-    render() {
-        let props = this.props
-        return (
-            <div>
-                <section>
-                    <h1>upload datasets</h1>
-                    <XumiDropperContainer/>
-                </section>
+          <StyledUploadListContainer>
+            <StyledDropperContainer className="item" />
 
-                <section>
-                    <StyledUploadListContainer>
-                        {_.map(_.fromPairs(_.compact(_.map(this.props.datasets, (d, k) => {
-                            return !isComplete(d)
-                                ? [k, d]
-                                : undefined
-                        }))), (d, k) =>< InProgressDatasetitem key = {
-                            d.dataset
-                        }
-                        dataset = {
-                            d.dataset
-                        }
-                        dataset_key = {
-                            k
-                        }
-                        deleteXumiDataset = {
-                            this.props.deleteXumiDataset
-                        }
-                        meta = {
-                            d
-                        } />)}
+            {_.map(
+              _.fromPairs(
+                _.compact(
+                  _.map(this.props.datasets, (d, k) => {
+                    return !isComplete(d) ? [k, d] : undefined;
+                  })
+                )
+              ),
+              (d, k) => (
+                <InProgressDatasetitem
+                  key={d.dataset}
+                  dataset={d.dataset}
+                  dataset_key={k}
+                  deleteXumiDataset={this.props.deleteXumiDataset}
+                  dataset_meta={d}
+                  className="item"
+                />
+              )
+            )}
 
-                        {_.map(_.fromPairs(_.compact(_.map(this.props.datasets, (d, k) => {
-                            return isComplete(d)
-                                ? [k, d]
-                                : undefined
-                        }))), (d, k) =>< CompleteDatasetItem key = {
-                            d.dataset
-                        }
-                        dataset = {
-                            d.dataset
-                        }
-                        dataset_key = {
-                            k
-                        }
-                        deleteXumiDataset = {
-                            this.props.deleteXumiDataset
-                        }
-                        meta = {
-                            d
-                        } />)}
-                    </StyledUploadListContainer>
+            {_.map(
+              _.fromPairs(
+                _.compact(
+                  _.map(this.props.datasets, (d, k) => {
+                    return isComplete(d) ? [k, d] : undefined;
+                  })
+                )
+              ),
+              (d, k) => (
+                <CompleteDatasetItem
+                  key={d.dataset}
+                  dataset={d.dataset}
+                  dataset_key={k}
+                  deleteXumiDataset={this.props.deleteXumiDataset}
+                  dataset_meta={d}
+                  className="item"
+                />
+              )
+            )}
+          </StyledUploadListContainer>
+        </section>
+      </div>
+    );
+  }
+}
 
-                </section>
-            </div>
-        )
-    }
+class ProgressRing extends React.Component {
+  constructor(props) {
+    super(props);
+    const { radius, stroke } = this.props;
+    this.normalizedRadius = radius - stroke * 2;
+    this.circumference = this.normalizedRadius * 2 * Math.PI;
+  }
+
+  render() {
+    const { radius, stroke, progress } = this.props;
+    const strokeDashoffset =
+      this.circumference - (progress / 100) * this.circumference;
+    return (
+      <svg height={radius * 2} width={radius * 2}>
+        <circle
+          stroke="white"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeDasharray={this.circumference + " " + this.circumference}
+          style={{ strokeDashoffset }}
+          stroke-width={stroke}
+          r={this.normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+      </svg>
+    );
+  }
 }
 
 class UploadProgressView extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            which_dataset: props.match.params.number,
-            metadata: _.find(props.datasets, (d) => d.dataset == props.match.params.number)
-        }
-        console.log(this.state)
-    }
-    render() {
-        console.log(this.props)
-        let props = this.props
-        return (
-            <div>
-                <Breadcrumb
-                    data={{
-                    title: <b>Sample Dataset {props.match.params.number}</b>,
-                    pathname: props.match.url,
-                    search: null
-                }}></Breadcrumb>
-                < div >
-                    <section>
-                        <b>Uploading Dataset {props.match.params.number}</b>
-                    </section>
-                </div>
-            </div>
-        )
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      which_dataset: props.match.params.number,
+      metadata: _.find(
+        props.datasets,
+        d => d.dataset == props.match.params.number
+      )
+    };
+    console.log(this.state);
+  }
+  render() {
+    console.log(this.props);
+    let props = this.props;
+    return (
+      <div>
+        <Breadcrumb
+          data={{
+            title: <b>Sample Dataset {props.match.params.number}</b>,
+            pathname: props.match.url,
+            search: null
+          }}
+        />
+        <div>
+          <section>
+            <b>Uploading Dataset {props.match.params.number}</b>
+          </section>
+        </div>
+      </div>
+    );
+  }
 }
 
 class UploadV2View extends Component {
-    constructor(props) {
-        super(props)
-        this
-            .props
-            .fetchDatasets(userIdFromEmail(this.props.auth.email));
-        this.props.datasets
-    }
-    render(props) {
-        console.log("RERENDINGER BIG")
-        return (
-
-            <Switch>
-                <Route
-                    title="List"
-                    exact
-                    path='/upload2'
-                    render={(props) => <SimpleUploadView
-                    {...props}
-                    deleteXumiDataset={this.props.deleteXumiDataset}
-                    datasets={this.props.datasets}/>}/>
-                <Route
-                    path='/upload2/:number'
-                    render={(props) => <UploadProgressView {...props} datasets={this.props.datasets}/>}/>
-            </Switch>
-
-        );
-    };
+  constructor(props) {
+    super(props);
+    this.props.fetchDatasets(userIdFromEmail(this.props.auth.email));
+    this.props.datasets;
+  }
+  render() {
+    console.log("RERENDINGER BIG");
+    return (
+      <Switch>
+        <Route
+          title="List"
+          exact
+          path="/upload2"
+          render={props => <SimpleUploadView {...this.props} />}
+        />
+        <Route
+          path="/upload2/:number"
+          render={props => (
+            <UploadProgressView {...props} datasets={this.props.datasets} />
+          )}
+        />
+      </Switch>
+    );
+  }
 }
-
-const mapStateToProps = ({auth, datasets}) => {
-    return {auth, datasets};
+const mapStateToProps = ({ auth, datasets }) => {
+  return { auth, datasets };
 };
-export default connect(mapStateToProps, {fetchDatasets, deleteXumiDataset})(UploadV2View)
+export default connect(
+  mapStateToProps,
+  { fetchDatasets, deleteXumiDataset }
+)(UploadV2View);

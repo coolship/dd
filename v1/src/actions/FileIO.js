@@ -269,7 +269,7 @@ export const deleteXumiDataset = (dataset_key)=>{
 
 export const uploadXumi = (files, meta, callbacks) => dispatch => {
 
-	const { dataset, email } = meta;
+	const { dataset, email, display_name } = meta;
 	const userId = userIdFromEmail(email);
 
 	const { base_file, feat_file, segment_base_file, segment_feat_file } = files;
@@ -299,6 +299,7 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 				dataset: dataset,
 				email: email,
 				userId: userId,
+				display_name:display_name,
 				server_process_status: "WAITING",
 				server_process_progress: 0,
 				allfiles: {
