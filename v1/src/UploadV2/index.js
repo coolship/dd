@@ -96,7 +96,7 @@ const CompleteDatasetItem = props => (
       }}
       style={{position:"absolute",
       right:"0px",
-      top:"0px",}
+      top:"0px"
     }}
     ></Close>
     <NavLink to={"/app/" + props.dataset}>
