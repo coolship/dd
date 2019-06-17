@@ -18,7 +18,7 @@ export default class TwoModeCanvas extends Component {
 	super(props);
 	this.little_canvas_ref_1 = React.createRef();
 	this.little_canvas_ref_2 = React.createRef();
-	this.resolution = 500;
+	this.resolution = 1500;
 
 	//specify a margin in pixels, currently 10% on each side;
 	this.margin_percent = 15;
