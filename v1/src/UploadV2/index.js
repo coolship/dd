@@ -53,7 +53,7 @@ function totalProgress(dataset) {
       0
     )
   );
-  if (!val){return 0}
+  if (!val){return 0} else{return val}
 }
 
 class InProgressDatasetitem extends Component {

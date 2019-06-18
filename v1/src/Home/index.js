@@ -19,7 +19,7 @@ class Home extends Component {
 		
 		<section id="welcome"><h1>WELCOME</h1><div className="biline">Welcome to the web portal for DNA microscopy, a new imaging modality for scalable, optics-free mapping of relative biomolecule positions without specialized equipment. 
 		<p>Read more on <a href="https://www.biorxiv.org/content/10.1101/471219v1"> bioArxiv </a></p>
-		{auth &&auth.email? <p><a href="/upload2"> View and manage datasets!</a></p>:""}
+		{this.props.auth &&this.props.auth.email? <p><a href="/upload2">🔬View and manage datasets</a></p>:""}
 		</div>
 		</section>
 		<section className="gallery-section" id="gallery"><StyledGalleryHeader><h1>GALLERY</h1><div className="biline"><NavLink to="/gallery">Explore sample datasets</NavLink></div></StyledGalleryHeader>
