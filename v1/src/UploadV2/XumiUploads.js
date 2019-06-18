@@ -1,6 +1,5 @@
 import styled, { css } from "styled-components";
 import React, { Component } from "react";
-import { connect } from "react-redux";
 import ProgressContainer from "../display/ProgressContainer";
 import _ from "lodash";
 import withXumiUpload from "./WithXumiUploadHOC";
@@ -16,24 +15,18 @@ import withXumiUpload from "./WithXumiUploadHOC";
  * optimized formats, allowing rapid access of channels served by Google Cloud
  */
 
-var onDragOver = event => {
-  event.preventDefault();
-};
-
-var isAdvancedUpload = (function() {
-  var div = document.createElement("div");
-  return (
-    ("draggable" in div || ("ondragstart" in div && "ondrop" in div)) &&
-    "FormData" in window &&
-    "FileReader" in window
-  );
-})();
-
 class XumiDropperView extends Component {
   constructor(props) {
     /* strips props from the container which will be used to handle events */
     super(props);
     this.state = {};
+  }
+  onDragOver(event){
+
+    console.log(this)
+    console.log("DRAGGED OVER")
+    this.setState({ dragging: true });
+  event.preventDefault();
   }
   render() {
     const {
@@ -41,7 +34,7 @@ class XumiDropperView extends Component {
       handleSubmit,
       handleNameChange,
       progress,
-        dataset_display_name,
+      dataset_display_name,
       dataset_name,
       status,
       base_file,
@@ -54,35 +47,47 @@ class XumiDropperView extends Component {
       ...passedProps
     } = this.props;
 
-
-
+    console.log("no longer adding passed props to label state:", passedProps)
 
     if (submit_state == "waiting") {
       return (
-        <StyledUploadForm
-          {...passedProps}
-          className={className}
-          onDragEnter={e => {if (!this.state.dragging){this.setState({dragging: true })};}}
-          onDragEnter={e => {if (this.state.dragging){this.setState({dragging: false })};}}
-        >
-          <label
-            htmlFor="file"
-            className="fillsarea"
-            onDragOver={onDragOver}
-            onDrop={handleDrop}
-            style={{
-                position: "absolute",
-                left: "0px",
-                right: "0px",
-                top: "0px",
-                bottom: "0px",
-              }}
-
+        
+        <label
+        htmlFor="file"
+        onDragOver={this.onDragOver.bind(this)}
+        onDrop={handleDrop}
+        style={{
+        }}
+      
+          className={className + " " +(this.state.dragging?"dragover":"")}
+          onDragEnter={e => {
+            if (!this.state.dragging) {
+              this.setState({ dragging: true });
+            }
+          }}
+          onDragLeave={e => {
+            if (this.state.dragging) {
+              this.setState({ dragging: false });
+            }
+          }}
+          style={{
+            backgroundColor: this.state.dragging ? "rgba(0, 0, 255, .5)" : "transparent",
+            position: "relative",
+          left: "0px",
+          right: "0px",
+          top: "0px",
+          bottom: "0px"
+          }}
           >
-            <p><span style={{fontSize:36}}>+</span></p>
-            <p>Drag folder or click here to choose a Dataset folder for upload. 
-                Dataset folder should contain four files exported by the 
-                DNA Microscopy sequencing toolkit.</p>
+        
+            <p>
+              <span style={{ fontSize: 120 }}>+</span>
+            </p>
+            <p>
+              Drag folder or click here to choose a Dataset folder for upload.
+              Dataset folder should contain four files exported by the DNA
+              Microscopy sequencing toolkit.
+            </p>
             <input
               type="file"
               name="file"
@@ -90,7 +95,7 @@ class XumiDropperView extends Component {
               style={{ display: "none" }}
             />
           </label>
-        </StyledUploadForm>
+
       );
     } else if (submit_state == "has_bad_files") {
       return (
@@ -106,43 +111,107 @@ class XumiDropperView extends Component {
         </div>
       );
     } else if (submit_state == "has_files") {
-      const out = 
+      const out = (
         <div className={className}>
           <div>Choose dataset name</div>
           <input
+          className="dataset_name"
             type="text"
             value={dataset_display_name}
             onChange={handleNameChange}
+            ref={(input) => { this.nameInput = input; }} 
           />
-          <button value="submit" onClick={handleSubmit}>
+          <button className="dataset_submit" value="submit" onClick={handleSubmit}>
             SUBMIT
           </button>
+          <br/>
+          Files:
           <div className="file_desc"> {base_file.name} </div>
           <div className="file_desc"> {feat_file.name}</div>
           <div className="file_desc"> {segment_base_file.name}</div>
           <div className="file_desc"> {segment_feat_file.name}</div>
         </div>
+      );
       return Wrapper(out);
     } else {
       return "UNKNOWN SUBMIT STATE";
     }
   }
+  componentDidUpdate(){
+      if(this.nameInput && !(this.state.hasSelected)){
+
+    this.nameInput.select();
+    this.setState({hasSelected:true})
+      } 
+ }
 }
 
+const color="lightblue";
+const ItemWrapper = styled.span`
+
+`
 const StyledWrapper = styled.div`
-.file_desc {
-    width: 100%;
+display: flex;
+justify-content: center;
+flex-direction: column;
+text-align: center;
+
+>div{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    
+    align-items: center;
+    justify-content: center;
+}
+
+  .file_desc {
+    width: 75%;
     padding-right: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-`
-const Wrapper = ( wrapped_component ) => {
-return <StyledWrapper>{wrapped_component}</StyledWrapper>
+  .dataset_submit{
+    background-color:${color};
+    color:black;
+    border:none;
+    width:20em;
+    margin-bottom:10px;
+    margin-left: auto;
+    margin-right: auto;
+    height: 2.5em;
+
+  }
+input.dataset_name{
+    caret-color:${color};
+    height:2.5em;
+    color:${color}
+    outline:none;
+  background-color: transparent;
+  border: 2px ${color} solid;
+  border-radius: 3px;
+  width: 20em;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+  padding: 10px;
+  text-align: center;
 }
 
+`;
+const Wrapper = wrapped_component => {
+  return <StyledWrapper>{wrapped_component}</StyledWrapper>;
+};
 
+
+const WrapItem = wrapped_component => {
+    return <ItemWrapper>{wrapped_component}</ItemWrapper>;
+  };
+  
 
 let XumiDropperContainer = withXumiUpload(XumiDropperView);
 export default XumiDropperContainer;

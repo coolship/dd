@@ -12,23 +12,7 @@
     bottom:0px;
 }
 
- .boxed-icon{
 
-     opacity:1;
-     font-size:1.5em;
-     display:inline;
-    padding:5px;
-    border:2px solid;
-    cursor:points;
-    margin:5px;
-    border-radius:4px;
-}
-.boxed-icon:hover{
-    background-color:white;
-    color:black;
-    opacity:.8;
-    
-}    
 
 .icon-close{
     position:absolute;

@@ -45,15 +45,13 @@ const DatasetWorkspaceView = (props) => {
                         metadata={meta}
                         metadata_key={meta_key}
                         is_demo={false}
+                        setActiveSlice={props.setActiveSlice}
                         appearance_props={{
                         no_buttons: props.no_buttons
                             ? true
                             : false
                     }}/>
                 </StageContainerArea>
-                <DatasetWrangler
-                    which_dataset={props.which_dataset}
-                    setActiveSlice={props.setActiveSlice}></DatasetWrangler>
             </div>
         )
     }

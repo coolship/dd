@@ -26,7 +26,7 @@ import RenderContainer from "./RenderContainer";
 import TranscriptSelectionInteractor from "./TranscriptSelectionInteractor";
 import CellSelectionInteractor from "./CellSelectionInteractor";
 import DragInteractor from "./DragInteractor";
-
+import RectangleSelectionInteractor from "./RectangleSelectionInteractor"
 
 
 const INTERACTION_STATES = {
@@ -54,15 +54,19 @@ class DatasetStageContainer extends RenderContainer {
 			interactionMode: "drag", // allowable: "select", "cell", "drag", "analyze"
 			selection: { selected_idxs: [], select_type: null },
 		};
+
+		this.interactors={
+			"drag":DragInteractor,
+			"rectangle":RectangleSelectionInteractor,
+		}
 		
 		this.bound_resize = this.handleResize.bind(this);
-		this.bound_wheel = this.handleScroll.bind(this);
 		this.bound_click = this.onClick.bind(this);
 		this.bound_mousedown = this.mouseDown.bind(this);
 		this.bound_mouseup = this.mouseUp.bind(this);
-		
-		this.bound_keydown = this.handleKeyDown.bind(this);
 		this.export_canvas_ref = React.createRef();
+
+		
 		
 	}
 	
@@ -479,6 +483,7 @@ class DatasetStageContainer extends RenderContainer {
 					}
 					
 					render() {
+						console.log(this.props.setActiveSlice)
 						if (this.state.viewport) {
 							var transform, trans_origin
 							if(this.state.temp_viewport){
@@ -521,8 +526,7 @@ class DatasetStageContainer extends RenderContainer {
 								onMouseMove={this.onMouseMove.bind(this)}
 								onMouseEnter={this.onMouseEnter.bind(this)}
 								onMouseLeave={this.onMouseLeave.bind(this)}
-								onKeyDown={this.bound_keydown}
-								onWheel={this.bound_wheel}
+								onWheel={this.handleScroll.bind(this)}
 								>
 								
 								<MultiResView
@@ -587,13 +591,13 @@ class DatasetStageContainer extends RenderContainer {
 								centerView={this.centerView.bind(this)}
 								exportPng={this.exportPng.bind(this)}
 								is_demo={this.props.is_demo}
-								
+								which_dataset={this.props.metadata.dataset}
 								
 								interactionMode={this.state.interactionMode}
 								activateCellMode={this.activateCellMode.bind(this)}
 								activateDragMode={this.activateDragMode.bind(this)}
 								activateSelectMode={this.activateSelectMode.bind(this)}
-								
+								setActiveSlice={this.props.setActiveSlice}
 								/>
 							}
 							{this.state.selection.select_type == INTERACTION_STATES.FREEZE && this.getFirstSelected() != null ?

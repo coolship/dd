@@ -12,7 +12,7 @@ import _ from "lodash";
 import { Route, Switch } from "react-router-dom";
 import XumiDropperContainer from "./XumiUploads";
 
-import Close from 'react-icons/lib/md/close';
+import Close from "react-icons/lib/md/close";
 
 function loadingMessage(dataset) {
   const inprogress = _.pickBy(
@@ -36,13 +36,15 @@ function isComplete(dataset) {
 }
 
 function totalProgress(dataset) {
+    console.log("should be a dataset:" , dataset)
   return (
-    (100 *
-      _.sum(
-        _.map(dataset.server_job_statuses, (status, k) =>
-          status == "COMPLETE" ? 1 : 0
-        )
-      )) /
+    (10 +
+      90 *
+        _.sum(
+          _.map(dataset.server_job_statuses, (status, k) =>
+            status == "COMPLETE" ? 1 : 0
+          )
+        )) /
     _.reduce(
       dataset.server_job_statuses,
       (k, cur) => {
@@ -68,16 +70,14 @@ class InProgressDatasetitem extends Component {
           stroke={10}
           progress={totalProgress(this.props.dataset_meta)}
         />
-        <ProgressContainer progress={totalProgress(this.props.dataset_meta)}>
+        <p className="title">{props.dataset_meta.display_name}</p>
+        <p>Status: Computing Backend Server Transformation and Alignments</p>
+        <p className="message themed">
+          {loadingMessage(this.props.dataset_meta)}{" "}
+        </p>
+        {/* <ProgressContainer progress={totalProgress(this.props.dataset_meta)}>
           <span className="fill" />
-          <div className="message">
-            {loadingMessage(this.props.dataset_meta)}
-          </div>
-        </ProgressContainer>
-
-        <div>
-          Pre-processing alignment and annotation data for {props.dataset}.
-        </div>
+        </ProgressContainer> */}
       </StyledInProgressDatasetItem>
     );
   }
@@ -89,82 +89,125 @@ const CompleteDatasetItem = props => (
   >
     <Close
       onClick={() => {
-        let r = confirm("Press a button!");
+        let r = window.confirm(
+          "Really delete dataset" + props.dataset_meta.display_name + "?"
+        );
         if (r == true) {
-        props.deleteXumiDataset(props.dataset_key);
+          props.deleteXumiDataset(props.dataset_key);
         }
       }}
-      style={{position:"absolute",
-      right:"0px",
-      top:"0px"
-    }}
-    ></Close>
-    <NavLink to={"/app/" + props.dataset}>
-      <div className="preview-content">
-        <h3>{props.dataset}</h3>
-      </div>
+      style={{ width:"36px",height:"36px", position: "absolute", right: "0px", top: "0px" }}
+    />
+    <p className="title">{props.dataset_meta.display_name}</p>
+    <p>Status: ready</p>
+    <NavLink to={"/workspace/" + props.dataset}>
+      <span className="themed">View this Dataset</span>
     </NavLink>
-    <div>
-      View {props.dataset}
-      in the DNA Microscope
-    </div>
   </StyledCompleteDatasetItem>
 );
 
-const StyledDropperContainer = styled(XumiDropperContainer)`
-  color: red;
+let stylecolor;
+stylecolor="goldenrod"
+const StyledInProgressDatasetItem = styled.div`
+svg{
+
+    margin-left: auto;
+    margin-right: auto;
+    fill:${stylecolor}
+}
+  border-color: ${stylecolor} !important;
+  .themed{
+      color:${stylecolor};
+      &a:color:${stylecolor};
+  }
 `;
 
-const StyledInProgressDatasetItem = styled.div`
-  color: yellow;
-`;
+stylecolor="lightgreen"
 const StyledCompleteDatasetItem = styled.div`
-  color: green;
+svg{
+        margin-left: auto;
+    margin-right: auto;
+    fill:${stylecolor}
+}
+  border-color: ${stylecolor} !important;
+  .themed{
+    color:${stylecolor};
+    &a:color:${stylecolor};
+}
 `;
 
 const StyledUploadListContainer = styled.div`
-
   display: flex;
   flex-flow: row wrap;
-  justify-content: left;
+  justify-content: center;
+
   .item {
-      margin:20px;
+    margin: 20px;
     width: 250px;
     height: 250px;
-    border: 2px solid;
+    border-width: 2px;
+    border-style: solid;
     border-radius: 3px;
     padding: 10px;
-    display: relative;
+    position: relative;
+
     text-alignment: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+
+    p {
+      margin-top: 0px;
+      margin-bottom: 5px;
+      &.title {
+        margin-bottom: 15px;
+      }
+    }
   }
 `;
 
 class SimpleUploadView extends Component {
-    constructor(props){
-        super(props)
-        this.state = {}
-    }
-    uploadCompleteHandler(dataset_key,dataset_name,dataset_display_name){
-        this.setState({upload_complete:true})
-        window.setTimeout( ()=>this.setState({upload_complete:false}),500)
-    }
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  uploadCompleteHandler(dataset_key, dataset_name, dataset_display_name) {
+    this.setState({ upload_complete: true });
+    window.setTimeout(() => this.setState({ upload_complete: false }), 500);
+  }
   render() {
     let props = this.props;
     return (
       <div>
         <section>
-          <h2>Welcome back!</h2>
-          <p>
-            You're logged in as user {this.props.auth.email}. Manage and upload
-            datasets
-          </p>
+          <div
+            style={{
+              maxWidth: "200px",
+              margin: "50px",
+              marginTop:"10vh",
+              position: "relative",
+    marginLeft: "auto",
+    marginRight: "auto",
+            }}
+          >
+            <h2>Welcome back!</h2>
+            <p>
+              You're logged in as user {this.props.auth.email}. Manage and
+              upload datasets
+            </p>
+            <br/>
+            <h2>Your Datasets</h2>
+          </div>
+
 
           <StyledUploadListContainer>
-              { !this.state.upload_complete?
-            <StyledDropperContainer className="item" 
+            {!this.state.upload_complete ? (
+              <XumiDropperContainer
+                className="item"
                 handleUploadComplete={this.uploadCompleteHandler.bind(this)}
-            /> :null}
-              
+              />
+            ) : null}
 
             {_.map(
               _.fromPairs(
@@ -237,6 +280,10 @@ class ProgressRing extends React.Component {
           cx={radius}
           cy={radius}
         />
+        <text x={radius } y={radius } class="small"
+        dominant-baseline="middle" text-anchor="middle">
+          {Math.round(progress)}%
+        </text>
       </svg>
     );
   }
