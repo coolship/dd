@@ -86,6 +86,7 @@ const StyledOverlayControls = styled.div`
   }
 
   .btn {
+    background-color:black;
     opacity: 1;
     border-width: 2px;
     border-style: solid;
