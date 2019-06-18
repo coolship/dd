@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled, { css } from "styled-components";
-import CloudDownload from "react-icons/lib/md/cloud-download";
 
 import OpenWith from "react-icons/lib/md/open-with";
 import SelectAll from "react-icons/lib/md/select-all";
 import Adjust from "react-icons/lib/md/adjust";
-import PanZoomControls from "./PanZoomControls";
 import DatasetSelect from "./DatasetSelect";
 
 import SearchBox from "./SearchBox";
@@ -19,48 +17,33 @@ export default class OverlayControls extends Component {
   render() {
     return (
       <StyledOverlayControls>
-        <div className="left-controls">
-          <ul className="buttons">
-
-
+        <ul className="buttons">
           <li className="btn btn-wide">
-              <InteractionSelectBox 
+            <InteractionSelectBox
               handleSetInteractor={this.props.handleSetInteractor}
-              style={{ display: "inline" }} />
-            </li>
-            <li className="btn btn-square">
-              <CloudDownload
-                className="boxed-icon"
-                onClick={this.props.exportPng}
-              />
-            </li>
-            <li className="btn  btn-wide">
-              <SearchBox
-                setActiveSlice={this.props.setActiveSlice}
-                which_dataset={this.props.which_dataset}
-                style={{ display: "inline" }}
-              />
-            </li>
-            <li className="btn btn-wide">
-              <ExportBox 
+              style={{ display: "inline" }}
+            />
+          </li>
+          <li className="btn  btn-wide">
+            <SearchBox
+              setActiveSlice={this.props.setActiveSlice}
               which_dataset={this.props.which_dataset}
               style={{ display: "inline" }}
-              getActiveSlice = {this.props.getActiveSlice}
-              />
-            </li>
-          </ul>
-          {/* 
-                <PanZoomControls
-                    zoomIn={this.props.zoomIn}
-                    panRight={this.props.panRight}
-                    panUp={this.props.panUp}
-                    centerView={this.props.centerView}/> */}
-        </div>
-        {this.props.is_demo ? null : (
-          <div className="right-controls">
+            />
+          </li>
+          <li className="btn btn-wide">
+            <ExportBox
+              export_canvas_ref={this.props.export_canvas_ref}
+              backend_canvas_ref={this.props.backend_canvas_ref}
+              which_dataset={this.props.which_dataset}
+              style={{ display: "inline" }}
+              getActiveSlice={this.props.getActiveSlice}
+            />
+          </li>
+          <li className="btn btn-wide">
             <DatasetSelect />
-          </div>
-        )}
+          </li>
+        </ul>
       </StyledOverlayControls>
     );
   }
@@ -72,18 +55,25 @@ const StyledOverlayControls = styled.div`
   left: 0px;
   right: 0px;
   text-align: left;
+  padding: 15px;
 
   ul.buttons {
     display: flex;
     flex-flow: row;
     align-items: center;
-    justify-content: left;
-    margin-top:0px;
-    margin-bottom:0px;
+    justify-content: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    padding-left: 0px;
+    font-size: .9em;
+    font-weight: lighter;
   }
 
   ul.buttons > li {
     display: inline-block;
+    margin-left: 20px;
+    margin-right:20px
+    padding:5px;
   }
   > * > {
     pointer-events: auto;
@@ -93,11 +83,6 @@ const StyledOverlayControls = styled.div`
       cursor: pointer;
       pointer-events: auto;
     }
-  }
-  .right-controls {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
   }
 
   .btn {
@@ -116,10 +101,10 @@ const StyledOverlayControls = styled.div`
       text-align: center;
     }
     &.btn-wide {
-        padding-left:.75em;
-        padding-right:.75em;
-        text-align: center;
-      }
+      padding-left: 0.75em;
+      padding-right: 0.75em;
+      text-align: center;
+    }
   }
 
   .boxed-icon {
@@ -127,9 +112,12 @@ const StyledOverlayControls = styled.div`
     font-size: 1.5em;
   }
 
+  .btn {
+    opacity: 0.75;
+  }
   .btn:hover {
     background-color: rgba(255, 255, 255, 0.25);
-    opacity: 0.8;
+    opacity: 0.9;
   }
 
   .boxed-icon.active {

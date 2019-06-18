@@ -95,39 +95,25 @@ export default class TwoModeSlicedCanvas extends Component {
 		    depth: 1,
 		});
 	    }
-	    
-	    // that.drawRegl(that.getRenderRegl(),
-		// 	  rescale,
-		// 	  that.getBackendOriginX(x0,y0,dataLen),
-		// 	  that.getBackendOriginY(x0,y0,dataLen),
-		// 	  that.props.dataset.getR(that.props.color_config).slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getG(that.props.color_config).slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getB(that.props.color_config).slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getA(that.props.color_config).slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getX().slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getY().slice(i*inc,(i+1)*inc),
-		// 	  that.props.dataset.getZ().slice(i*inc,(i+1)*inc),
-		// 	 );
+		
 
 
-		if(that.props.sliceReady()){
-			const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc)
-			that.drawRegl(
-				that.getRenderRegl(),
-				rescale,
-				that.getBackendOriginX(x0,y0,dataLen),
-				that.getBackendOriginY(x0,y0,dataLen),
-				R,G,B,A,X,Y,Z,
-				3
-			)
+		for (let idx of [0,1,2] ){
+			if(that.props.hasSlice(idx)){
+				const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc,idx)
+				that.drawRegl(
+					that.getRenderRegl(),
+					rescale,
+					that.getBackendOriginX(x0,y0,dataLen),
+					that.getBackendOriginY(x0,y0,dataLen),
+					R,G,B,A,X,Y,Z,
+					3
+				)
+			}
 		}
 		
-
-		
-
 	     i++;
 	   	    
-	    
 	    if(i < passes){
 
 		 that.nextPass = window.setTimeout(timeoutFun,0);
@@ -249,9 +235,9 @@ export default class TwoModeSlicedCanvas extends Component {
 		enable: true,
 		func: {
 		    srcRGB: 'src alpha',
-		    srcAlpha: 'src alpha saturate',
-		    dstRGB: 'one minus src alpha',
-		    dstAlpha: 'dst alpha',
+		    srcAlpha: 'src alpha',
+		    dstRGB: 'one', //'one minus src alpha',
+		    dstAlpha: 'one',
 		    // src: 'one',
 		    // dst: 'one'
 		},

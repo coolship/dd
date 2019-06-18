@@ -111,23 +111,6 @@ class DatasetStageContainer extends RenderContainer {
     });
   }
 
-  exportPng() {
-    const backend = this.backend_ref.current;
-    const rcanvas = backend.getStorageCanvas();
-    var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
-    export_canvas.width = 2000;
-    export_canvas.height = 2000;
-    export_canvas
-      .getContext("2d")
-      .drawImage(rcanvas, 0, 0, export_canvas.height, export_canvas.width);
-    var data = export_canvas.toDataURL("image/jpeg", 0.75);
-    var link = document.createElement("a");
-    link.download = "slide.jpg";
-    link.href = data;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
 
   choosePreview() {
     const backend = this.backend_ref.current;
@@ -149,7 +132,6 @@ class DatasetStageContainer extends RenderContainer {
   }
 
   drawFromBuffer(child_context, block_render = false) {
-    console.log("trying to draw");
     var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
     var backend = this.backend_ref.current;
 
@@ -232,8 +214,6 @@ class DatasetStageContainer extends RenderContainer {
           clientWidth: this.state.viewport.clientWidth
         };
       }
-      console.log("renderingSTAGE!");
-      console.log(this.props.setSliceXYRect);
       return (
         <div
           className="fov fov-black absolute-fullsize"
@@ -257,11 +237,11 @@ class DatasetStageContainer extends RenderContainer {
             <TwoModeSlicedCanvas
               ref={this.backend_ref2}
               markFresh={this.forcedRefresh.bind(this)}
-              slicer={this.props.dataset.slice2Slicer.bind(this.props.dataset)}
+              slicer={this.props.dataset.sliceNSlicer.bind(this.props.dataset)}
               getSliceTotalLength={this.props.dataset.getSliceTotalLength.bind(
                 this.props.dataset
               )}
-              sliceReady={this.props.dataset.hasSlice.bind(this.props.dataset)}
+              hasSlice={this.props.dataset.hasSlice.bind(this.props.dataset)}
               getLastSliceTime={this.props.dataset.getLastSliceTime.bind(
                 this.props.dataset
               )}
@@ -305,11 +285,12 @@ class DatasetStageContainer extends RenderContainer {
             <OverlayControls
               handleSetInteractor={this.setInteractor.bind(this)}
               centerView={this.centerView.bind(this)}
-              exportPng={this.exportPng.bind(this)}
               is_demo={this.props.is_demo}
               which_dataset={this.props.metadata.dataset}
               setActiveSlice={this.props.setActiveSlice}
               getActiveSlice={this.props.getActiveSlice}
+              export_canvas_ref={this.export_canvas_ref}
+              backend_canvas_ref={this.backend_ref}
             />
           )}
 

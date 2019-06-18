@@ -11,8 +11,8 @@ import _ from "lodash";
 // props to the view area
 
 class DatasetWorkspaceContainer extends Component{
-    setActiveSlice(data){
-        this.props.loaded_dataset.setUmiSlice(data);}
+    setActiveSlice(data,idx){
+        this.props.loaded_dataset.setUmiSlice(data,idx);}
         
     
     getActiveSlice(){

@@ -20,7 +20,9 @@ class SearchBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedOption: "umigeneids"
+      selectedOption: "umigeneids",
+      querystring: "",
+      queries: [""]
     };
 
     this.option_names = {
@@ -34,14 +36,20 @@ class SearchBox extends Component {
       cellgoterms: "GO Term"
     };
   }
-  handleChange(e) {
+  handleInput(e) {
     var urls = {
       umigeneids: "/queries/umis/geneids/",
       sequences: "/queries/umis/sequence/",
       cellgoterms: "/queries/cells/goterms/"
     };
 
+    //this.tgt = e.target;
     let val = e.target.value;
+    let queries = val.split(",");
+
+    this.setState({ queries: queries, querystring: val });
+
+    //let val = e.target.value;
     this.setState({ search_value: val });
     let which = this.props.which_dataset;
 
@@ -55,12 +63,22 @@ class SearchBox extends Component {
         urls[this.state.selectedOption] +
         which +
         "/" +
-        val
-    ).then(function(response) {
+        val.replace(/[,]/g,':').replace(" ", "")
+    )
+      .then(function(response) {
         return response.json();
       })
+
       .then(myJson => {
-        this.props.setActiveSlice(myJson);
+        let idx = -1;
+        console.log(myJson)
+
+        _.map(myJson, (d, k) => {
+          idx += 1;
+          console.log(d);
+          console.log(idx,k)
+          this.props.setActiveSlice(d, idx, k);
+        });
         this.props.setSelectionTime(Date.now());
       });
   }
@@ -71,14 +89,26 @@ class SearchBox extends Component {
     return WrapDropup(
       <StyledSearchBox>
         <input
-          className="search"
+          className="search input"
           type="text"
-          ref={input => {
-            this.searchInput = input;
+          ref={search => {
+            this.searchInput = search;
           }}
-          onChange={this.handleChange.bind(this)}
+          onChange={this.handleInput.bind(this)}
           placeholder={this.option_placeholders[this.state.selectedOption]}
+          contentEditable={true}
         />
+        <div className="fancyinput">
+          {_.map(this.state.queries, (q, i) => (
+            <span
+              key={i}
+              style={{ color: i == 0 ? "blue" : i == "1" ? "green" : "red" }}
+            >
+              {i > 0 ? "," : ""}
+              {q}
+            </span>
+          ))}
+        </div>
         <Search />
         <ul className="options dropup-content">
           <form action="">
@@ -108,10 +138,6 @@ class SearchBox extends Component {
 
   handleOptionChange = changeEvent => {
     this.setState({ selectedOption: changeEvent.target.value });
-    if (this.searchInput) {
-    }
-
-    this.searchInput.select();
   };
 }
 
@@ -123,16 +149,31 @@ export default connect(
 )(SearchBox);
 
 const StyledSearchBox = styled.div`
+  .placeholder {
+    text-align: left;
+    color: rgba(255, 255, 255, 0.3);
+  }
   position: relative;
   width: 200px;
-  input.search {
+
+  .fancyinput {
+    position: absolute;
+    pointer-events: none;
+    top: 0px;
+    font-size: 0.9em;
+    font-weight:bold;
+  }
+  .input.search {
+    font-size:.95em;
     background: transparent;
-    color: white;
+    color: transparent;
     caret-color: white;
     border: none;
     width: 100%;
     margin-right: -20px;
+    margin-left: 3px;
     outline: none;
+    cursor: text;
   }
 
   ul.options {

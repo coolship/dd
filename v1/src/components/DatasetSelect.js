@@ -52,13 +52,8 @@ class DatasetSelect extends Component{
 export default connect(mapStateToProps, { setCurrentDataset } )(DatasetSelect); 
 
 const DatasetSelectStyled=styled.select`
-	    background-color: transparent;
-	    border: 2px solid;
-	    border-radius:3px;
-	    padding:5px;
-	    height: 2.5em;
-	    font-size: .9em;
-	    color:white;
-	    width:225px;
-	    margin-bottom:5px;
+		width:225px;
+		background-color: transparent;
+    color: white;
+    border-color: transparent;
 `;

@@ -1,15 +1,12 @@
 //rendering tools
 import _ from 'lodash';
-
-// import as a ES module
 import kdbush from 'kdbush';
 
 
-//helper function to create legacy "points" property
+
 const makePointsFromUmis = (umis) => {
 	return _.map(umis, (u) => u.asPoint());
 };
-
 
 const default_types = {
 	"-1": {
@@ -121,6 +118,11 @@ export class Dataset {
 		this.annotations = null;
 		this.sequences = null;
 		this.slice = null;
+		this.slice_names = ["","",""]
+
+
+		this.slices =[null,null,null]
+
 		this.annotations_url = annotations_url;
 		//right now, this is only riggered when a url is provided.
 		//probably not the best approach.
@@ -161,138 +163,187 @@ export class Dataset {
 	sliceA() {
 		return Float32Array.from(this.slice.map((idx) => 1))
 	}
-	getSliceTotalLength(){
-		if(this.slice2){
-		return this.slice2.length;
-		} else { return 0}
+	getSliceTotalLength(idx){
+		idx = idx? idx:0;
+		return this.slices[idx]?this.slices[idx].length:0;
 	}
-	getActiveSlice(){
-		return this.slice2;
+	getActiveSlice(idx){
+		idx = idx? idx:0;
+		return this.slices[idx]
+	}
+	getSliceName(idx){
+		return this.slice_names[idx]
 	}
 	getLastSliceTime(){
 		return this.slice_changed_time;
 	}
-	slice2Slicer(start,end){
+	sliceNSlicer(start,end,idx){
 
+		idx = idx? idx:0;
+		const slice = this.slices[idx]
 
 		if (start || end){
-			console.log("slicer coords: ", start,end)
 
 return{
-			R:this.slice2R().slice(start,end),
-			G:this.slice2G().slice(start,end),
-			B:this.slice2B().slice(start,end),
-			A:this.slice2A().slice(start,end),
-			X:this.slice2X().slice(start,end),
-			Y:this.slice2Y().slice(start,end),
-			Z:this.slice2Z().slice(start,end),
+			R:this.sliceNR(idx).slice(start,end),
+			G:this.sliceNG(idx).slice(start,end),
+			B:this.sliceNB(idx).slice(start,end),
+			A:this.sliceNA(idx).slice(start,end),
+			X:this.sliceNX(idx).slice(start,end),
+			Y:this.sliceNY(idx).slice(start,end),
+			Z:this.sliceNZ(idx).slice(start,end),
 }
 		}
 		else {
 		return {
-			R:this.slice2R(),
-			G:this.slice2G(),
-			B:this.slice2B(),
-			A:this.slice2A(),
-			X:this.slice2X(),
-			Y:this.slice2Y(),
-			Z:this.slice2Z(),
+			R:this.sliceNR(idx),
+			G:this.sliceNG(idx),
+			B:this.sliceNB(idx),
+			A:this.sliceNA(idx),
+			X:this.sliceNX(idx),
+			Y:this.sliceNY(idx),
+			Z:this.sliceNZ(idx),
 		}
 	} 
 	}
 
-	slice2Y() {
+	sliceNY(idx) {
+		idx = idx? idx:0;
 
-		if (!this.slice2) {
+		const slice = this.slices[idx]
+		if (!this.hasSlice(idx)) {return}
+		const p = this.points;
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => p[idx[0]].y))
+		} else {
+			return Float32Array.from(slice.map((idx) => p[idx].y))
+		}
+	}
+
+	sliceNX(idx) {
+		idx = idx? idx:0;
+
+		const slice = this.slices[idx]
+		if (!this.hasSlice(idx)) {return}
+		const p = this.points;
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => p[idx[0]].x))
+		} else {
+			return Float32Array.from(slice.map((idx) => p[idx].x))
+		}
+	}
+
+	sliceNZ(idx) {
+		idx = idx? idx:0;
+
+		const slice = this.slices[idx]
+		if (!this.hasSlice(idx)) {return}
+
+		const p = this.points;
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => p[idx[0]].z))
+		} else {
+			return Float32Array.from(slice.map((idx) => p[idx].z))
+		}
+	}
+
+
+
+
+	sliceNR(idx) {
+		idx = idx? idx:0;
+		const slice = this.slices[idx]
+		if (!this.hasSlice(idx)) {return}
+		const color_val=idx==2?255:0
+
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+		} else {
+			return Float32Array.from(slice.map((idx) => color_val))
+		}
+	}
+	sliceNG(idx) {
+		idx = idx? idx:0;
+
+		const slice = this.slices[idx]
+
+		if (!this.hasSlice(idx)) {return}
+
+		const color_val=idx==1?255:0
+
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+		} else {
+			return Float32Array.from(slice.map((idx) => color_val))
+		}
+
+	}
+	sliceNB(idx) {
+		idx = idx? idx:0;
+
+		const slice = this.slices[idx]
+
+		if (!this.hasSlice(idx)) {
 			return
 		}
 		const p = this.points;
-		if (this.slice2[0].constructor === Array) {
-			return Float32Array.from(this.slice2.map((idx) => p[idx[0]].y))
+
+		const color_val=idx==0?255:0
+
+		if (slice[0].constructor === Array) {
+			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
 		} else {
-			return Float32Array.from(this.slice2.map((idx) => p[idx].y))
-		}
-	}
-
-	slice2X() {
-
-		if (!this.slice2) {
-			return
-		}
-		const p = this.points;
-		if (this.slice2[0].constructor === Array) {
-			return Float32Array.from(this.slice2.map((idx) => p[idx[0]].x))
-		} else {
-			return Float32Array.from(this.slice2.map((idx) => p[idx].x))
-		}
-	}
-
-	slice2Z() {
-
-
-		if (!this.slice2) {
-			return
-		}
-		const p = this.points;
-		if (this.slice2[0].constructor === Array) {
-			return Float32Array.from(this.slice2.map((idx) => p[idx[0]].z))
-		} else {
-			return Float32Array.from(this.slice2.map((idx) => p[idx].z))
-		}
-	}
-
-
-
-
-	slice2R() {
-		return Float32Array.from(this.slice2.map((idx) => 0))
-	}
-	slice2G() {
-		return Float32Array.from(this.slice2.map((idx) => 0))
-	}
-	slice2B() {
-
-		if (!this.slice2) {
-			return
-		}
-		const p = this.points;
-		if (this.slice2[0].constructor === Array) {
-			return Float32Array.from(this.slice2.map((idx) => idx[1]*255))
-		} else {
-			return Float32Array.from(this.slice2.map((idx) => 1))
+			return Float32Array.from(slice.map((idx) => color_val))
 		}
 
 	}
-	slice2A() {
-		return Float32Array.from(this.slice2.map((idx) => 1))
+	sliceNA(idx) {
+		idx = idx? idx:0;
+
+		const slice = this.slices[idx]
+		if (!this.hasSlice(idx)) {return}
+		return Float32Array.from(slice.map((idx) => .8))
 	}
 
 
-	setSliceXYRect({x0,y0,x1,y1}){
-		this.slice2 = _.compact(_.map(this.umis,(u,i)=>{
+	setSliceXYRect({x0,y0,x1,y1,idx}){
+		idx = idx? idx:0;
+
+		this.slices[idx] = _.compact(_.map(this.umis,(u,i)=>{
 				return (u.x>x0 && u.x < x1) &&( u.y>y0 && u.y<y1)?i:null
 		}))
-		console.log(this.slice2)
 		this.slice_changed_time = Date.now()
 	}
 
-	setUmiSlice(umis) {
-		if((!umis) ||(umis.length == 0) ){
-			this.unsetUmiSlice()
-			return
-		} else{
+	setUmiSlice(umis,idx,nm) {
+		idx == idx ? idx : 0;
+
+    this.slice_names[idx] = nm;
+
+    if (!umis || umis.length == 0) {
+      this.unsetUmiSlice(idx);
+      return;
+    } else {
+      this.slices[idx] = umis;
+    }
+
+    this.slice_changed_time = Date.now();
+
+	}
+	unsetUmiSlice(idx) {
+		idx == idx?idx:0
+		this.slices[idx] = null;
+		this.slice_changed_time = Date.now()
+	}
+
+	hasSlice(idx) {
+		console.log(idx)
 		
-			this.slice2 = umis;
-		}
-		this.slice_changed_time = Date.now()
-	}
-	unsetUmiSlice() {
-		this.slice2 = null;
-		this.slice_changed_time = Date.now()
-	}
+		idx = idx? idx:0;
+		console.log(idx)
+		console.log(this.slices[idx])
 
-	hasSlice() {
-		return this.slice2 != null;
+		return (this.slices[idx] != null ) &&(this.slices[idx].length > 0)
 	}
 
 	async initializeFromBuffers(statusCallback, completionCallback, metadata) {

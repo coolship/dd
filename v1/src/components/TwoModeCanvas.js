@@ -121,22 +121,23 @@ export default class TwoModeCanvas extends Component {
 		[TODO]: use multipass rendering for dataset slices
 		*/
 
-		if(that.props.dataset.hasSlice() && i == 0){
-			that.drawRegl(
-				that.getRenderRegl(),
-				rescale,
-				that.getBackendOriginX(x0,y0,dataLen),
-				that.getBackendOriginY(x0,y0,dataLen),
-				that.props.dataset.slice2R(),
-				that.props.dataset.slice2G(),
-				that.props.dataset.slice2B(),
-				that.props.dataset.slice2A(),
-				that.props.dataset.slice2X(),
-				that.props.dataset.slice2Y(),
-				that.props.dataset.slice2Z(),
-				3
-			)
-		}
+		//TODO -- MAKE SURE THISJ ISN'T BROKEN! :()
+		// if(that.props.dataset.hasSlice() && i == 0){
+		// 	that.drawRegl(
+		// 		that.getRenderRegl(),
+		// 		rescale,
+		// 		that.getBackendOriginX(x0,y0,dataLen),
+		// 		that.getBackendOriginY(x0,y0,dataLen),
+		// 		that.props.dataset.slice2R(),
+		// 		that.props.dataset.slice2G(),
+		// 		that.props.dataset.slice2B(),
+		// 		that.props.dataset.slice2A(),
+		// 		that.props.dataset.slice2X(),
+		// 		that.props.dataset.slice2Y(),
+		// 		that.props.dataset.slice2Z(),
+		// 		3
+		// 	)
+		// }
 		
 
 		
