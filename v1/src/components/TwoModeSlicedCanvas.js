@@ -17,7 +17,7 @@ export default class TwoModeSlicedCanvas extends Component {
 	this.resolution =1500;
 
 	//specify a margin in pixels, currently 10% on each side;
-	this.margin_percent = 15;
+	this.margin_percent = 5;
 	
 	this.has_drawn_dataset=false;
     }
@@ -78,7 +78,7 @@ export default class TwoModeSlicedCanvas extends Component {
 
 	var dataLen = this.getBackendDataLen(x0,y0,x1,y1);
 	var rescale = this.getRescale(x0,y0,dataLen);
-	var inc = 1000;
+	var inc = 10000;
 	var passes = Math.ceil(this.props.getSliceTotalLength() / inc);
 	var i = 0;
 	this.nextPass=null;

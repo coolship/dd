@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import DatasetWrangler from '../components/DatasetWrangler';
 import withLoadedDataset from './withLoadedDataset'
 import ProgressContainer from "../display/ProgressContainer";
 import DatasetStageContainer from '../components/DatasetStageContainer';
@@ -14,7 +13,21 @@ import _ from "lodash";
 class DatasetWorkspaceContainer extends Component{
     setActiveSlice(data){
         this.props.loaded_dataset.setUmiSlice(data);}
-    render(){return < DatasetWorkspaceView setActiveSlice={this.setActiveSlice.bind(this)} {...this.props}/>}
+        
+    
+    getActiveSlice(){
+        return this.props.loaded_dataset.getActiveSlice();
+    }
+     
+    setSliceXYRect({x0,y0,x1,y1}){
+        return this.props.loaded_dataset.setSliceXYRect({x0,y0,x1,y1});
+    }
+    render(){return < DatasetWorkspaceView 
+        setActiveSlice={this.setActiveSlice.bind(this)} 
+        getActiveSlice={this.getActiveSlice.bind(this)} 
+        setSliceXYRect={this.setSliceXYRect.bind(this)} 
+
+        {...this.props}/>}
 }
 export default withLoadedDataset(DatasetWorkspaceContainer)
 
@@ -46,6 +59,8 @@ const DatasetWorkspaceView = (props) => {
                         metadata_key={meta_key}
                         is_demo={false}
                         setActiveSlice={props.setActiveSlice}
+                        getActiveSlice={props.getActiveSlice}
+                        setSliceXYRect={props.setSliceXYRect.bind(this)} 
                         appearance_props={{
                         no_buttons: props.no_buttons
                             ? true

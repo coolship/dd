@@ -21,7 +21,7 @@ export default class TwoModeCanvas extends Component {
 	this.resolution = 1500;
 
 	//specify a margin in pixels, currently 10% on each side;
-	this.margin_percent = 15;
+	this.margin_percent = 5;
 	
 	this.has_drawn_dataset=false;
     }

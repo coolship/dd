@@ -15,6 +15,7 @@ class MultiResView extends Component {
     }
 
     render(){
+		console.log("renderingMULTI")
 	return (
 	    <FullscreenCanvas
 		     ref={this.canvas_ref}
@@ -54,7 +55,6 @@ class MultiResView extends Component {
 		(prevProps.y0!= this.props.y0) ||
 		(prevProps.sliceChangedTime  != this.props.sliceChangedTime )){
 
-		console.log("WE UPDATED!")
 	this.props.drawFromBuffer(this.getContext());
 	}
     }

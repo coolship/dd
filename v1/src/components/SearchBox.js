@@ -56,8 +56,7 @@ class SearchBox extends Component {
         which +
         "/" +
         val
-    )
-      .then(function(response) {
+    ).then(function(response) {
         return response.json();
       })
       .then(myJson => {

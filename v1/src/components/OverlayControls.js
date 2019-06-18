@@ -24,26 +24,9 @@ export default class OverlayControls extends Component {
 
 
           <li className="btn btn-wide">
-              <InteractionSelectBox style={{ display: "inline" }} />
-            </li>
-
-            <li className="btn btn-square">
-              <Adjust
-                className={
-                  "boxed-icon " +
-                  (this.props.interactionMode == "cell" ? "active" : "")
-                }
-                onClick={this.props.activateCellMode}
-              />
-            </li>
-            <li className="btn btn-square">
-              <SelectAll
-                className={
-                  "boxed-icon " +
-                  (this.props.interactionMode == "select" ? "active" : "")
-                }
-                onClick={this.props.activateSelectMode}
-              />
+              <InteractionSelectBox 
+              handleSetInteractor={this.props.handleSetInteractor}
+              style={{ display: "inline" }} />
             </li>
             <li className="btn btn-square">
               <CloudDownload
@@ -59,7 +42,11 @@ export default class OverlayControls extends Component {
               />
             </li>
             <li className="btn btn-wide">
-              <ExportBox style={{ display: "inline" }} />
+              <ExportBox 
+              which_dataset={this.props.which_dataset}
+              style={{ display: "inline" }}
+              getActiveSlice = {this.props.getActiveSlice}
+              />
             </li>
           </ul>
           {/* 

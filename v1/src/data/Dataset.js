@@ -166,6 +166,9 @@ export class Dataset {
 		return this.slice2.length;
 		} else { return 0}
 	}
+	getActiveSlice(){
+		return this.slice2;
+	}
 	getLastSliceTime(){
 		return this.slice_changed_time;
 	}
@@ -264,6 +267,14 @@ return{
 		return Float32Array.from(this.slice2.map((idx) => 1))
 	}
 
+
+	setSliceXYRect({x0,y0,x1,y1}){
+		this.slice2 = _.compact(_.map(this.umis,(u,i)=>{
+				return (u.x>x0 && u.x < x1) &&( u.y>y0 && u.y<y1)?i:null
+		}))
+		console.log(this.slice2)
+		this.slice_changed_time = Date.now()
+	}
 
 	setUmiSlice(umis) {
 		if((!umis) ||(umis.length == 0) ){

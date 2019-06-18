@@ -22,6 +22,9 @@ const StyledInteractionSelectBox = styled.div`
   .selected .option.icon{
       color:blue;
   }
+  .selected{
+    color:blue;
+  }
   input{
     visibility:hidden;
   }
@@ -31,7 +34,7 @@ class InteractionSelectBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedOption: "panzoom"
+      selectedOption: "rectangle"
     };
 
     this.options = {
@@ -48,12 +51,13 @@ class InteractionSelectBox extends Component {
 
   handleOptionChange = changeEvent => {
     this.setState({ selectedOption: changeEvent.target.value });
+    this.props.handleSetInteractor(changeEvent.target.value)
   };
 
   render() {
     return WrapDropup(
       <StyledInteractionSelectBox>
-        {this.options[this.selectedOption].icon}<span>Interaction Mode</span>
+        {this.options[this.state.selectedOption].icon}<span>Interaction Mode</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (
