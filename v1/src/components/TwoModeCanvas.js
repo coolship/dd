@@ -343,7 +343,7 @@ attribute float a;
 	    primitive: 'points'
 	};
 
-	let size_mult = size?size:1;
+	let size_mult = size?size:.25;
 	regl_object(drawDots)({
 	    x:x,
 	    y:y,

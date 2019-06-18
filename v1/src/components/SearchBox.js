@@ -79,6 +79,12 @@ class SearchBox extends Component {
           console.log(idx,k)
           this.props.setActiveSlice(d, idx, k);
         });
+        if(idx<2){
+          for(var  new_idx = idx; new_idx<2; new_idx++){
+            //consoleconsole.
+            //this.props.setActiveSlice(null,new_idx,"")
+          }
+        }
         this.props.setSelectionTime(Date.now());
       });
   }

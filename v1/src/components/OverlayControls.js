@@ -113,11 +113,11 @@ const StyledOverlayControls = styled.div`
   }
 
   .btn {
-    opacity: 0.75;
+    opacity: 1;
   }
   .btn:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    opacity: 0.9;
+    background-color: rgba(255, 255, 255, 0.4);
+    opacity: 0.8;
   }
 
   .boxed-icon.active {
