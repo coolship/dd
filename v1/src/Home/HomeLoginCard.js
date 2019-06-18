@@ -10,19 +10,17 @@ const HomeLoginCard = (props)=>{
     let SignInComponent;
     if(props.auth&&props.auth.has_admin){
 	SignInComponent =
-	    <div>Logged in as <b>ADMIN</b> user, {props.auth.email}.
+	    <div>Logged in as user: {props.auth.email}.
 	    <ul>
-	    <NavLink to="/admin"><li>Manage your datasets and administer demos</li></NavLink>
-	    <NavLink to="/app"><li>View your datasets in the DNA microscope</li></NavLink>
+	    <NavLink to="/upload2"><li>View and manage DNA Microscope Datasets</li></NavLink>
 	    <a href="#" onClick={props.signOut}><li>Sign out</li></a>
 	</ul>
 	</div>;
     } else if (props.auth&&props.auth.email) {
 	SignInComponent =
-	    <div>Logged in as user, {props.auth.email}.
+	    <div>Logged in as user: {props.auth.email}.
 	    <ul>
-	    <NavLink to="/admin"><li>Manage your datasets</li></NavLink>
-	    <NavLink to="/app"><li>View your datasets in the DNA microscope</li></NavLink>
+	    <NavLink to="/upload2"><li>View and manage DNA Microscope Datasets</li></NavLink>
 	    <a href="#" onClick={props.signOut}><li>Sign out</li></a>
 	</ul>
 	</div>;

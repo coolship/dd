@@ -36,8 +36,8 @@ function isComplete(dataset) {
 }
 
 function totalProgress(dataset) {
-    console.log("should be a dataset:" , dataset)
-  return (
+  console.log("should be a dataset:" , dataset)
+  let val= (
     (10 +
       90 *
         _.sum(
@@ -53,6 +53,7 @@ function totalProgress(dataset) {
       0
     )
   );
+  if (!val){return 0}
 }
 
 class InProgressDatasetitem extends Component {
