@@ -64,7 +64,7 @@ export default class DragInteractorView extends Component {
         og_mouse_normal_position: null,
         dragging: false
       });
-      this.props.registerTransforms({ transform: null, transformOrigin: null });
+
       var container = ReactDOM.findDOMNode(this.props.transformRef.current);
       var transforms = this.getTransforms(event);
       container.style.transform = null;
@@ -74,10 +74,7 @@ export default class DragInteractorView extends Component {
   }
   mouseMove(event) {
     this.setState({ mouse: this.normalizedCoords(event) });
-
     if (this.state.dragging) {
-      //his.props.registerTransforms(this.getTransforms(event));
-
       var container = ReactDOM.findDOMNode(this.props.transformRef.current);
       var transforms = this.getTransforms(event);
       container.style.transform = transforms.transform;
@@ -138,7 +135,6 @@ export default class DragInteractorView extends Component {
 
   mouseWheel(event) {
     this.zoomIn(-1 * event.deltaY, this.normalizedCoords(event));
-    //this.props.registerTransforms(this.getTransforms(event));
     var container = ReactDOM.findDOMNode(this.props.transformRef.current);
     var transforms = this.getTransforms(event);
     container.style.transform = transforms.transform;
@@ -167,7 +163,6 @@ export default class DragInteractorView extends Component {
     this.setState({ mouse_zoom_xy: null });
     this.temp_viewport = null;
 
-    this.props.registerTransforms({ transform: null, transformOrigin: null });
     var container = ReactDOM.findDOMNode(this.props.transformRef.current);
     container.style.transform = null;
     container.style.transformOrigin = null;

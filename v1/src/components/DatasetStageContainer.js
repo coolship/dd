@@ -201,14 +201,6 @@ class DatasetStageContainer extends RenderContainer {
     this.setState({ interactionMode: nm });
   }
 
-  registerTransforms({ transform, transformOrigin }) {
-    console.log("skipping");
-    return;
-    this.setState({
-      transform: transform,
-      transformOrigin: transformOrigin
-    });
-  }
   alignPoint(normal_x, normal_y, data_x, data_y) {
     var { x0, y0, zoom, clientWidth, clientHeight } = this.state.viewport;
     var upper_left_datapoint_x = (-1 * normal_x * clientWidth) / zoom + data_x;
@@ -252,10 +244,6 @@ class DatasetStageContainer extends RenderContainer {
 
           <CanvasContainer
             ref={this.canvas_container_ref}
-            style={{
-              transform: this.state.transform,
-              transformOrigin: this.state.transformOrigin
-            }}
           >
             <TwoModeCanvas
               ref={this.backend_ref}
@@ -298,7 +286,6 @@ class DatasetStageContainer extends RenderContainer {
                 }}
                 viewbounds={viewbounds}
                 alignPoint={this.alignPoint.bind(this)}
-                registerTransforms={this.registerTransforms.bind(this)}
                 setActiveSlice={this.props.setActiveSlice}
                 setSliceXYRect={this.props.setSliceXYRect}
                 getParentClientRect={this.getStageClientRect.bind(this)}
