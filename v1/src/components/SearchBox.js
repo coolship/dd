@@ -79,6 +79,12 @@ class SearchBox extends Component {
           console.log(idx,k)
           this.props.setActiveSlice(d, idx, k);
         });
+        if(idx<2){
+          for(var  new_idx = idx; new_idx<2; new_idx++){
+            //consoleconsole.
+            //this.props.setActiveSlice(null,new_idx,"")
+          }
+        }
         this.props.setSelectionTime(Date.now());
       });
   }
@@ -102,7 +108,7 @@ class SearchBox extends Component {
           {_.map(this.state.queries, (q, i) => (
             <span
               key={i}
-              style={{ color: i == 0 ? "blue" : i == "1" ? "green" : "red" }}
+              style={{ color: i == 0 ? "lightblue" : i == "1" ? "lightgreen" : "orange" }}
             >
               {i > 0 ? "," : ""}
               {q}

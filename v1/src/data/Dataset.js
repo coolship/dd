@@ -161,7 +161,7 @@ export class Dataset {
 		return Float32Array.from(this.slice.map((idx) => 0))
 	}
 	sliceA() {
-		return Float32Array.from(this.slice.map((idx) => 1))
+		return Float32Array.from(this.slice.map((idx) => .75))
 	}
 	getSliceTotalLength(idx){
 		idx = idx? idx:0;
