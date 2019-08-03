@@ -23,7 +23,7 @@ class ColorModeSelectBox extends Component {
             },
             DEFAULT: {
                 name: "View: Transcripts",
-                sel_name:"Tx Types",
+                sel_name:"Transcripts",
                 icon: < Visibility className = "icon option icon-padright" / >
             }
         };
