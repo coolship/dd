@@ -5,6 +5,7 @@ import WrapDropup from "./DropupContainer";
 import _ from "lodash";
 
 import TabUnselected from "react-icons/lib/md/tab-unselected";
+import Mouse from "react-icons/lib/md/mouse";
 import PanTool from "react-icons/lib/md/pan-tool";
 import WrapSelectBox from "./SelectBox";
 
@@ -19,10 +20,12 @@ class InteractionSelectBox extends Component {
     this.options = {
       PANZOOM: {
         name: "Mouse: Camera controls",
+        sel_name:"Camera",
         icon: <PanTool className="icon option icon-padright"/>
       },
       RECTANGLE: {
         name: "Mouse: Select",
+        sel_name:"Select",
         icon: <TabUnselected className="icon option icon-padright"/>
       }
     };
@@ -37,7 +40,7 @@ class InteractionSelectBox extends Component {
     return WrapDropup(
       WrapSelectBox(
         <div>
-        {this.options[this.state.selectedOption].icon} <span>{this.options[this.state.selectedOption].name}</span>
+        {<Mouse className="icon option icon-padright"/>} <span>{this.options[this.state.selectedOption].sel_name}</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (
