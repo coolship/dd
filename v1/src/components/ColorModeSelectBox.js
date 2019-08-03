@@ -18,11 +18,11 @@ class ColorModeSelectBox extends Component {
 
     this.options = {
         CELL: {
-        name: "Cell segmentation",
+        name: "View: Cells",
         icon: <PanTool className="icon option icon-padright"/>
       },
       DEFAULT: {
-        name: "Default",
+        name: "View: Transcripts",
         icon: <PanTool className="icon option icon-padright"/>
       }
     };
@@ -37,7 +37,7 @@ class ColorModeSelectBox extends Component {
     return WrapDropup(
       WrapSelectBox(
         <div>
-        {this.options[this.state.selectedOption].icon}<span>Color View Mode</span>
+        {this.options[this.state.selectedOption].icon} <span>{this.options[this.state.selectedOption].name}</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (

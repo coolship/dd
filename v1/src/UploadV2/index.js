@@ -202,6 +202,7 @@ class SimpleUploadView extends Component {
             </p>
             <br/>
             <h2>Your Datasets</h2>
+            <p>Previously uploaded data sets.</p>
           </div>
 
 

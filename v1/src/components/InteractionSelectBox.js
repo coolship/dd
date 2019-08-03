@@ -18,11 +18,11 @@ class InteractionSelectBox extends Component {
 
     this.options = {
       PANZOOM: {
-        name: "Pan & Zoom",
+        name: "Mouse: Camera controls",
         icon: <PanTool className="icon option icon-padright"/>
       },
       RECTANGLE: {
-        name: "Rectangle Select",
+        name: "Mouse: Select",
         icon: <TabUnselected className="icon option icon-padright"/>
       }
     };
@@ -37,7 +37,7 @@ class InteractionSelectBox extends Component {
     return WrapDropup(
       WrapSelectBox(
         <div>
-        {this.options[this.state.selectedOption].icon}<span>Interaction Mode</span>
+        {this.options[this.state.selectedOption].icon} <span>{this.options[this.state.selectedOption].name}</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (
