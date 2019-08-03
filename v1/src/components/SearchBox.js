@@ -108,7 +108,7 @@ class SearchBox extends Component {
           {_.map(this.state.queries, (q, i) => (
             <span
               key={i}
-              style={{ color: i == 0 ? "blue" : i == "1" ? "green" : "red" }}
+              style={{ color: i == 0 ? "lightblue" : i == "1" ? "lightgreen" : "orange" }}
             >
               {i > 0 ? "," : ""}
               {q}
