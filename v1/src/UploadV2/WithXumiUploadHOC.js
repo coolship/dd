@@ -12,7 +12,9 @@ export default function withXumiUpload(WrappedComponent) {
             super(props);
             this.state = {
                 files: {},
-                submit_state:"waiting"
+                submit_state:"waiting",
+                progresses:{},
+                
             };
         }
 
@@ -77,17 +79,24 @@ export default function withXumiUpload(WrappedComponent) {
         }
 
         isReady() {
-            console.log(this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_feat_file && this.state.files.segment_base_file)
             return this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_feat_file && this.state.files.segment_base_file
         }
 
+
         submitDataset() {
             var callbacks = {
-                progress: (progress) => {
-                    this.setState({progress: progress});
+                progress: (nm, progress) => {
+                    let progresses = this.state.progresses
+                    progresses[nm] = progress
+                    const mean_progress = Object.entries(progresses).reduce((prev,cur,)=>prev+cur[1],0) / 4
+
+                    this.setState({progress: mean_progress*100,
+                    progresses:progresses});
                 },
                 complete: (key) => {
                     this.props.handleUploadComplete(key, this.state.dataset_name,this.state.dataset_display_name)
+                    this.setState({progress:100,
+                    submit_state:"uploaded"})
                 }
             };
 
@@ -102,7 +111,9 @@ export default function withXumiUpload(WrappedComponent) {
                     email: this.props.auth.email,
                     key: null
                 }, callbacks);
-
+            this.setState({submit_state:"uploading",
+        progress:0
+        });
             //return false;
 
         }
@@ -136,6 +147,7 @@ export default function withXumiUpload(WrappedComponent) {
                 <WrappedComponent
                     handleDrop={handleDrop}
                     submit_state={this.state.submit_state}
+                    progress={this.state.progress}
                     status={this.state.status}
                     dropped_files={this.state.files}
                     handleNameChange={this.nameChangeHandler.bind(this)}

@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import ProgressContainer from "../display/ProgressContainer";
 import _ from "lodash";
 import withXumiUpload from "./WithXumiUploadHOC";
+import ProgressRing from "../widgets/ProgressRing"
 
 /** HANDLE XUMI FILE UPLOADS
  * User drags folder on to drop zone for client side form validation.
@@ -22,9 +23,6 @@ class XumiDropperView extends Component {
     this.state = {};
   }
   onDragOver(event){
-
-    console.log(this)
-    console.log("DRAGGED OVER")
     this.setState({ dragging: true });
   event.preventDefault();
   }
@@ -33,7 +31,6 @@ class XumiDropperView extends Component {
       handleDrop,
       handleSubmit,
       handleNameChange,
-      progress,
       dataset_display_name,
       dataset_name,
       status,
@@ -44,10 +41,11 @@ class XumiDropperView extends Component {
       files,
       submit_state,
       className,
+      progress,
       ...passedProps
     } = this.props;
 
-    console.log("no longer adding passed props to label state:", passedProps)
+
 
     if (submit_state == "waiting") {
       return (
@@ -133,8 +131,33 @@ class XumiDropperView extends Component {
         </div>
       );
       return Wrapper(out);
-    } else {
-      return "UNKNOWN SUBMIT STATE";
+    } else if (submit_state == "uploading"){
+      const out = (
+        <div className={className}>
+          <div>dataset uploading {dataset_display_name}</div>
+          <ProgressRing
+          radius={60}
+          stroke={10}
+          progress={progress}
+        />
+        </div>
+      );
+      return Wrapper(out);
+    } 
+      else if (submit_state == "uploading"){
+        const out = (
+          <div className={className}>
+            <div>{dataset_display_name} UPLOAD COMPLETE!</div>
+            <ProgressRing
+            radius={60}
+            stroke={10}
+            progress={100}
+          />
+          </div>
+        );
+        return Wrapper(out);
+    }else {
+      return <div>Unknown state {submit_state}</div>
     }
   }
   componentDidUpdate(){

@@ -337,12 +337,7 @@ return{
 	}
 
 	hasSlice(idx) {
-		console.log(idx)
-		
 		idx = idx? idx:0;
-		console.log(idx)
-		console.log(this.slices[idx])
-
 		return (this.slices[idx] != null ) &&(this.slices[idx].length > 0)
 	}
 

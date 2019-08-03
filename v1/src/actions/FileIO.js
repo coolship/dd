@@ -326,7 +326,7 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 			});
 		uploadTask.on(
 		firebase.storage.TaskEvent.STATE_CHANGED,
-		(snapshot) => { callbacks.progress( snapshot.bytesTransferred / snapshot.totalBytes); },
+		(snapshot) => { callbacks.progress( item.name, snapshot.bytesTransferred / snapshot.totalBytes); },
 		)
 		return uploadTask;
 			

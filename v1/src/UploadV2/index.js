@@ -13,6 +13,7 @@ import { Route, Switch } from "react-router-dom";
 import XumiDropperContainer from "./XumiUploads";
 
 import Close from "react-icons/lib/md/close";
+import ProgressRing from "../widgets/ProgressRing"
 
 function loadingMessage(dataset) {
   const inprogress = _.pickBy(
@@ -36,7 +37,11 @@ function isComplete(dataset) {
 }
 
 function totalProgress(dataset) {
-  console.log("should be a dataset:" , dataset)
+
+  if(!dataset.server_job_statuses){
+    return 5
+  }
+
   let val= (
     (10 +
       90 *
@@ -62,6 +67,7 @@ class InProgressDatasetitem extends Component {
   }
   render() {
     const props = this.props;
+
     return (
       <StyledInProgressDatasetItem
         className={"dataset-item item-" + props.dataset + " " + props.className}
@@ -76,9 +82,6 @@ class InProgressDatasetitem extends Component {
         <p className="message themed">
           {loadingMessage(this.props.dataset_meta)}{" "}
         </p>
-        {/* <ProgressContainer progress={totalProgress(this.props.dataset_meta)}>
-          <span className="fill" />
-        </ProgressContainer> */}
       </StyledInProgressDatasetItem>
     );
   }
@@ -256,39 +259,6 @@ class SimpleUploadView extends Component {
   }
 }
 
-class ProgressRing extends React.Component {
-  constructor(props) {
-    super(props);
-    const { radius, stroke } = this.props;
-    this.normalizedRadius = radius - stroke * 2;
-    this.circumference = this.normalizedRadius * 2 * Math.PI;
-  }
-
-  render() {
-    const { radius, stroke, progress } = this.props;
-    const strokeDashoffset =
-      this.circumference - (progress / 100) * this.circumference;
-    return (
-      <svg height={radius * 2} width={radius * 2}>
-        <circle
-          stroke="white"
-          fill="transparent"
-          strokeWidth={stroke}
-          strokeDasharray={this.circumference + " " + this.circumference}
-          style={{ strokeDashoffset }}
-          stroke-width={stroke}
-          r={this.normalizedRadius}
-          cx={radius}
-          cy={radius}
-        />
-        <text x={radius } y={radius } class="small"
-        dominant-baseline="middle" text-anchor="middle">
-          {Math.round(progress)}%
-        </text>
-      </svg>
-    );
-  }
-}
 
 class UploadProgressView extends Component {
   constructor(props) {

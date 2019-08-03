@@ -28,17 +28,26 @@ import RectangleSelectionInteractor from "./RectangleSelectionInteractor";
 class DatasetStageContainer extends RenderContainer {
   //LIFECYCLE METHODS
   constructor(props) {
+
     super(props);
+    this.COLORMODES={
+      CELL:"CELL",
+      DEFAULT:"DEFAULT",
+    }
+    this.INTERACTORS={
+      RECTANGLE:{name:"RECTANGLE",
+                component:RectangleSelectionInteractor
+    },
+    PANZOOM:{name:"PANZOOM",
+          component:PanZoomInteractor}
+    }
     this.state = {
-      interactionMode: "rectangle", // allowable: "select", "cell", "panzoom", "analyze"
+      interactionMode:this.INTERACTORS.PANZOOM.name,
+      colorMode:this.COLORMODES.CELL,
       selection: { selected_idxs: [], select_type: null },
       viewport: null
     };
 
-    this.interactors = {
-      panzoom: { component: PanZoomInteractor },
-      rectangle: { component: RectangleSelectionInteractor }
-    };
 
     this.bound_resize = this.handleResize.bind(this);
     this.export_canvas_ref = React.createRef();
@@ -180,7 +189,13 @@ class DatasetStageContainer extends RenderContainer {
   }
 
   setInteractor(nm) {
-    this.setState({ interactionMode: nm });
+    if(! this.INTERACTORS[nm]){throw ("no known interaction mode "+nm)}
+    this.setState({ interactionMode: this.INTERACTORS[nm].name });
+  }
+
+  setColorMode(nm){
+    if(! this.COLORMODES[nm]){throw ("no known color mode "+nm)}
+    this.setState({colorMode:this.COLORMODES[nm]})
   }
 
   alignPoint(normal_x, normal_y, data_x, data_y) {
@@ -197,7 +212,7 @@ class DatasetStageContainer extends RenderContainer {
 
   render() {
     if (this.state.viewport) {
-      var Interactor = this.interactors[this.state.interactionMode].component;
+      var Interactor = this.INTERACTORS[this.state.interactionMode].component;
       let viewbounds = null;
       if (this.state.viewport) {
         viewbounds = {
@@ -230,7 +245,7 @@ class DatasetStageContainer extends RenderContainer {
               markFresh={this.forcedRefresh.bind(this)}
               dataset={this.props.dataset}
               color_config={{
-                by_segment: this.state.interactionMode == "cell"
+                by_segment: this.state.colorMode == this.COLORMODES.CELL
               }}
             />
 
@@ -284,6 +299,8 @@ class DatasetStageContainer extends RenderContainer {
           ) : (
             <OverlayControls
               handleSetInteractor={this.setInteractor.bind(this)}
+              handleSetColorMode={this.setColorMode.bind(this)}
+
               centerView={this.centerView.bind(this)}
               is_demo={this.props.is_demo}
               which_dataset={this.props.metadata.dataset}

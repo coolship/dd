@@ -127,7 +127,7 @@ class ExportBox extends Component {
   render() {
     return WrapDropup(
       <StyledExportBox>
-        <div>Export to File <span class="show-collapsed arrow">▶</span><span class="show-expanded arrow">▲</span></div>
+        <div>Export to File <span className="show-collapsed arrow">▶</span><span className="show-expanded arrow">▲</span></div>
         <ul className="dropup-content">
           {_.map(["datasetcsv", "datasetfasta"], nm => (
             <li key={nm}>
