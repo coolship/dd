@@ -10,6 +10,7 @@ import DatasetSelect from "./DatasetSelect";
 import SearchBox from "./SearchBox";
 import ExportBox from "./ExportBox";
 import InteractionSelectBox from "./InteractionSelectBox";
+import ColorModeSelectBox from "./ColorModeSelectBox";
 
 export default class OverlayControls extends Component {
   // returns left and right controls containing FOV / camera manipulation and
@@ -24,6 +25,15 @@ export default class OverlayControls extends Component {
               style={{ display: "inline" }}
             />
           </li>
+
+
+          <li className="btn btn-wide">
+            <ColorModeSelectBox
+              handleSetColorMode={this.props.handleSetColorMode}
+              style={{ display: "inline" }}
+            />
+          </li>
+
           <li className="btn  btn-wide">
             <SearchBox
               setActiveSlice={this.props.setActiveSlice}
@@ -40,9 +50,11 @@ export default class OverlayControls extends Component {
               getActiveSlice={this.props.getActiveSlice}
             />
           </li>
+{/* 
           <li className="btn btn-wide">
             <DatasetSelect />
-          </li>
+          </li> */}
+
         </ul>
       </StyledOverlayControls>
     );

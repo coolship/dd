@@ -36,7 +36,11 @@ function isComplete(dataset) {
 }
 
 function totalProgress(dataset) {
-  console.log("should be a dataset:" , dataset)
+
+  if(!dataset.server_job_statuses){
+    return 5
+  }
+
   let val= (
     (10 +
       90 *
@@ -62,6 +66,7 @@ class InProgressDatasetitem extends Component {
   }
   render() {
     const props = this.props;
+
     return (
       <StyledInProgressDatasetItem
         className={"dataset-item item-" + props.dataset + " " + props.className}
@@ -76,9 +81,6 @@ class InProgressDatasetitem extends Component {
         <p className="message themed">
           {loadingMessage(this.props.dataset_meta)}{" "}
         </p>
-        {/* <ProgressContainer progress={totalProgress(this.props.dataset_meta)}>
-          <span className="fill" />
-        </ProgressContainer> */}
       </StyledInProgressDatasetItem>
     );
   }
@@ -265,7 +267,9 @@ class ProgressRing extends React.Component {
   }
 
   render() {
+
     const { radius, stroke, progress } = this.props;
+    console.log(progress)
     const strokeDashoffset =
       this.circumference - (progress / 100) * this.circumference;
     return (
@@ -276,13 +280,13 @@ class ProgressRing extends React.Component {
           strokeWidth={stroke}
           strokeDasharray={this.circumference + " " + this.circumference}
           style={{ strokeDashoffset }}
-          stroke-width={stroke}
+          strokeWidth={stroke}
           r={this.normalizedRadius}
           cx={radius}
           cy={radius}
         />
-        <text x={radius } y={radius } class="small"
-        dominant-baseline="middle" text-anchor="middle">
+        <text x={radius } y={radius } className="small"
+        dominantBaseline="middle" textAnchor="middle">
           {Math.round(progress)}%
         </text>
       </svg>

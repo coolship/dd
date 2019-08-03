@@ -47,7 +47,7 @@ class XumiDropperView extends Component {
       ...passedProps
     } = this.props;
 
-    console.log("no longer adding passed props to label state:", passedProps)
+
 
     if (submit_state == "waiting") {
       return (

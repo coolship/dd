@@ -9,35 +9,35 @@ import PanTool from "react-icons/lib/md/pan-tool";
 import WrapSelectBox from "./SelectBox";
 
 
-class InteractionSelectBox extends Component {
+class ColorModeSelectBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedOption: "PANZOOM"
+      selectedOption: "CELL"
     };
 
     this.options = {
-      PANZOOM: {
-        name: "Pan & Zoom",
+        CELL: {
+        name: "Cell segmentation",
         icon: <PanTool className="icon option icon-padright"/>
       },
-      RECTANGLE: {
-        name: "Rectangle Select",
-        icon: <TabUnselected className="icon option icon-padright"/>
+      DEFAULT: {
+        name: "Default",
+        icon: <PanTool className="icon option icon-padright"/>
       }
     };
   }
 
   handleOptionChange = changeEvent => {
     this.setState({ selectedOption: changeEvent.target.value });
-    this.props.handleSetInteractor(changeEvent.target.value)
+    this.props.handleSetColorMode(changeEvent.target.value)
   };
 
   render() {
     return WrapDropup(
       WrapSelectBox(
         <div>
-        {this.options[this.state.selectedOption].icon}<span>Interaction Mode</span>
+        {this.options[this.state.selectedOption].icon}<span>Color View Mode</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (
@@ -68,4 +68,4 @@ class InteractionSelectBox extends Component {
     );
   }
 }
-export default InteractionSelectBox;
+export default ColorModeSelectBox;
