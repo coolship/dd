@@ -42,10 +42,12 @@ class WorkspaceContainer extends Component {
                     top: "50%",
                     left: "50%",
                     position: "absolute",
-                    backgroundColor: "red",
+                    backgroundColor: "rgba(0,0,1,.25)",
+                    border:"2px solid blue",
+                    borderRadius:"5px",
                     transform: "translate(-50%, -50%)"
                 }}>
-                    THIS IS A DATASET-FREE - OR ANONYMOUS - VIEW
+                    Loading dataset, hang tight!
                 </div>
             )
         }

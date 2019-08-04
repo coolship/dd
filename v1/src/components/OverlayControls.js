@@ -1,67 +1,81 @@
-import React, { Component } from "react";
+
+import React, { Component, useState  } from "react";
 import { connect } from "react-redux";
 import styled, { css } from "styled-components";
 
-import OpenWith from "react-icons/lib/md/open-with";
-import SelectAll from "react-icons/lib/md/select-all";
-import Adjust from "react-icons/lib/md/adjust";
-import DatasetSelect from "./DatasetSelect";
+
+
 
 import SearchBox from "./SearchBox";
 import ExportBox from "./ExportBox";
 import InteractionSelectBox from "./InteractionSelectBox";
 import ColorModeSelectBox from "./ColorModeSelectBox";
 
-export default class OverlayControls extends Component {
+const OverlayControls = props=> {
   // returns left and right controls containing FOV / camera manipulation and
   // dataset manipulation controls respectively
-  render() {
-    return (
+
+  const [hovered, setHovered] = useState(false);
+
+
+  const toggleHover = () => setHovered(!hovered);
+  return (
       <StyledOverlayControls>
-        <ul className="buttons">
-          <li className="btn btn-wide">
+        <ul className="buttons"
+                       onMouseEnter={toggleHover}
+                       onMouseLeave={toggleHover}
+                       >
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}
+          >
             <InteractionSelectBox
-              handleSetInteractor={this.props.handleSetInteractor}
+              handleSetInteractor={props.handleSetInteractor}
               style={{ display: "inline" }}
             />
           </li>
-
-
-          <li className="btn btn-wide">
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}>
             <ColorModeSelectBox
-              handleSetColorMode={this.props.handleSetColorMode}
+              handleSetColorMode={props.handleSetColorMode}
               style={{ display: "inline" }}
             />
           </li>
 
-          <li className="btn  btn-wide">
+
+
+
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}  style={{ marginLeft: "40px",}}>
+
+
             <SearchBox
-              setActiveSlice={this.props.setActiveSlice}
-              which_dataset={this.props.which_dataset}
+              setActiveSlice={props.setActiveSlice}
+              which_dataset={props.which_dataset}
               style={{ display: "inline" }}
+
             />
           </li>
-          <li className="btn btn-wide">
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}>
             <ExportBox
-              export_canvas_ref={this.props.export_canvas_ref}
-              backend_canvas_ref={this.props.backend_canvas_ref}
-              which_dataset={this.props.which_dataset}
+              export_canvas_ref={props.export_canvas_ref}
+              backend_canvas_ref={props.backend_canvas_ref}
+              which_dataset={props.which_dataset}
               style={{ display: "inline" }}
-              getActiveSlice={this.props.getActiveSlice}
+              getActiveSlice={props.getActiveSlice}
             />
           </li>
-{/* 
-          <li className="btn btn-wide">
-            <DatasetSelect />
-          </li> */}
 
         </ul>
+
+
       </StyledOverlayControls>
     );
   }
-}
+
+
+
+export default OverlayControls
 
 const StyledOverlayControls = styled.div`
+
+  pointer-events:none;
   position: absolute;
   bottom: 0px;
   left: 0px;
@@ -85,8 +99,9 @@ const StyledOverlayControls = styled.div`
     display: inline-block;
     margin-left: 20px;
     margin-right:20px
-    padding:5px;
+
   }
+  >* {pointer-events:auto}
   > * > {
     pointer-events: auto;
   }
@@ -97,6 +112,11 @@ const StyledOverlayControls = styled.div`
     }
   }
 
+
+  .btn.parent-hovered:not(:hover){
+    border-color:transparent;
+  }
+  
   .btn {
     background-color:black;
     opacity: 1;
@@ -105,7 +125,15 @@ const StyledOverlayControls = styled.div`
     border-color: white;
     display: inline;
     margin: 5px;
+    
+    transition: border 200ms ease-out;
+
     border-radius: 4px;
+    &:hover{
+
+      border-top-right-radius:0px;
+    }
+
     line-height: 2em;
     white-space: nowrap;
 
@@ -114,24 +142,10 @@ const StyledOverlayControls = styled.div`
       text-align: center;
     }
     &.btn-wide {
-      padding-left: 0.75em;
-      padding-right: 0.75em;
       text-align: center;
     }
   }
 
-  .boxed-icon {
-    padding: 5px;
-    font-size: 1.5em;
-  }
-
-  .btn {
-    opacity: 1;
-  }
-  .btn:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    opacity: 0.8;
-  }
 
   .boxed-icon.active {
     background-color: blue;

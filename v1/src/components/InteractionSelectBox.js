@@ -21,12 +21,12 @@ class InteractionSelectBox extends Component {
       PANZOOM: {
         name: "Mouse: Camera controls",
         sel_name:"Camera",
-        icon: <PanTool className="icon option icon-padright"/>
+        icon: <PanTool className="icon option"/>
       },
       RECTANGLE: {
         name: "Mouse: Select",
         sel_name:"Select",
-        icon: <TabUnselected className="icon option icon-padright"/>
+        icon: <TabUnselected className="icon option"/>
       }
     };
   }
@@ -39,8 +39,10 @@ class InteractionSelectBox extends Component {
   render() {
     return WrapDropup(
       WrapSelectBox(
-        <div>
-        {<Mouse className="icon option icon-padright"/>} <span>{this.options[this.state.selectedOption].sel_name}</span>
+        <span>
+
+
+        {<Mouse className="icon option"/>} <span>{this.options[this.state.selectedOption].sel_name}</span>
         <ul className="dropup-content">
           <form action="">
             {_.map(Object.keys(this.options), nm => (
@@ -66,7 +68,7 @@ class InteractionSelectBox extends Component {
             ))}
           </form>
         </ul>
-        </div>
+        </span>
       )
     );
   }

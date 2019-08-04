@@ -2,41 +2,78 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 
-const DropupContainerWrapper = styled.span`
+const DropupContainerWrapper = styled.div`
 position:relative;
+padding-right:20px;
+
   &:not(:hover) {
     .dropup-content {
-      display: none;
+      visibility:hidden;
+      pointer-events:none;
+      opacity:0;
     }
   }
+  transition: background-color 150ms ease-out;
 
+  &:hover{
+    background-color:white;
+    color:black;
+   *{
+    background-color:inherit; 
+   }
+  }
+  
+
+.dropup-vis-connector{
+  position: absolute;
+  height: 20px;
+  width: 100%;
+  left: 0px;
+  bottom: 100%;
+}
 
   ul{
 padding-left:0px;
   }
   .dropup-content {
+    min-width: calc(100% + 4px);
+
+    box-sizing: border-box;
+    min-width: calc(100% + 24px);
+    border-bottom-right-radius: 0px;
+    
+    opacity:1;
+    background-color:white;  
+
+    transition: opacity 150ms ease-out;
+
+    text-align:left;
+    
+    border: 2px solid;
+    margin: -2px;
+    margin-left:-2px;
+    border-radius: 5px;
+    border-color: white;
+    border-bottom-left-radius: 0px;
+
+    left: 0px;
     position: absolute;
     bottom: 100%;
-    padding:20px;
+    margin: 0px;
+    margin-left:-2px;
+    padding: 0px;
 
     flex-flow:column;
-    justify-items:center;
-    align-items:center;
-
-    left: 50%;
-    transform: translate(-50%);
-    background-color:black;
+    justify-items:left;
+    align-items:left;
 
     a:link{
-        color:white;
+        color:inherit;
     }
     li:hover {
-      border: 2px solid green;
+      filter: brightness(0.9);
     }
     
-    li:not(:hover){
-        border: 2px solid transparent;
-    }
     li {
         line-height:1.2em;
 
@@ -45,6 +82,8 @@ padding-left:0px;
       list-style: none;
       margin-left:0px;
       padding-left:0px;
+
+      padding:5px;
     }
   }
 `;

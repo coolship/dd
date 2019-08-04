@@ -18,9 +18,7 @@ const SelectBoxWrapper = styled.div`
   a:link {
     color: white;
   }
-  .option.icon{
-      color:white;
-  }
+
   .icon-padright{
         padding-right:15px;
   }
@@ -28,11 +26,17 @@ const SelectBoxWrapper = styled.div`
   .selected .option.icon{
       color:blue;
   }
+  label .icon{
+    font-size:1em;
+  }
   .selected{
     color:blue;
   }
   input{
-    visibility:hidden;
+    margin:0px;
+    width: 0px;
+    visibility: hidden;
+    height: 0px;
   }
 `;
 

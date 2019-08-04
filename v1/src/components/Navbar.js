@@ -18,6 +18,64 @@ import {MODALS} from "../layout";
 import { signOut, signIn, activateModal, resetUIOnly } from "../actions";
 
 
+
+const SlideOutWrapper =styled.div`
+&:not(:hover){
+	.slides{
+		display:none;
+	}
+}	
+&:hover{
+	.slidesaway{
+		display:none;
+	}
+}
+`
+
+const WrapSlideOut = wrapped_component => {
+	return (
+	  <SlideOutWrapper>
+		{wrapped_component}
+	  </SlideOutWrapper>
+	);
+  };
+
+const InlineList = styled.ul`
+margin:0px;  
+.valign{
+	>*{vertical-align:middle;}
+}
+li{
+	  display:inline;
+	  a{
+		color:white;
+	  }
+	  a:link{
+		color:white;
+	  }
+
+	//   a:visited{
+	// 	color:red;
+	//   }
+
+	  >*{
+		vertical-align:middle;
+		margin:0px;  
+    margin: 0px;
+    padding: 0px;
+	display: inline;
+	
+	  }
+	  .icon{
+		  font-size:150%;
+	  }
+  }
+  li:not(:first-child){padding-left:10px}
+  li:not(:last-child){padding-right:10px}
+  list-style:none;
+`
+
+
 class Navbar extends Component {
     static contextTypes = {
 	router: PropTypes.object
@@ -26,12 +84,31 @@ class Navbar extends Component {
 	return (
 	    <StyledNavbar>
 	       <div className="nav-right">
-		  <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/>
-		    <StyledSignedIn className="user-nav" hasAuth={this.props.auth.email?true:false}>
-		      {this.props.auth.email?<ExitToApp className="icon" onClick={this.props.signOut}/>:null}
-		      {this.props.auth.email?<NavLink to="/admin"><Settings className="icon"/></NavLink>:null}
-		      {this.props.auth.email?<NavLink to="/app"><Visibility className="icon"/></NavLink>:null}
-		      {this.props.auth.email?<NavLink to="/admin"><AccountCircle className="icon signin"/></NavLink>:<AccountCircle className="icon" onClick={this.props.signIn}/>}
+		    <StyledSignedIn className={"user-nav "+ (this.props.auth.email?"signed_in":"signed_out")}  hasAuth={this.props.auth.email?true:false}>
+		      {this.props.auth.email?
+			
+			  WrapSlideOut( 
+				<div className="AccountHoverContainer">
+									<span className="slides">
+
+<InlineList style={{display:"inline-block"}}>
+	<li><span>Hi {this.props.auth.email}!</span></li> 
+	<li><NavLink className="valign" to="/"><span>GO HOME</span> <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/></NavLink></li>
+	<li><NavLink className="valign" to="/" onClick={this.props.signOut}><span>LOG OUT</span> <ExitToApp className="icon"/></NavLink></li>
+	<li><NavLink className="valign" to="/upload2"><span>EXPLORE DATA</span> <Visibility className="icon"/></NavLink></li>
+</InlineList>
+
+</span>
+			<AccountCircle className="icon signin slidesaway"/>
+
+				   </div>
+				)			  :
+<InlineList style={{display:"inline-block"}}>
+	<li><span style={{paddingRight:"10px", textDecoration:"underline"}}  onClick={this.props.signIn}>SIGN IN</span> <AccountCircle className="icon" onClick={this.props.signIn} /></li>
+</InlineList>
+
+			  	//<AccountCircle className="icon" onClick={this.props.signIn} />
+			  }
 		    </StyledSignedIn>
 	      </div>
 	    </StyledNavbar>
@@ -52,6 +129,12 @@ display:inline-block;
 padding:0px;
 border:2px solid white;
 border-radius:25px;
+
+.signed_out{
+	background-color:white;
+	color:black;
+}
+
 .signin.signin.signin{
 color:${props=>props.hasAuth?'lightgreen':'white'};
 }
@@ -70,11 +153,10 @@ color:${props=>props.hasAuth?'lightgreen':'white'};
 	.nav-right{
 	    text-align:right;
 	    width:auto;
-	    margin-right:20px;
+	    padding:20px;
 	    .icon{
-margin:5px;
 		cursor:pointer;
-		color:white;
+		
 	    }
 	}
 `;

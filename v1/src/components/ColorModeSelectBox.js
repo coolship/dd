@@ -17,14 +17,14 @@ class ColorModeSelectBox extends Component {
 
         this.options = {
             CELL: {
-                name: "View: Cells",
+                name: "View by cell segments",
                 sel_name:"Cells",
-                icon: < Visibility className = "icon option icon-padright" / >
+                icon:  < Visibility className = "icon option" / >
             },
             DEFAULT: {
-                name: "View: Transcripts",
-                sel_name:"Transcripts",
-                icon: < Visibility className = "icon option icon-padright" / >
+                name: "View by molecule type",
+                sel_name:"Molecule",
+                icon:  < Visibility className = "icon option" / >
             }
         };
     }
@@ -38,7 +38,8 @@ class ColorModeSelectBox extends Component {
 
     render() {
         return WrapDropup(WrapSelectBox(
-            <div>
+            <span>
+
                 {this.options[this.state.selectedOption].icon}
                 <span>{this.options[this.state.selectedOption].sel_name}</span>
                 <ul className="dropup-content">
@@ -59,14 +60,14 @@ class ColorModeSelectBox extends Component {
                                     checked={this.state.selectedOption === nm}
                                     onChange={this.handleOptionChange}/>
                                 <label htmlFor={nm}>
-                                    {this.options[nm].icon}
+                                   
                                     {this.options[nm].name}
                                 </label>
                             </li>
                         ))}
                     </form>
                 </ul>
-            </div>
+            </span>
         ));
     }
 }

@@ -1,12 +1,14 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
+import JupyterLogo from '../assets/Jupyter_logo.svg';
 import styled from "styled-components";
-import { connect } from "react-redux";
-import { setSelectionTime } from "../actions";
+import {connect} from "react-redux";
+import {setSelectionTime} from "../actions";
 import Search from "react-icons/lib/md/search";
 import WrapDropup from "./DropupContainer";
 import _ from "lodash";
+import ReactDOM from "react-dom";
 
-/**
+/**  const [last_query, saveLastQuery] = useState(null)
  *
  * Early implementation of a datset searh box which makes
  * queries to the independently hostd. This backend server
@@ -17,147 +19,217 @@ import _ from "lodash";
  * so that useful data is paged and returned.
  */
 class SearchBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedOption: "umigeneids",
-      querystring: "",
-      queries: [""]
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedOption: "umigeneids",
+            querystring: "",
+            queries: [""],
+            last_query:null,
+        };
 
-    this.option_names = {
-      umigeneids: "Query UMIs by Gene ID",
-      sequences: "Query UMIs by Sequence",
-      cellgoterms: "Query by GO Terms"
-    };
-    this.option_placeholders = {
-      umigeneids: "Gene ID",
-      sequences: "Sequence",
-      cellgoterms: "GO Term"
-    };
-  }
-  handleInput(e) {
-    var urls = {
-      umigeneids: "/queries/umis/geneids/",
-      sequences: "/queries/umis/sequence/",
-      cellgoterms: "/queries/cells/goterms/"
-    };
 
-    //this.tgt = e.target;
-    let val = e.target.value;
-    let queries = val.split(",");
 
-    this.setState({ queries: queries, querystring: val });
+        this.option_names = {
+            umigeneids: "Query UMIs by Gene ID",
+            sequences: "Query UMIs by Sequence",
+            cellgoterms: "Query by GO Terms"
+        };
+        this.option_placeholders = {
+            umigeneids: "Gene ID",
+            sequences: "Sequence",
+            cellgoterms: "GO Term"
+        };
+    }
+    handleInput(e) {
+        var urls = {
+            umigeneids: "/queries/umis/geneids/",
+            sequences: "/queries/umis/sequence/",
+            cellgoterms: "/queries/cells/goterms/"
+        };
 
-    //let val = e.target.value;
-    this.setState({ search_value: val });
-    let which = this.props.which_dataset;
+        //this.tgt = e.target;
+        let val = e.target.value;
+        let queries = val.split(",");
 
-    if (val.length < 2) {
-      this.props.setActiveSlice(null);
-      return;
+        this.setState({queries: queries, querystring: val});
+
+        //let val = e.target.value;
+        this.setState({search_value: val});
+        let which = this.props.which_dataset;
+
+        if (val.length < 2) {
+            this
+                .props
+                .setActiveSlice(null);
+            return;
+        }
+
+        const querystring = "http://35.237.243.111:5000" + urls[this.state.selectedOption] + which + "/" + val
+            .replace(/[,]/g, ':')
+            .replace(" ", "")
+
+        const json_querystring = `${querystring}?format=${encodeURIComponent("json")}`
+        const csv_querystring = `${querystring}?format=${encodeURIComponent("csv")}`
+        this.setState({last_query:csv_querystring})
+        fetch(json_querystring).then(function (response) {
+            return response.json();
+        }).then(myJson => {
+            let idx = -1;
+            console.log(myJson)
+
+            _.map(myJson, (d, k) => {
+                idx += 1;
+                console.log(d);
+                console.log(idx, k)
+                this
+                    .props
+                    .setActiveSlice(d, idx, k);
+            });
+            if (idx < 2) {
+                for (var new_idx = idx; new_idx < 2; new_idx++) {
+                    //consoleconsole. this.props.setActiveSlice(null,new_idx,"")
+                }
+            }
+            this
+                .props
+                .setSelectionTime(Date.now());
+        });
     }
 
-    fetch(
-      "http://35.237.243.111:5000" +
-        urls[this.state.selectedOption] +
-        which +
-        "/" +
-        val.replace(/[,]/g,':').replace(" ", "")
-    )
-      .then(function(response) {
-        return response.json();
-      })
-
-      .then(myJson => {
-        let idx = -1;
-        console.log(myJson)
-
-        _.map(myJson, (d, k) => {
-          idx += 1;
-          console.log(d);
-          console.log(idx,k)
-          this.props.setActiveSlice(d, idx, k);
-        });
-        if(idx<2){
-          for(var  new_idx = idx; new_idx<2; new_idx++){
-            //consoleconsole.
-            //this.props.setActiveSlice(null,new_idx,"")
-          }
-        }
-        this.props.setSelectionTime(Date.now());
-      });
-  }
-
-  // returns left and right controls containing FOV / camera manipulation and
-  // dataset manipulation controls respectively
-  render() {
-    return WrapDropup(
-      <StyledSearchBox>
-        <input
-          className="search input"
-          type="text"
-          ref={search => {
-            this.searchInput = search;
-          }}
-          onChange={this.handleInput.bind(this)}
-          placeholder={this.option_placeholders[this.state.selectedOption]}
-          contentEditable={true}
-        />
-        <div className="fancyinput">
-          {_.map(this.state.queries, (q, i) => (
-            <span
-              key={i}
-              style={{ color: i == 0 ? "lightblue" : i == "1" ? "lightgreen" : "orange" }}
-            >
-              {i > 0 ? "," : ""}
-              {q}
-            </span>
-          ))}
-        </div>
-        <Search />
-        <ul className="options dropup-content">
-          <form action="">
-            {_.map(["umigeneids", "sequences", "cellgoterms"], nm => (
-              <li
-                key={nm}
-                className={this.state.selectedOption === nm ? "selected" : ""}
-              >
-                <span className="checkmark" />
+    // returns left and right controls containing FOV / camera manipulation and
+    // dataset manipulation controls respectively
+    render() {
+        return WrapDropup(
+            <StyledSearchBox>
+                <LogoComponent which_dataset={this.props.which_dataset} last_query={this.state.last_query}/>
                 <input
-                  type="radio"
-                  name="searchtype"
-                  value={nm}
-                  id={nm}
-                  disabled={false}
-                  checked={this.state.selectedOption === nm}
-                  onChange={this.handleOptionChange}
-                />
-                <label htmlFor={nm}>{this.option_names[nm]}</label>
-              </li>
-            ))}
-          </form>
-        </ul>
-      </StyledSearchBox>
-    );
-  }
+                    className="search input"
+                    type="text"
+                    ref={search => {
+                    this.searchInput = search;
+                }}
+                    onChange={this
+                    .handleInput
+                    .bind(this)}
+                    placeholder={this.option_placeholders[this.state.selectedOption]}
+                    contentEditable={true}/>
+                <div className="fancyinput">
+                    {_.map(this.state.queries, (q, i) => (
+                        <span
+                            key={i}
+                            style={{
+                            color: i == 0
+                                ? "lightblue"
+                                : i == "1"
+                                    ? "lightgreen"
+                                    : "orange"
+                        }}>
+                            {i > 0
+                                ? ","
+                                : ""}
+                            {q}
+                        </span>
+                    ))}
+                </div>
+                <Search/>
+                <ul className="options dropup-content">
+                    <form action="">
+                        {_.map([
+                            "umigeneids", "sequences", "cellgoterms"
+                        ], nm => (
+                            <li
+                                key={nm}
+                                className={this.state.selectedOption === nm
+                                ? "selected"
+                                : ""}>
+                                <span className="checkmark"/>
+                                <input
+                                    type="radio"
+                                    name="searchtype"
+                                    value={nm}
+                                    id={nm}
+                                    disabled={false}
+                                    checked={this.state.selectedOption === nm}
+                                    onChange={this.handleOptionChange}/>
+                                <label htmlFor={nm}>{this.option_names[nm]}</label>
+                            </li>
+                        ))}
+                    </form>
+                </ul>
+            </StyledSearchBox>
+        );
+    }
 
-  handleOptionChange = changeEvent => {
-    this.setState({ selectedOption: changeEvent.target.value });
-  };
+    handleOptionChange = changeEvent => {
+        this.setState({selectedOption: changeEvent.target.value});
+    };
 }
 
-export default connect(
-  ({}) => {
-    return {};
-  },
-  { setSelectionTime }
-)(SearchBox);
+class LogoComponent extends Component {
+    constructor(props) {
+        super(props);
+        this.controls = React.createRef();
 
-const StyledSearchBox = styled.div`
+    }
+
+    handleClick() {
+        let which = this.props.which_dataset;
+        fetch("http://35.237.243.111:5000/analysis/" + which + `/generate_notebook/?last_query=${encodeURIComponent(this.props.last_query)}`)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(myJson => {
+                window.open(myJson.url, "_blank")
+            })
+    }
+    //this cool little piece of code in-lines the svg used for the controls
+    handleImageLoaded() {
+        var c = ReactDOM.findDOMNode(this.controls.current)
+        c
+            .parentElement
+            .replaceChild(c.contentDocument.documentElement.cloneNode(true), c);
+    }
+    render() {
+        return (
+            <div className="logo-container" >
+                <img
+                    src={JupyterLogo}
+                    style={{
+                    height: "100%"
+                }}
+                    onClick={this
+                    .handleClick
+                    .bind(this)}/>
+                    </div>
+                    
+        )
+    }
+
+}
+
+export default connect(({}) => {
+    return {};
+}, {setSelectionTime})(SearchBox);
+
+const StyledSearchBox = styled.div `
   .placeholder {
     text-align: left;
     color: rgba(255, 255, 255, 0.3);
+  }
+  .logo-container{
+    filter: saturate(0) brightness(100);
+    background-color: transparent;
+    position:absolute;
+    left:0px; 
+    transform:translate(-120%);
+    height:100%;
+    width:30px;
+  }
+  &:hover{
+    .logo-container{
+      filter:none;
+    }
   }
   position: relative;
   width: 200px;

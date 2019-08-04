@@ -3,6 +3,8 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { connect } from "react-redux";
 import styled, { css } from "styled-components";
+
+
 import { MODALS } from "../layout";
 
 //actions
@@ -25,11 +27,12 @@ import CellSelectionInteractor from "./CellSelectionInteractor";
 import PanZoomInteractor from "./DragInteractor";
 import RectangleSelectionInteractor from "./RectangleSelectionInteractor";
 
+
 class DatasetStageContainer extends RenderContainer {
   //LIFECYCLE METHODS
   constructor(props) {
-
     super(props);
+
     this.COLORMODES={
       CELL:"CELL",
       DEFAULT:"DEFAULT",
@@ -53,6 +56,10 @@ class DatasetStageContainer extends RenderContainer {
     this.export_canvas_ref = React.createRef();
   }
 
+
+
+        
+        
   componentDidMount() {
     window.addEventListener("resize", this.bound_resize, false);
     if (!this.self_ref.current) {
@@ -67,9 +74,9 @@ class DatasetStageContainer extends RenderContainer {
       viewport: {
         clientWidth: size.width,
         clientHeight: size.height,
-        x0: (-1 * size.width) / 2 / 20,
-        y0: (-1 * size.height) / 2 / 20,
-        zoom: 20
+        x0: -4.718068502243445,//(-1 * size.width) / 2 / 20,
+        y0: -1.6179484134975441,////(-1 * size.height) / 2 / 20,
+        zoom:313.81824424174266,
       }
     });
   }
@@ -321,6 +328,8 @@ class DatasetStageContainer extends RenderContainer {
               }}
             />
           ) : null} */}
+
+
         </div>
       );
     } else {

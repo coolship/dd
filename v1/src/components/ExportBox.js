@@ -127,7 +127,8 @@ class ExportBox extends Component {
   render() {
     return WrapDropup(
       <StyledExportBox>
-        <div>Export to File <span className="show-collapsed arrow">▶</span><span className="show-expanded arrow">▲</span></div>
+        <CloudDownload className="icon" />
+        <span>Export<span className="show-collapsed arrow">▶</span><span className="show-expanded arrow">▲</span></span>
         <ul className="dropup-content">
           {_.map(["datasetcsv", "datasetfasta"], nm => (
             <li key={nm}>
@@ -149,7 +150,7 @@ class ExportBox extends Component {
             </li>
           ))}
 
-<li> <CloudDownload/><a onClick={this.exportPng.bind(this)}>Export .png</a></li>
+<li> <a onClick={this.exportPng.bind(this)}>Export .png</a></li>
           
         </ul>
       </StyledExportBox>
