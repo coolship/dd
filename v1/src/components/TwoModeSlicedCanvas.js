@@ -99,15 +99,19 @@ export default class TwoModeSlicedCanvas extends Component {
 
 
 		for (let idx of [0,1,2] ){
+
 			if(that.props.hasSlice(idx)){
+
+
 				const {R,G,B,A,X,Y,Z} = that.props.slicer(i*inc,(i+1)*inc,idx)
+
 				that.drawRegl(
 					that.getRenderRegl(),
 					rescale,
 					that.getBackendOriginX(x0,y0,dataLen),
 					that.getBackendOriginY(x0,y0,dataLen),
 					R,G,B,A,X,Y,Z,
-					3
+					.6
 				)
 			}
 		}
@@ -283,6 +287,9 @@ attribute float a;
     r = dot(cxy, cxy);
     if (r > 1.0) {
         discard;
+	}
+	if (r < .65) {
+        discard;
     }
     gl_FragColor = fragColor;
 	    }
@@ -323,7 +330,7 @@ attribute float a;
 	    primitive: 'points'
 	};
 
-	let size_mult = size?size:.25;
+	let size_mult = size?size:.1;
 	regl_object(drawDots)({
 	    x:x,
 	    y:y,
@@ -333,7 +340,7 @@ attribute float a;
 	    b:b,
 	    a:a,
 	    rescale:zoom,
-	    pointWidth:100*zoom*this.resolution/1200*size_mult,
+	    pointWidth:100*20 *((zoom/300)**.5) *this.resolution/1200*size_mult,
 	    cx:cx,
 	    cy:cy,
 	});

@@ -145,7 +145,6 @@ color:${props=>props.hasAuth?'lightgreen':'white'};
     const StyledNavbar = styled.div`
 	position:fixed;
 	z-index:100;
-	left:0px;
 	right:0px;
 	top:0px;
 	height:auto;

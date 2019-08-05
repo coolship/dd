@@ -31,8 +31,21 @@ class RectangleSelectionView extends Component {
     var y0 = Math.min(y, this.state.mouse_start.y);
     var x1 = Math.max(x, this.state.mouse_start.x);
     var y1 = Math.max(y, this.state.mouse_start.y);
-    this.props.setSliceXYRect({ x0, y0, x1, y1 });
-    this.props.setSelectionTime(Date.now());
+
+    const query_val = JSON.stringify({x0,y0,x1,y1})
+    const querystring = "http://35.237.243.111:5000/queries/xyrect/" + this.props.which_dataset + "/"
+
+    const query_json_string = `${querystring}?xy_rect_json=${encodeURIComponent(query_val)}`
+    const info = {
+      query_json_string,
+      query_val,
+      query_type:"xy_rect",
+      query_description:"X/Y position between",
+    }
+    this.props.runQuery(info)
+
+    //this.props.setSliceXYRect({ x0, y0, x1, y1 });
+    //this.props.setSelectionTime(Date.now());
 
     this.setState({ dragging: "false", mouse_end: this.getMouseXY(ev) });
   }
@@ -45,6 +58,7 @@ class RectangleSelectionView extends Component {
     });
   }
   render() {
+    const  view_width =  (this.props.viewbounds.x1 - this.props.viewbounds.x0)
     return (
       <SvgElement
         viewBox={
@@ -76,7 +90,7 @@ class RectangleSelectionView extends Component {
                 this.state.mouse_end.y - this.state.mouse_start.y
               )}
               stroke="white"
-              strokeWidth={0.1}
+              strokeWidth={0.001 * view_width}
               fill="rgba(255, 255, 255, 0)"
             />
           ) : (
@@ -86,7 +100,7 @@ class RectangleSelectionView extends Component {
               width={Math.abs(this.state.mouse.x - this.state.mouse_start.x)}
               height={Math.abs(this.state.mouse.y - this.state.mouse_start.y)}
               stroke="blue"
-              strokeWidth={0.1}
+              strokeWidth={0.001}
               fill="rgba(255, 255, 255, .3)"
             />
           )

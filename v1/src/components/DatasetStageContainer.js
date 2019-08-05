@@ -3,15 +3,13 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { connect } from "react-redux";
 import styled, { css } from "styled-components";
+import withQueryManager from "./QueryManager";
 
-
-import { MODALS } from "../layout";
 
 //actions
 import { uploadPreview } from "../actions/FileIO";
 
 //rendering tools
-import initREGL from "regl";
 import _ from "lodash";
 
 //child components
@@ -236,6 +234,9 @@ class DatasetStageContainer extends RenderContainer {
           clientWidth: this.state.viewport.clientWidth
         };
       }
+
+      console.log("SHOULD HAVE THIS")
+      console.log(this.props.unsetUmiSlice)
       return (
         <div
           className="fov fov-black absolute-fullsize"
@@ -286,6 +287,8 @@ class DatasetStageContainer extends RenderContainer {
                 ref={input => {
                   this.interactor_ref = input;
                 }}
+                which_dataset={this.props.which_dataset}
+                runQuery={this.props.runQuery}
                 viewbounds={viewbounds}
                 alignPoint={this.alignPoint.bind(this)}
                 setActiveSlice={this.props.setActiveSlice}
@@ -301,17 +304,19 @@ class DatasetStageContainer extends RenderContainer {
             )}
           </CanvasContainer>
 
+
           {this.props.appearance_props.no_buttons ? (
             ""
           ) : (
             <OverlayControls
               handleSetInteractor={this.setInteractor.bind(this)}
               handleSetColorMode={this.setColorMode.bind(this)}
-
+              runQuery={this.props.runQuery}
               centerView={this.centerView.bind(this)}
               is_demo={this.props.is_demo}
               which_dataset={this.props.metadata.dataset}
               setActiveSlice={this.props.setActiveSlice}
+              unsetUmiSlice={this.props.unsetUmiSlice}
               getActiveSlice={this.props.getActiveSlice}
               export_canvas_ref={this.export_canvas_ref}
               backend_canvas_ref={this.backend_ref}
@@ -344,10 +349,10 @@ function mapStateToProps({ selections }) {
   return { selections };
 }
 
-export default connect(
+export default withQueryManager(connect(
   mapStateToProps,
   {}
-)(DatasetStageContainer);
+)(DatasetStageContainer));
 
 const CanvasContainer = styled.div`
   width: 100%;

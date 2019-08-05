@@ -1,11 +1,6 @@
 
 import React, { Component, useState  } from "react";
-import { connect } from "react-redux";
 import styled, { css } from "styled-components";
-
-
-
-
 import SearchBox from "./SearchBox";
 import ExportBox from "./ExportBox";
 import InteractionSelectBox from "./InteractionSelectBox";
@@ -19,20 +14,22 @@ const OverlayControls = props=> {
 
 
   const toggleHover = () => setHovered(!hovered);
+  const hoverOn = () => setHovered(true);
+  const hoverOff = () => setHovered(false);
+
+
   return (
       <StyledOverlayControls>
-        <ul className="buttons"
-                       onMouseEnter={toggleHover}
-                       onMouseLeave={toggleHover}
-                       >
-          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}
+        <ul className="buttons"  >
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}  onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                               
           >
             <InteractionSelectBox
               handleSetInteractor={props.handleSetInteractor}
               style={{ display: "inline" }}
             />
           </li>
-          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}>
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}   onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
             <ColorModeSelectBox
               handleSetColorMode={props.handleSetColorMode}
               style={{ display: "inline" }}
@@ -40,19 +37,20 @@ const OverlayControls = props=> {
           </li>
 
 
-
-
-          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}  style={{ marginLeft: "40px",}}>
-
+          <li className={(hovered ? 'parent-hovered' : '') + " no-pointer btn btn-wide"}  style={{ marginLeft: "40px",}}
+          
+          >
 
             <SearchBox
-              setActiveSlice={props.setActiveSlice}
+              runQuery={props.runQuery}
+              hoverOn={hoverOn}
+              hoverOff={hoverOff}
               which_dataset={props.which_dataset}
               style={{ display: "inline" }}
 
             />
           </li>
-          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}>
+          <li className={(hovered ? 'parent-hovered' : '') + " btn btn-wide"}   onMouseEnter={hoverOn} onMouseLeave={hoverOff}> 
             <ExportBox
               export_canvas_ref={props.export_canvas_ref}
               backend_canvas_ref={props.backend_canvas_ref}
@@ -106,7 +104,7 @@ const StyledOverlayControls = styled.div`
     pointer-events: auto;
   }
   > * {
-    .btn {
+    .btn:not(.no-pointer) {
       cursor: pointer;
       pointer-events: auto;
     }
@@ -118,6 +116,9 @@ const StyledOverlayControls = styled.div`
   }
   
   .btn {
+
+
+    box-shadow: 0px 0px 3px 4px black;
     background-color:black;
     opacity: 1;
     border-width: 2px;

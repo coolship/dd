@@ -292,6 +292,7 @@ return{
 
 		if (slice[0].constructor === Array) {
 			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+
 		} else {
 			return Float32Array.from(slice.map((idx) => color_val))
 		}
@@ -313,17 +314,21 @@ return{
 				return (u.x>x0 && u.x < x1) &&( u.y>y0 && u.y<y1)?i:null
 		}))
 		this.slice_changed_time = Date.now()
+
 	}
 
 	setUmiSlice(umis,idx,nm) {
+
 		idx == idx ? idx : 0;
 
+		
     this.slice_names[idx] = nm;
 
     if (!umis || umis.length == 0) {
       this.unsetUmiSlice(idx);
       return;
     } else {
+
       this.slices[idx] = umis;
     }
 
@@ -338,7 +343,9 @@ return{
 
 	hasSlice(idx) {
 		idx = idx? idx:0;
-		return (this.slices[idx] != null ) &&(this.slices[idx].length > 0)
+		const output =  (this.slices[idx] != null ) &&(this.slices[idx].length > 0)
+
+		return(output)
 	}
 
 	async initializeFromBuffers(statusCallback, completionCallback, metadata) {

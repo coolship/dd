@@ -13,7 +13,10 @@ import _ from "lodash";
 class DatasetWorkspaceContainer extends Component{
     setActiveSlice(data,idx){
         this.props.loaded_dataset.setUmiSlice(data,idx);}
-        
+    unsetUmiSlice(idx){
+            this.props.loaded_dataset.unsetUmiSlice(idx);}
+            
+                
     
     getActiveSlice(){
         return this.props.loaded_dataset.getActiveSlice();
@@ -24,6 +27,7 @@ class DatasetWorkspaceContainer extends Component{
     }
     render(){return < DatasetWorkspaceView 
         setActiveSlice={this.setActiveSlice.bind(this)} 
+        unsetUmiSlice={this.unsetUmiSlice.bind(this)} 
         getActiveSlice={this.getActiveSlice.bind(this)} 
         setSliceXYRect={this.setSliceXYRect.bind(this)} 
 
@@ -57,8 +61,11 @@ const DatasetWorkspaceView = (props) => {
                         dataset={props.loaded_dataset}
                         metadata={meta}
                         metadata_key={meta_key}
+                        which_dataset={meta.dataset}
                         is_demo={false}
                         setActiveSlice={props.setActiveSlice}
+                        unsetUmiSlice={props.unsetUmiSlice}
+
                         getActiveSlice={props.getActiveSlice}
                         setSliceXYRect={props.setSliceXYRect.bind(this)} 
                         appearance_props={{

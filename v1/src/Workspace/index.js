@@ -45,9 +45,10 @@ class WorkspaceContainer extends Component {
                     backgroundColor: "rgba(0,0,1,.25)",
                     border:"2px solid blue",
                     borderRadius:"5px",
+                    padding:"20px",
                     transform: "translate(-50%, -50%)"
                 }}>
-                    Loading dataset, hang tight!
+                    Authenticating user, hang tight!
                 </div>
             )
         }
