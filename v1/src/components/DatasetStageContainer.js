@@ -21,10 +21,10 @@ import SelectionInfo from "./SelectionInfo";
 import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
 import TranscriptSelectionInteractor from "./TranscriptSelectionInteractor";
-import CellSelectionInteractor from "./CellSelectionInteractor";
+//import CellSelectionInteractor from "./CellSelectionInteractor";
 import PanZoomInteractor from "./DragInteractor";
 import RectangleSelectionInteractor from "./RectangleSelectionInteractor";
-
+import CellSelectionInteractor from "./CellSelectionInteractor"
 
 class DatasetStageContainer extends RenderContainer {
   //LIFECYCLE METHODS
@@ -41,6 +41,10 @@ class DatasetStageContainer extends RenderContainer {
     },
     PANZOOM:{name:"PANZOOM",
           component:PanZoomInteractor}
+          ,
+          CELL:{name:"CELL",
+                component:CellSelectionInteractor}
+                ,
     }
     this.state = {
       interactionMode:this.INTERACTORS.PANZOOM.name,

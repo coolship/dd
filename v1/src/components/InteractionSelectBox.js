@@ -5,6 +5,7 @@ import WrapDropup from "./DropupContainer";
 import _ from "lodash";
 
 import TabUnselected from "react-icons/lib/md/tab-unselected";
+import Search from "react-icons/lib/md/search";
 import Mouse from "react-icons/lib/md/mouse";
 import PanTool from "react-icons/lib/md/pan-tool";
 import WrapSelectBox from "./SelectBox";
@@ -24,9 +25,14 @@ class InteractionSelectBox extends Component {
         icon: <PanTool className="icon option"/>
       },
       RECTANGLE: {
-        name: "Mouse: Select",
+        name: "Mouse: Select rectangle",
         sel_name:"Select",
         icon: <TabUnselected className="icon option"/>
+      },
+      CELL: {
+        name: "Mouse: Select cell",
+        sel_name:"Cell",
+        icon: <Search className="icon option"/>
       }
     };
   }
