@@ -30,7 +30,12 @@ export default function withLoadedDataset(WrappedComponent) {
                     that.setState({
                         loading_progress: 20,
                         loading_status: "creating microscope view",
-                        dataset: new Dataset(metadata.dataset, coords_data, metadata.annotations_url)
+                        dataset: new Dataset(
+                            metadata.dataset, 
+                            coords_data, 
+                            metadata.annotations_url,
+                            metadata.umi_ids_url, 
+                            metadata)
                     });
                     resolve();
 
@@ -59,7 +64,7 @@ export default function withLoadedDataset(WrappedComponent) {
                             .initializeAsync((loading_progress, loading_status) => {
                                 that.setState({
                                     loading_progress: loading_progress * .5 + 20,
-                                    loading_status
+                                    loading_status:loading_status,
                                 });
                             }, () => {
                                 that.setState({dataset_fetched_name: that.props.which_dataset, loading_progress: 100, loading_status: "complete"});

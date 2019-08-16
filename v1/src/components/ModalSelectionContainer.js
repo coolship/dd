@@ -36,7 +36,6 @@ export default class ModalSelectionContainer extends RenderContainer{
 	var y1 = max_y + 2;
 
 	this.range = {x0,y0,x1,y1};
-	//this.data_subset = this.props.dataset.getSubset(x0,y0,x1,y1);
 	this.selected = selected;
 	this.canvas_width=400;
 	this.canvas_height=400;

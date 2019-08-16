@@ -17,11 +17,7 @@ import TwoModeCanvas from "./TwoModeCanvas";
 import TwoModeSlicedCanvas from "./TwoModeSlicedCanvas";
 import MultiResView from "./MultiResView";
 import OverlayControls from "./OverlayControls";
-import SelectionInfo from "./SelectionInfo";
-import ModalSelectionContainer from "./ModalSelectionContainer";
 import RenderContainer from "./RenderContainer";
-import TranscriptSelectionInteractor from "./TranscriptSelectionInteractor";
-//import CellSelectionInteractor from "./CellSelectionInteractor";
 import PanZoomInteractor from "./DragInteractor";
 import RectangleSelectionInteractor from "./RectangleSelectionInteractor";
 import CellSelectionInteractor from "./CellSelectionInteractor"
@@ -47,7 +43,7 @@ class DatasetStageContainer extends RenderContainer {
                 ,
     }
     this.state = {
-      interactionMode:this.INTERACTORS.PANZOOM.name,
+      interactionMode:this.INTERACTORS.CELL.name,
       colorMode:this.COLORMODES.CELL,
       selection: { selected_idxs: [], select_type: null },
       viewport: null
@@ -76,9 +72,9 @@ class DatasetStageContainer extends RenderContainer {
       viewport: {
         clientWidth: size.width,
         clientHeight: size.height,
-        x0: -4.718068502243445,//(-1 * size.width) / 2 / 20,
-        y0: -1.6179484134975441,////(-1 * size.height) / 2 / 20,
-        zoom:313.81824424174266,
+        x0: -4.5,
+        y0: -1.5,
+        zoom:200
       }
     });
   }

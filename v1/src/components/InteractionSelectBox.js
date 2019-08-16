@@ -15,7 +15,7 @@ class InteractionSelectBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedOption: "PANZOOM"
+      selectedOption: "CELL"
     };
 
     this.options = {

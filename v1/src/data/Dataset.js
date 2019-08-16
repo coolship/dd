@@ -110,7 +110,7 @@ export class Umi {
 
 
 export class Dataset {
-	constructor(name, coordinate_data, annotations_url) {
+	constructor(name, coordinate_data, annotations_url,umi_ids_url,metadata) {
 
 		this.annotation_promise = null;
 		this.coordinate_data = coordinate_data;
@@ -120,23 +120,125 @@ export class Dataset {
 		this.slice = null;
 		this.slice_names = ["","",""]
 
+		window.current_dataset = this
 
 		this.slices =[null,null,null]
+		this.metadata = metadata
 
 		this.annotations_url = annotations_url;
+
 		//right now, this is only riggered when a url is provided.
 		//probably not the best approach.
 		//should be handled in init
 		if (this.annotations_url) {
 			this.fetchAnnotations();
 		}
+		
+
+		var fetch_funcs = {
+			"umi_ids_url":this.fetchUmiIds.bind(this),
+			"winning_segments_grid_url":this.fetchWinningSegmentsGrid.bind(this),
+			"segment_metadata_url":this.fetchSegmentMetadata.bind(this),
+			//"passing_segments_grid_url":this.fetchPassingSegmentsGrid,
+		}
+
+		this.fetch_promises = []
+		for (var k in fetch_funcs){
+			this.fetch_promises.push(fetch_funcs[k](this.metadata[k]))
+		}
+	
 		this.slice_changed_time = Date.now()
+	}
 
 
+	fetchUmiIds(url) {
+		//returns a promise
+		return fetch(url).then( (response)=> {
+			return response.json();
+		}).then( (myJson) => {
+			this.umi_infos = myJson;
+			this.umi_ids = this.umi_infos.id
+			this.umi_segs = this.umi_infos.seg
 
+			_.each(this.umis,(e, i)=> {
+				e.db_seg = this.umi_segs[i];
+				e.db_umi = this.umi_ids[i]
+			 });
+			
+			 this.createSegmentUmiLookup()
+		});
+	}
+
+
+	createSegmentUmiLookup(){
+		this.segment_umi_idxs_lookup = {}
+		for (var i = 0 ; i < this.umis.length; i++){
+			var e = this.umis[i]
+			if (!( e.db_seg in this.segment_umi_idxs_lookup) ){this.segment_umi_idxs_lookup[e.db_seg]=[]}
+			this.segment_umi_idxs_lookup[e.db_seg].push(i)
+		}
 
 
 	}
+
+	umisInSegment(seg_id){
+		if (seg_id in this.segment_umi_idxs_lookup){
+			return this.segment_umi_idxs_lookup[seg_id].map(idx=> this.umis[idx])
+		} else{
+			return []
+		}
+	}
+
+	fetchWinningSegmentsGrid(url) {
+
+		return fetch(url).then(function (response) {
+			return(response.json())
+		}).then(myJson => {this.winning_array=myJson}	
+		)
+	}
+
+	fetchSegmentMetadata(url) {
+
+		return fetch(url).then(function (response) {
+			return(response.json())
+		}).then(myJson => {
+			this.segment_metadata=myJson
+			var coords = _.map(this.segment_metadata,(e,i)=>[e.meanx,e.meany])
+			this.seg_ids_array = _.map(this.segment_metadata,(e,i)=>Number(i))
+			this.segs_kd = kdbush(coords);
+		}	
+		)
+	}
+	fetchPassingSegmentsGrid(url) {
+		return fetch(url).then(function (response) {
+			return(response.json())
+		}).then(myJson=>{this.passing_array=myJson})
+	}
+
+
+	
+	getBestCell(x,y){
+		const x_discrete = Math.round(x* 100) / 100
+		const y_discrete = Math.round(y* 100) / 100
+		if (x_discrete in this.winning_array){
+			const cell = this.winning_array[x_discrete][y_discrete]
+			return cell
+		} else {
+			return undefined
+		}
+	}
+
+	getAllCells(x,y){
+		const x_discrete = Math.round(x* 100) / 100
+		const y_discrete = Math.round(y* 100) / 100
+		if (x_discrete in this.passing_array){
+			const list = this.passing_array[x_discrete][y_discrete]
+			return list
+		} else {
+			return undefined
+		}
+	}
+
 	sliceY() {
 		const p = this.points;
 		return Float32Array.from(this.slice.map((idx) => p[idx[0]].y))
@@ -493,10 +595,15 @@ return{
 
 		statusCallback(70, "fetching segmentation annotation");
 		await this.annotation_promise;
+
+
 		await breakFromThread(this.makeColorBuffersFromCells.bind(this));
 
 		statusCallback(90, "buffering coordinate data")
 		await breakFromThread(this.makeCoordBuffers.bind(this));
+
+		statusCallback(95, "fetching segmentation annotations")
+		await Promise.all(this.fetch_promises)
 
 		statusCallback(100, "initialized dataset");
 		completionCallback();
@@ -515,13 +622,24 @@ return{
 	}
 
 
-	getSubset(x0, y0, x1, y1) {
+	getSubsetDataset(x0, y0, x1, y1) {
 		/*returns a Dataset from a range of this current dataset*/
 		var idxs = this.kd.range(x0, y0, x1, y1);
 		var coords = idxs.map((e) => this.coordinate_data[e]);
 		const ds = new Dataset(this.name + "_subs" + [x0, y0, x1, y1].join("_"), coords, null);
 		ds.initializeSync();
 		return ds;
+	}
+
+	getUmisInRange(x0, y0, x1, y1) {
+		/*returns a Dataset from a range of this current dataset*/
+		var idxs = this.kd.range(x0, y0, x1, y1);
+		return idxs.map(e=>this.umis[e])
+	}
+
+	getSegmentsInRange(x0,y0,x1,y1){
+		var idxs = this.segs_kd.range(x0,y0,x1,y1);
+		return idxs.map(e=>Object.assign(this.segment_metadata[this.seg_ids_array[e]],{id:this.seg_ids_array[e]}))
 	}
 
 	getR({
@@ -596,7 +714,7 @@ return{
 	}
 
 	fetchAnnotations() {
-		var ann_url = this.annotations_url;
+
 		var that = this;
 		this.annotation_promise = fetch(this.annotations_url).then(function (response) {
 			return response.json();
@@ -618,6 +736,11 @@ return{
 			that.points = makePointsFromUmis(that.umis);
 		});
 	}
+
+
+
+
+
 
 	idxs_by_segment(segment) {
 		if (!this.segments_dict) {

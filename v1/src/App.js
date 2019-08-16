@@ -13,6 +13,7 @@ import Gallery from "./Gallery";
 import UploadV2 from "./UploadV2";
 import Workspace from "./Workspace";
 import Navbar from "./components/Navbar";
+import Sandbox from "./sandbox";
 
 //hoc
 import requireAuth from "./components/requireAuth";
@@ -46,6 +47,7 @@ class App extends Component {
 		      <CrumbRoute path="/admin" title="Admin" component={requireAuth(Admin)} />
 		      <CrumbRoute path="/gallery" title="Gallery" component={Gallery} />
 		      <CrumbRoute path="/workspace" title="Workspace" component={Workspace} />
+			  <CrumbRoute path="/sandbox" title="Sandbox" component={Sandbox}/>
 		    </Switch>
 		)}/>
 	    </StyledAppContainer>

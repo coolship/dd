@@ -9,6 +9,7 @@ const default_state={
     select_umi_idx:-1,
     select_umi_type:0,
     current_dataset:undefined,
+    backend_address: "http://35.237.243.111:5000/",
 }
 
 export default (state = default_state, action) => {
