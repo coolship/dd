@@ -30,8 +30,8 @@ export default class Sandbox extends Component {
     }
     computeRegl() {
         const { cY, cX, width } = this.props;
-        var nX = 100
-        var nY = 100
+        var nX = 120
+        var nY = 120
 
         var densities = this.computeDensities({ cX, cY, width, nX, nY, points: this.props.mainPoints });
         var otherDensities = this.props.otherPointsList.map((pset)=>this.computeDensities({cX, cY, width, nX, nY, points: pset }));
@@ -62,7 +62,7 @@ export default class Sandbox extends Component {
         const point_elements = []
 
         var xzPosition = []
-        const N = 64  // num quads of the plane
+        const N = 128  // num quads of the plane
         var size = .5
         var xmin = -size
         var xmax = +size
@@ -152,57 +152,57 @@ export default class Sandbox extends Component {
                         a:this.props.mainPoints.map((e)=>1),
                 })
 
-                // var allpoints = []
-                // for (var l of this.props.otherPointsList){
-                //         allpoints = Array.prototype.concat(allpoints, 
-                //             l.map(e=>[(e[0] - this.props.cX) / this.props.width,(e[1] - this.props.cY) / this.props.width ]))
-                // }
-
-                // window.allpoints = allpoints
-                // wrappedDrawDottyTerrain({
-                //     mainPoints:allpoints,
-                //     pointWidth:3,
-                //     count:allpoints.length,
-                //         r:allpoints.map((e)=>this.BLUE_COLOR_3[0]/2),
-                //         g:allpoints.map((e)=>this.BLUE_COLOR_3[1]/2),
-                //         b:allpoints.map((e)=>this.BLUE_COLOR_3[2]/2),
-                //         a:allpoints.map((e)=>.7),
-                // })
-
-                
-               var cX_umap = d3.mean(this.props.thisPointsUmap.map(e=>e[0]))
-               var cY_umap = d3.mean(this.props.thisPointsUmap.map(e=>e[1]))
-               var std_umap = d3.deviation(this.props.thisPointsUmap.map(e=>e[0]))
-
-               window.cX_umap = cX_umap
-               window.cY_umap = cY_umap
-               window.std_umap = std_umap
-
-                var allpoints_umap = []
-                for (var l of this.props.otherUmapCoords){
-
-                    var mean_z = d3.mean(l.map((e)=>e[2]))
-                    var std_z = d3.deviation(l.map((e)=>e[2]))
-                        allpoints_umap = Array.prototype.concat(allpoints_umap, 
-                            l.map(e=>[(e[0] - cX_umap) / std_umap,(e[1] - cY_umap) / std_umap,(e[2]- mean_z)*(20 / std_z) ]))
+                var allpoints = []
+                for (var l of this.props.otherPointsList){
+                        allpoints = Array.prototype.concat(allpoints, 
+                            l.map(e=>[(e[0] - this.props.cX) / this.props.width,(e[1] - this.props.cY) / this.props.width ]))
                 }
 
-                var allcolors_umap = []
-                for (var l of this.props.otherColors){
-                    allcolors_umap = Array.prototype.concat(allcolors_umap, 
-                        l.map(e=>[e[0]*255, e[1]*255, e[2] *255]))
-            }
-
-                window.allpoints_umap = allpoints_umap
+                window.allpoints = allpoints
                 wrappedDrawDottyTerrain({
-                    mainPoints:allpoints_umap,
-                    pointWidth:5,
-                    count:allpoints_umap.length,
-                        r:allcolors_umap.map((e)=>e[0]),
-                        g:allcolors_umap.map((e)=>e[1]),
-                        b:allcolors_umap.map((e)=>e[2]),
-                        a:allpoints_umap.map((e)=>.1),
+                    mainPoints:allpoints,
+                    pointWidth:3,
+                    count:allpoints.length,
+                        r:allpoints.map((e)=>this.BLUE_COLOR_3[0]/2),
+                        g:allpoints.map((e)=>this.BLUE_COLOR_3[1]/2),
+                        b:allpoints.map((e)=>this.BLUE_COLOR_3[2]/2),
+                        a:allpoints.map((e)=>.7),
                 })
+
+                
+            //    var cX_umap = d3.mean(this.props.thisPointsUmap.map(e=>e[0]))
+            //    var cY_umap = d3.mean(this.props.thisPointsUmap.map(e=>e[1]))
+            //    var std_umap = d3.deviation(this.props.thisPointsUmap.map(e=>e[0]))
+
+            //    window.cX_umap = cX_umap
+            //    window.cY_umap = cY_umap
+            //    window.std_umap = std_umap
+
+            //     var allpoints_umap = []
+            //     for (var l of this.props.otherUmapCoords){
+
+            //         var mean_z = d3.mean(l.map((e)=>e[2]))
+            //         var std_z = d3.deviation(l.map((e)=>e[2]))
+            //             allpoints_umap = Array.prototype.concat(allpoints_umap, 
+            //                 l.map(e=>[(e[0] - cX_umap) / std_umap,(e[1] - cY_umap) / std_umap,(e[2]- mean_z)*(20 / std_z) ]))
+            //     }
+
+            //     var allcolors_umap = []
+            //     for (var l of this.props.otherColors){
+            //         allcolors_umap = Array.prototype.concat(allcolors_umap, 
+            //             l.map(e=>[e[0]*255, e[1]*255, e[2] *255]))
+            // }
+
+            //     window.allpoints_umap = allpoints_umap
+            //     wrappedDrawDottyTerrain({
+            //         mainPoints:allpoints_umap,
+            //         pointWidth:5,
+            //         count:allpoints_umap.length,
+            //             r:allcolors_umap.map((e)=>e[0]),
+            //             g:allcolors_umap.map((e)=>e[1]),
+            //             b:allcolors_umap.map((e)=>e[2]),
+            //             a:allpoints_umap.map((e)=>.1),
+            //     })
 
 
 
@@ -251,7 +251,7 @@ export default class Sandbox extends Component {
 
         const gaussian = (x) => {
             // sqrt(2 * PI) is approximately 2.5066
-            return Math.exp(-x * x / (.0005) ) / 2.5066;
+            return Math.exp(-x * x / (.0003) ) / 2.5066;
         }
 
         // Array of grid cell points. Each point is the center of the grid cell.

@@ -127,7 +127,7 @@ class CellSelectionView extends Component {
 				this.props.viewbounds.x0,
 				this.props.viewbounds.y0,
 				this.props.viewbounds.x1,
-				this.props.viewbounds.y1).filter(e=>e.eval0>0).slice(0,5)
+				this.props.viewbounds.y1).filter(e=>e.eval0>0)
 
 			
 
