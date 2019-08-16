@@ -4,6 +4,9 @@ import { setSelectionTime } from "../actions";
 import { connect } from "react-redux";
 import _ from "lodash";
 import SandBox from "../sandbox"
+import Close from "react-icons/lib/md/close";
+
+import * as d3 from "d3";
 
 
 class CellSelectionView extends Component {
@@ -13,6 +16,7 @@ class CellSelectionView extends Component {
 	}
 	componentDidMount(){
 		this.queryCellsInView()
+		
 	}
 
 	queryCellsInView(){
@@ -93,21 +97,85 @@ class CellSelectionView extends Component {
 		});
 	  }
 
+	  deselectCell(){
 
+		this.setState({cell_selected:null})
+	  }
 
 	  render() {
+		  
 		const  view_width =  (this.props.viewbounds.x1 - this.props.viewbounds.x0)
-		console.log((this.state.umis_in_view!=null) &( this.state.mouse!=null))
 		window.current_interactor = this
 
 		
-		const x0 = 0;
-		const y0 = 0;
-		const x1 = 100;
-		const y1 = 100;
+
+		var canvas_window = null;
+		if(this.state.cell_selected){
+
+			const cX0 =(this.props.viewbounds.x0 + this.props.viewbounds.x1) / 2
+			const cY0 =(this.props.viewbounds.y0 + this.props.viewbounds.y1) / 2
+			
+			const cX =50// (this.props.viewbounds.x0 + this.props.viewbounds.x1) / 2
+			const cY =50// (this.props.viewbounds.y0 + this.props.viewbounds.y1) / 2
+			const width = 5  // (this.props.viewbounds.x1 - this.props.viewbounds.x0)
+			const height = width // (this.props.viewbounds.y1 - this.props.viewbounds.y0)
+
+			var xyUmis = _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.x,u.y ])
+			var thisPointsUmap=  _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.umap_x,u.umap_y,u.umap_z ])
+
+			var other_segs = this.props.dataset.getSegmentsInRange(
+				this.props.viewbounds.x0,
+				this.props.viewbounds.y0,
+				this.props.viewbounds.x1,
+				this.props.viewbounds.y1).filter(e=>e.eval0>0).slice(0,5)
+
+			
+
+			var other_umis = other_segs.map(   (e,i)=>this.props.dataset.umisInSegment(e.id))
+
+
+			const max_segment = _.max(other_segs.map((e)=>e.id))
+		
+			var seed = 1;
+			function seeded_random() {
+				var x = Math.sin(seed++) * 10000;
+				return x - Math.floor(x);
+			}
+			const colors = _.map(_.range(max_segment + 1), (i) => [(seeded_random()),
+				(seeded_random()),
+				(seeded_random())
+			]);
+	
+
+
+			var other_coords = other_umis.map((l,i1)=>l.map( (u,i)=>[u.x,u.y]))
+			var other_umap_coords = other_umis.map((l,i1)=>l.map( (u,i)=>[u.umap_x,u.umap_y,u.umap_z]))
+			var other_colors = other_umis.map((l,i1)=>l.map( (u,i)=>[colors[u.db_seg][0],colors[u.db_seg][1],colors[u.db_seg][2]]))
+			
+
+
+			window.other_segs = other_segs
+			window.other_umis = other_umis
+			window.other_colors = other_colors
+			window.other_umap_coords = other_umap_coords
+			window.xyUmis = xyUmis
+
+			canvas_window = <SandBox 
+			mainPoints={xyUmis}
+			otherPointsList={other_coords}
+			otherUmapCoords={other_umap_coords}
+			otherColors={other_colors}
+			thisPointsUmap={thisPointsUmap}
+			cX={cX0}
+			cY={cY0}
+			width={width}></SandBox>
+		}
+
+
 		return (
-			<StyledCellSelectionInteractor>
+			<StyledCellSelectionInteractor className={canvas_window!=null?"has-canvas":"no-canvas"}>
 		  <svg
+		  className="main-svg"
 			viewBox={
 			  "" +
 			  this.props.viewbounds.x0 +
@@ -184,8 +252,9 @@ class CellSelectionView extends Component {
 					cx = {u.x} 
 					cy={u.y} 
 					r = {view_width/100} 
-					fill="white"
-					stroke="none"
+					fill="transparent"
+					stroke="rgba(255, 255, 255, .5)"
+					strokeWidth={view_width/1000}
 				
 					> </circle>
 			)
@@ -193,11 +262,17 @@ class CellSelectionView extends Component {
 
 		  </svg>
 		  <span className="cell-canvas">
-		  <SandBox xyPoints={xyPoints}
-		  x0={x0}
-		  y0={y0}
-		  x1={x1}
-		  y1={y1}></SandBox>
+		  <Close
+		  className="close-button"
+      onClick={() => {this.deselectCell()}}
+      style={{ 
+		  width:"24px",height:"24px", position: "absolute", right: "0px", top: "0px",
+		  border: "2px solid white",
+		  borderRadius: "24px",
+		  padding: "5px",
+		  margin: "10px"}}
+    />
+				{canvas_window}
 		  </span>
 
 		  </StyledCellSelectionInteractor>
@@ -207,90 +282,6 @@ class CellSelectionView extends Component {
 
 }
 
-
-
-const xyPoints =[[ 78.5,  42.7],
-[ 76.5,  55.3],
-[ 87.5,  33.3],
-[ 84.6,  30.2],
-[ 79.4,  41.9],
-[ 94.7,  39.1],
-[ 70.6,  46.4],
-[ 74.7,  30.2],
-[ 83.2,  42. ],
-[ 68.8,  45.2],
-[ 83.4,  35.5],
-[ 90.4,  17.3],
-[ 82.2,  13.8],
-[ 81. ,  42.9],
-[ 82.3,  21. ],
-[ 90.1,  32.4],
-[ 70.9,  46.6],
-[ 81.9,  39.2],
-[ 77.8,  42.4],
-[ 81. ,  46.1],
-[ 81.6,  41.9],
-[ 79.9,  44.9],
-[ 65.8,  47.9],
-[ 80.3,  46.8],
-[ 79.3,  43.1],
-[ 87.9,  40.6],
-[ 83.5,  28.5],
-[ 80.9,  43.2],
-[ 79.3,  44.1],
-[ 76. ,  51. ],
-[ 73.2,  46.1],
-[ 88. ,  18.3],
-[100. ,  42.6],
-[ 85.3,  41.3],
-[ 79.8,  31.5],
-[ 79.7,  42.6],
-[ 74. ,  45.2],
-[ 80.5,  45.7],
-[ 75.5,  42.5],
-[ 76.1,  50.1],
-[ 80.4,  43.2],
-[ 78.7,  45.8],
-[  0. ,   0. ],
-[ 37.9, 100. ],
-[ 72.2,  54.6],
-[ 81.4,  39.8],
-[ 79.7,  43.9],
-[ 81.9,  42.6],
-[ 77.9,  34. ],
-[ 76.8,  51.2],
-[ 82.5,  36.5],
-[ 72.7,  32.5],
-[ 67.5,  37.6],
-[ 79.9,  42. ],
-[ 70.8,  51.9],
-[ 85. ,  20.6],
-[ 70.4,  45. ],
-[ 74.7,  46.2],
-[ 77.1,  53.9],
-[ 87.2,  27.8],
-[ 81.7,  40.2],
-[ 92.1,  14.9],
-[ 77.3,  45.6],
-[ 90.4,  17. ],
-[ 77.8,  53.7],
-[ 80. ,  43.2],
-[ 80.8,  47.1],
-[ 86.4,  41.8],
-[ 77.7,  41.3],
-[ 75.8,  36.9],
-[ 73.6,  45.8],
-[ 79.4,  59.2],
-[ 80. ,  42.2],
-[ 81.2,  43.6],
-[ 76.2,  48.3],
-[ 76.4,  54.4],
-[ 76.4,  49.3],
-[ 80.2,  43.4],
-[ 79.2,  42.7],
-[ 81.4,  43.3],
-[ 81.5,  54.4],
-[ 81.1,  46.3]]
 
 
 function mapStateToProps({app}){return {app};}
@@ -303,39 +294,88 @@ export default connect(({app}) => { return {app};},
   
   
   const StyledCellSelectionInteractor = styled.div`
-
-  .cell-canvas{
-  background-color: transparent;
-  /* z-index: 100; */
-  position: absolute;
-  width: 60vw;
-  height: 60vh;
-  left: 0px;
-  top: 0px;
-  border:1px solid white;
+  &.no-canvas{
+	.cell-canvas{
+display:none;
+	}
 }
-  svg{
-  cursor:crosshair;
+  &.has-canvas{
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	top: 0px;
+	background:rgba(0,0,0,1);
+	
+	>:not(.cell-canvas){
+		display:none;
+	}
+	
+	ellipse{
+		&.selected{
+			fill:transparent;
+			stroke:red;
+		}
+		&:not(.selected){
+			fill:transparent;
+			stroke:blue;
+		}
+	}
+
+}
+
+.close-button{
+	cursor:pointer;
+	&:hover{
+		background-color:black;
+		filter:invert(1);
+	}
+
+}
+.cell-canvas{
+	
+	background-color: transparent;
+	position: absolute;
+	left:0px;
+	top:0px;
+	right:0px;
+	bottom:0px;
+	margin-top:50px;
+	margin-bottom:100px;
+	margin-left:10px;
+	margin-right:10px;
+	border:2px solid white;
+	border-radius:10px;
+
+	canvas{
+		height:100%;
+		width:100%;
+	}
+
+}
+.main-svg{
+	cursor:crosshair;
 	width: 100%;
 	height: 100%;
 	position: absolute;
 	left: 0px;
-
-		ellipse{
-
-			cursor:pointer;
-			fill:rgba(255, 255, 255, .3);
-			stroke:rgba(255, 255, 255, .8);
-			
-
-			&:hover{
-				fill:rgba(255, 255, 255, .5);
-			}
-
-			&.selected{
-				fill:white;
-			}
-
+	
+	ellipse{
+		
+		cursor:pointer;
+		fill:rgba(255, 255, 255, .3);
+		stroke:rgba(255, 255, 255, .8);
+		
+		
+		&:hover{
+			fill:rgba(255, 255, 255, .5);
+		}
+		
+		&.selected{
+			fill:transparent;
+			stroke:red;
+		}
+		
 	}
 }
-  `;
+`;

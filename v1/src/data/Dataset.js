@@ -152,6 +152,8 @@ export class Dataset {
 
 
 	fetchUmiIds(url) {
+		window.fetch_url = url
+		console.log(url)
 		//returns a promise
 		return fetch(url).then( (response)=> {
 			return response.json();
@@ -160,9 +162,18 @@ export class Dataset {
 			this.umi_ids = this.umi_infos.id
 			this.umi_segs = this.umi_infos.seg
 
+			this.umi_uxs = this.umi_infos.umap_x
+			this.umi_uys = this.umi_infos.umap_y
+			this.umi_uzs = this.umi_infos.umap_z
+
+			window.umi_response = myJson;
+
 			_.each(this.umis,(e, i)=> {
 				e.db_seg = this.umi_segs[i];
-				e.db_umi = this.umi_ids[i]
+				e.db_umi = this.umi_ids[i];
+				e.umap_x = this.umi_uxs[i];
+				e.umap_y = this.umi_uys[i];
+				e.umap_z = this.umi_uzs[i];
 			 });
 			
 			 this.createSegmentUmiLookup()
