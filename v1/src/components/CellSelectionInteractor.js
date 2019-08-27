@@ -120,21 +120,23 @@ class CellSelectionView extends Component {
 			const width = 5  // (this.props.viewbounds.x1 - this.props.viewbounds.x0)
 			const height = width // (this.props.viewbounds.y1 - this.props.viewbounds.y0)
 
-			var xyUmis = _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.x,u.y ])
-			var thisPointsUmap=  _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.umap_x,u.umap_y,u.umap_z ])
+			var xyUmis = _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.x,u.y]) //.filter((e)=>e.umap_x)
+			//var thisPointsUmap=  _.map(this.props.dataset.umisInSegment(this.state.cell_selected),(u,i)=>[u.umap_x,u.umap_y,u.umap_z ].slice(0,100))
 
+			console.log("slicing umi lists to include top 10 adjacent cells and top 100 nearby umis")
 			var other_segs = this.props.dataset.getSegmentsInRange(
 				this.props.viewbounds.x0,
 				this.props.viewbounds.y0,
 				this.props.viewbounds.x1,
 				this.props.viewbounds.y1).filter(e=>e.eval0>0)
 
-			
+			other_segs = _.sortBy(other_segs, (e)=>{(e.meanx -this.state.cell_selected.meanx)**2 +
+				 (e.meany -this.state.cell_selected.meany)**2 }).slice(0,10)
 
-			var other_umis = other_segs.map(   (e,i)=>this.props.dataset.umisInSegment(e.id))
-
-
+			var other_umis = other_segs.map(   (e,i)=>this.props.dataset.umisInSegment(e.id).slice(-100))
 			const max_segment = _.max(other_segs.map((e)=>e.id))
+
+			window.other_umis = other_umis
 		
 			var seed = 1;
 			function seeded_random() {
@@ -149,7 +151,7 @@ class CellSelectionView extends Component {
 
 
 			var other_coords = other_umis.map((l,i1)=>l.map( (u,i)=>[u.x,u.y]))
-			var other_umap_coords = other_umis.map((l,i1)=>l.map( (u,i)=>[u.umap_x,u.umap_y,u.umap_z]))
+			//var other_umap_coords = other_umis.map((l,i1)=>l.map( (u,i)=>[u.umap_x,u.umap_y,u.umap_z]))
 			var other_colors = other_umis.map((l,i1)=>l.map( (u,i)=>[colors[u.db_seg][0],colors[u.db_seg][1],colors[u.db_seg][2]]))
 			
 
@@ -157,15 +159,15 @@ class CellSelectionView extends Component {
 			window.other_segs = other_segs
 			window.other_umis = other_umis
 			window.other_colors = other_colors
-			window.other_umap_coords = other_umap_coords
+			//window.other_umap_coords = other_umap_coords
 			window.xyUmis = xyUmis
 
 			canvas_window = <SandBox 
 			mainPoints={xyUmis}
 			otherPointsList={other_coords}
-			otherUmapCoords={other_umap_coords}
+			//otherUmapCoords={other_umap_coords}
 			otherColors={other_colors}
-			thisPointsUmap={thisPointsUmap}
+			//thisPointsUmap={thisPointsUmap}
 			cX={cX0}
 			cY={cY0}
 			width={width}></SandBox>
@@ -269,8 +271,7 @@ class CellSelectionView extends Component {
 		  width:"24px",height:"24px", position: "absolute", right: "0px", top: "0px",
 		  border: "2px solid white",
 		  borderRadius: "24px",
-		  padding: "5px",
-		  margin: "10px"}}
+		  padding: "5px",}}
     />
 				{canvas_window}
 		  </span>
@@ -326,6 +327,10 @@ display:none;
 
 .close-button{
 	cursor:pointer;
+	margin: 20px;
+    background-color: black;
+    z-index: 100;
+    box-shadow: 0px 0px 4px 4px blue;
 	&:hover{
 		background-color:black;
 		filter:invert(1);
@@ -340,12 +345,6 @@ display:none;
 	top:0px;
 	right:0px;
 	bottom:0px;
-	margin-top:50px;
-	margin-bottom:100px;
-	margin-left:10px;
-	margin-right:10px;
-	border:2px solid white;
-	border-radius:10px;
 
 	canvas{
 		height:100%;

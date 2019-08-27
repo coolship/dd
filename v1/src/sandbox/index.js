@@ -5,6 +5,8 @@ import * as d3 from "d3";
 
 import initCamera from 'canvas-orbit-camera';
 import mat4 from 'gl-mat4';
+const fit = require('canvas-fit')
+
 
 export default class Sandbox extends Component {
 
@@ -24,6 +26,9 @@ export default class Sandbox extends Component {
 
         this.regl = initREGL(this.little_canvas_dom);
         this.camera = initCamera(this.little_canvas_dom);
+
+        window.addEventListener('resize', fit(this.little_canvas_dom), false)
+
         this.computeRegl();
         this.drawRegl();
 
@@ -37,8 +42,9 @@ export default class Sandbox extends Component {
         var otherDensities = this.props.otherPointsList.map((pset)=>this.computeDensities({cX, cY, width, nX, nY, points: pset }));
 
 
-        var {otherUmapCoords,otherColors} = this.props;
+        var {otherColors} = this.props;
         
+        window.current_densities =densities
         this.currentColorTexture = this.regl.texture({
             data: densities.map((e) =>[e*2, e/2, e/2,e]).flat().map((e)=>e<255?e:255),  // (e>100?(e>200?255:e):0)
             shape: [nX, nY, 4]
@@ -133,6 +139,7 @@ export default class Sandbox extends Component {
         this.camera.zoom(300.0)
         const wrappedDrawTerrain = this.regl(unwrappedDrawTerrain(this.regl))
         const wrappedDrawDottyTerrain = this.regl(unwrappedDrawDottyTerrain(this.regl))
+        const wrappedDrawDottyTerrain3D = this.regl(unwrappedDrawDottyTerrain3D(this.regl))
 
         const wrappedDrawDots = this.regl(drawDots(this.regl))
 
@@ -178,31 +185,31 @@ export default class Sandbox extends Component {
             //    window.cY_umap = cY_umap
             //    window.std_umap = std_umap
 
-            //     var allpoints_umap = []
-            //     for (var l of this.props.otherUmapCoords){
+                // var allpoints_umap = []
+                // for (var l of this.props.otherUmapCoords){
 
-            //         var mean_z = d3.mean(l.map((e)=>e[2]))
-            //         var std_z = d3.deviation(l.map((e)=>e[2]))
-            //             allpoints_umap = Array.prototype.concat(allpoints_umap, 
-            //                 l.map(e=>[(e[0] - cX_umap) / std_umap,(e[1] - cY_umap) / std_umap,(e[2]- mean_z)*(20 / std_z) ]))
-            //     }
+                //     var mean_z = d3.mean(l.map((e)=>e[2]))
+                //     var std_z = d3.deviation(l.map((e)=>e[2]))
+                //         allpoints_umap = Array.prototype.concat(allpoints_umap, 
+                //             l.map(e=>[(e[0] - cX_umap) / std_umap,(e[1] - cY_umap) / std_umap,(e[2]- mean_z)*(20 / std_z) ]))
+                // }
 
-            //     var allcolors_umap = []
-            //     for (var l of this.props.otherColors){
-            //         allcolors_umap = Array.prototype.concat(allcolors_umap, 
-            //             l.map(e=>[e[0]*255, e[1]*255, e[2] *255]))
-            // }
+                // var allcolors_umap = []
+                // for (var l of this.props.otherColors){
+                //     allcolors_umap = Array.prototype.concat(allcolors_umap, 
+                //         l.map(e=>[e[0]*255, e[1]*255, e[2] *255]))
+           // }
 
-            //     window.allpoints_umap = allpoints_umap
-            //     wrappedDrawDottyTerrain({
-            //         mainPoints:allpoints_umap,
-            //         pointWidth:5,
-            //         count:allpoints_umap.length,
-            //             r:allcolors_umap.map((e)=>e[0]),
-            //             g:allcolors_umap.map((e)=>e[1]),
-            //             b:allcolors_umap.map((e)=>e[2]),
-            //             a:allpoints_umap.map((e)=>.1),
-            //     })
+                // window.allpoints_umap = allpoints_umap
+                // wrappedDrawDottyTerrain3D({
+                //     mainPoints3D:allpoints_umap,
+                //     pointWidth:5,
+                //     count:allpoints_umap.length,
+                //         r:allcolors_umap.map((e)=>255),
+                //         g:allcolors_umap.map((e)=>e[1]),
+                //         b:allcolors_umap.map((e)=>e[2]),
+                //         a:allpoints_umap.map((e)=>1),
+                // })
 
 
 
@@ -460,6 +467,83 @@ const unwrappedDrawDottyTerrain = (regl) => {
 
     }
 }
+
+
+
+
+const unwrappedDrawDottyTerrain3D = (regl) => {
+    return {
+
+    blend: {
+        enable: true,
+        func: {
+            srcRGB: 'src alpha',
+            srcAlpha: 'src alpha saturate',
+            dstRGB: 'one minus src alpha',
+            dstAlpha: 'dst alpha',
+            // src: 'one',
+            // dst: 'one'
+        },
+        equation: 'add',
+        color: [0, 0, 0, 0]
+    },
+
+        frag: `
+                            precision mediump float;
+                            varying vec4 fragColor;
+                            
+                            void main () {
+
+                                float r = 0.0, delta = 0.0;
+                                vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+                                r = dot(cxy, cxy);
+                                if (r > 1.0) {
+                                    discard;
+                                }
+                                gl_FragColor = fragColor;
+                            }`,
+        vert: `
+                            // the size of the world on the x and z-axes.
+                            #define WORLD_SIZE 300.0
+                            // the height of the world.
+                            #define WORLD_HEIGHT 50.0
+                            precision mediump float;
+                            attribute vec3 xyzPosition;
+                            uniform mat4 projection, view;
+                            uniform float pointWidth;
+                            varying vec4 fragColor;
+
+                            attribute float r;
+                            attribute float g;
+                            attribute float b;
+                            attribute float a;
+                    
+     
+                            void main() {
+
+                                gl_PointSize = pointWidth;
+                                fragColor=vec4(r, g, b, a);
+                                gl_Position = projection * view * vec4(xyzPosition, 1);
+                            }`,
+
+        uniforms: {
+            pointWidth:regl.prop('pointWidth'),
+        },
+        attributes: {
+            xyzPosition: regl.prop('mainPoints3D'),
+            r:regl.prop('r'),
+            g:regl.prop('g'),
+            b:regl.prop('b'),
+            a:regl.prop('a'),
+
+        },
+        count:regl.prop("count"),
+        //elements: regl.prop('pointList'), // not needed... inferred?
+    primitive: 'points'
+
+    }
+}
+
 
 
 
