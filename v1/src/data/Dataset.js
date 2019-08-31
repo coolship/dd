@@ -141,7 +141,6 @@ export class Dataset {
 			"umi_ids_url":this.fetchUmiIds.bind(this),
 			"winning_segments_grid_url":this.fetchWinningSegmentsGrid.bind(this),
 			"segment_metadata_url":this.fetchSegmentMetadata.bind(this),
-			"linkage_cell_metadata_url":this.fetchLinkageCellMetadata.bind(this),
 
 			//"segment_metadata_url":this.fetchSegmentMetadata.bind(this),
 			//"passing_segments_grid_url":this.fetchPassingSegmentsGrid,
@@ -166,7 +165,6 @@ export class Dataset {
 			this.umi_infos = myJson;
 			this.umi_ids = this.umi_infos.id
 			this.umi_segs = this.umi_infos.seg
-			this.umi_lcells = this.umi_infos.lcell
 
 			this.umi_uxs = this.umi_infos.umap_x
 			this.umi_uys = this.umi_infos.umap_y
@@ -176,7 +174,6 @@ export class Dataset {
 
 			_.each(this.umis,(e, i)=> {
 				e.db_seg = this.umi_segs[i];
-				e.db_lcell= this.umi_lcells[i];
 				e.db_umi = this.umi_ids[i];
 				e.umap_x = this.umi_uxs[i];
 				e.umap_y = this.umi_uys[i];
@@ -184,7 +181,6 @@ export class Dataset {
 			 });
 			
 			 this.createSegmentUmiLookup()
-			 this.createLCellUmiLookup()
 
 			});
 	}
@@ -201,17 +197,6 @@ export class Dataset {
 
 	}
 
-	createLCellUmiLookup(){
-		this.lcell_umi_idxs_lookup = {}
-		for (var i = 0 ; i < this.umis.length; i++){
-			var e = this.umis[i]
-			if (!( e.db_lcell in this.lcell_umi_idxs_lookup) ){this.lcell_umi_idxs_lookup[e.db_lcell]=[]}
-			this.lcell_umi_idxs_lookup[e.db_lcell].push(i)
-		}
-
-
-	}
-
 	umisInSegment(seg_id){
 		if (seg_id in this.segment_umi_idxs_lookup){
 			return this.segment_umi_idxs_lookup[seg_id].map(idx=> this.umis[idx])
@@ -221,13 +206,6 @@ export class Dataset {
 	}
 
 
-	umisInLCell(lcell_id){
-		if (lcell_id in this.lcell_umi_idxs_lookup){
-			return this.lcell_umi_idxs_lookup[lcell_id].map(idx=> this.umis[idx])
-		} else{
-			return []
-		}
-	}
 
 	fetchWinningSegmentsGrid(url) {
 
@@ -251,18 +229,7 @@ export class Dataset {
 	}
 
 
-	fetchLinkageCellMetadata(url) {
 
-		return fetch(url).then(function (response) {
-			return(response.json())
-		}).then(myJson => {
-			this.lcell_metadata=myJson
-			var coords = _.map(this.lcell_metadata,(e,i)=>[e.meanx,e.meany])
-			this.lcell_ids_array = _.map(this.lcell_metadata,(e,i)=>Number(i))
-			this.lcells_kd = kdbush(coords);
-		}	
-		)
-	}
 
 	fetchPassingSegmentsGrid(url) {
 		return fetch(url).then(function (response) {
@@ -695,11 +662,6 @@ return{
 	getSegmentsInRange(x0,y0,x1,y1){
 		var idxs = this.segs_kd.range(x0,y0,x1,y1);
 		return idxs.map(e=>Object.assign(this.segment_metadata[this.seg_ids_array[e]],{id:this.seg_ids_array[e]}))
-	}
-
-	getLCellsInRange(x0,y0,x1,y1){
-		var idxs = this.lcells_kd.range(x0,y0,x1,y1);
-		return idxs.map(e=>Object.assign(this.lcell_metadata[this.lcell_ids_array[e]],{id:this.lcell_ids_array[e]}))
 	}
 
 
