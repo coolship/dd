@@ -77,30 +77,9 @@ export class Umi {
 	}
 
 	asPoint() {
-		const {
-			x,
-			y,
-			id,
-			type,
-			idx,
-			seq
-		} = this;
-		const {
-			z,
-			color,
-			size
-		} = this.appearance;
-		return {
-			x,
-			y,
-			id,
-			type,
-			idx,
-			seq,
-			z,
-			color,
-			size
-		};
+		const { x, y, id, type, idx, seq } = this;
+		const { z, color, size } = this.appearance;
+		return { x, y, id, type, idx, seq, z, color, size };
 	}
 	typeName() {
 		return default_types[this.type].name;
@@ -110,7 +89,7 @@ export class Umi {
 
 
 export class Dataset {
-	constructor(name, coordinate_data, annotations_url,umi_ids_url,metadata) {
+	constructor(name, coordinate_data, annotations_url, umi_ids_url, metadata) {
 
 		this.annotation_promise = null;
 		this.coordinate_data = coordinate_data;
@@ -118,11 +97,11 @@ export class Dataset {
 		this.annotations = null;
 		this.sequences = null;
 		this.slice = null;
-		this.slice_names = ["","",""]
+		this.slice_names = ["", "", ""]
 
 		window.current_dataset = this
 
-		this.slices =[null,null,null]
+		this.slices = [null, null, null]
 		this.metadata = metadata
 
 		this.annotations_url = annotations_url;
@@ -133,24 +112,24 @@ export class Dataset {
 		if (this.annotations_url) {
 			this.fetchAnnotations();
 		}
-		
+
 
 
 		// each key in fetch_funcs will correspond to a key in the metadata object
 		var fetch_funcs = {
-			"umi_ids_url":this.fetchUmiIds.bind(this),
-			"winning_segments_grid_url":this.fetchWinningSegmentsGrid.bind(this),
-			"segment_metadata_url":this.fetchSegmentMetadata.bind(this),
+			"umi_ids_url": this.fetchUmiIds.bind(this),
+			"winning_segments_grid_url": this.fetchWinningSegmentsGrid.bind(this),
+			"segment_metadata_url": this.fetchSegmentMetadata.bind(this),
 
 			//"segment_metadata_url":this.fetchSegmentMetadata.bind(this),
 			//"passing_segments_grid_url":this.fetchPassingSegmentsGrid,
 		}
 
 		this.fetch_promises = []
-		for (var k in fetch_funcs){
+		for (var k in fetch_funcs) {
 			this.fetch_promises.push(fetch_funcs[k](this.metadata[k]))
 		}
-	
+
 		this.slice_changed_time = Date.now()
 	}
 
@@ -159,9 +138,9 @@ export class Dataset {
 		window.fetch_url = url
 		console.log(url)
 		//returns a promise
-		return fetch(url).then( (response)=> {
+		return fetch(url).then((response) => {
 			return response.json();
-		}).then( (myJson) => {
+		}).then((myJson) => {
 			this.umi_infos = myJson;
 			this.umi_ids = this.umi_infos.id
 			this.umi_segs = this.umi_infos.seg
@@ -172,35 +151,35 @@ export class Dataset {
 
 			window.umi_response = myJson;
 
-			_.each(this.umis,(e, i)=> {
+			_.each(this.umis, (e, i) => {
 				e.db_seg = this.umi_segs[i];
 				e.db_umi = this.umi_ids[i];
 				e.umap_x = this.umi_uxs[i];
 				e.umap_y = this.umi_uys[i];
 				e.umap_z = this.umi_uzs[i];
-			 });
-			
-			 this.createSegmentUmiLookup()
-
 			});
+
+			this.createSegmentUmiLookup()
+
+		});
 	}
 
 
-	createSegmentUmiLookup(){
+	createSegmentUmiLookup() {
 		this.segment_umi_idxs_lookup = {}
-		for (var i = 0 ; i < this.umis.length; i++){
+		for (var i = 0; i < this.umis.length; i++) {
 			var e = this.umis[i]
-			if (!( e.db_seg in this.segment_umi_idxs_lookup) ){this.segment_umi_idxs_lookup[e.db_seg]=[]}
+			if (!(e.db_seg in this.segment_umi_idxs_lookup)) { this.segment_umi_idxs_lookup[e.db_seg] = [] }
 			this.segment_umi_idxs_lookup[e.db_seg].push(i)
 		}
 
 
 	}
 
-	umisInSegment(seg_id){
-		if (seg_id in this.segment_umi_idxs_lookup){
-			return this.segment_umi_idxs_lookup[seg_id].map(idx=> this.umis[idx])
-		} else{
+	umisInSegment(seg_id) {
+		if (seg_id in this.segment_umi_idxs_lookup) {
+			return this.segment_umi_idxs_lookup[seg_id].map(idx => this.umis[idx])
+		} else {
 			return []
 		}
 	}
@@ -210,21 +189,21 @@ export class Dataset {
 	fetchWinningSegmentsGrid(url) {
 
 		return fetch(url).then(function (response) {
-			return(response.json())
-		}).then(myJson => {this.winning_array=myJson}	
+			return (response.json())
+		}).then(myJson => { this.winning_array = myJson }
 		)
 	}
 
 	fetchSegmentMetadata(url) {
 
 		return fetch(url).then(function (response) {
-			return(response.json())
+			return (response.json())
 		}).then(myJson => {
-			this.segment_metadata=myJson
-			var coords = _.map(this.segment_metadata,(e,i)=>[e.meanx,e.meany])
-			this.seg_ids_array = _.map(this.segment_metadata,(e,i)=>Number(i))
+			this.segment_metadata = myJson
+			var coords = _.map(this.segment_metadata, (e, i) => [e.meanx, e.meany])
+			this.seg_ids_array = _.map(this.segment_metadata, (e, i) => Number(i))
 			this.segs_kd = kdbush(coords);
-		}	
+		}
 		)
 	}
 
@@ -233,16 +212,16 @@ export class Dataset {
 
 	fetchPassingSegmentsGrid(url) {
 		return fetch(url).then(function (response) {
-			return(response.json())
-		}).then(myJson=>{this.passing_array=myJson})
+			return (response.json())
+		}).then(myJson => { this.passing_array = myJson })
 	}
 
 
-	
-	getBestCell(x,y){
-		const x_discrete = Math.round(x* 100) / 100
-		const y_discrete = Math.round(y* 100) / 100
-		if (x_discrete in this.winning_array){
+
+	getBestCell(x, y) {
+		const x_discrete = Math.round(x * 100) / 100
+		const y_discrete = Math.round(y * 100) / 100
+		if (x_discrete in this.winning_array) {
 			const cell = this.winning_array[x_discrete][y_discrete]
 			return cell
 		} else {
@@ -250,10 +229,10 @@ export class Dataset {
 		}
 	}
 
-	getAllCells(x,y){
-		const x_discrete = Math.round(x* 100) / 100
-		const y_discrete = Math.round(y* 100) / 100
-		if (x_discrete in this.passing_array){
+	getAllCells(x, y) {
+		const x_discrete = Math.round(x * 100) / 100
+		const y_discrete = Math.round(y * 100) / 100
+		if (x_discrete in this.passing_array) {
 			const list = this.passing_array[x_discrete][y_discrete]
 			return list
 		} else {
@@ -287,55 +266,55 @@ export class Dataset {
 	sliceA() {
 		return Float32Array.from(this.slice.map((idx) => .75))
 	}
-	getSliceTotalLength(idx){
-		idx = idx? idx:0;
-		return this.slices[idx]?this.slices[idx].length:0;
+	getSliceTotalLength(idx) {
+		idx = idx ? idx : 0;
+		return this.slices[idx] ? this.slices[idx].length : 0;
 	}
-	getActiveSlice(idx){
-		idx = idx? idx:0;
+	getActiveSlice(idx) {
+		idx = idx ? idx : 0;
 		return this.slices[idx]
 	}
-	getSliceName(idx){
+	getSliceName(idx) {
 		return this.slice_names[idx]
 	}
-	getLastSliceTime(){
+	getLastSliceTime() {
 		return this.slice_changed_time;
 	}
-	sliceNSlicer(start,end,idx){
+	sliceNSlicer(start, end, idx) {
 
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 		const slice = this.slices[idx]
 
-		if (start || end){
+		if (start || end) {
 
-return{
-			R:this.sliceNR(idx).slice(start,end),
-			G:this.sliceNG(idx).slice(start,end),
-			B:this.sliceNB(idx).slice(start,end),
-			A:this.sliceNA(idx).slice(start,end),
-			X:this.sliceNX(idx).slice(start,end),
-			Y:this.sliceNY(idx).slice(start,end),
-			Z:this.sliceNZ(idx).slice(start,end),
-}
+			return {
+				R: this.sliceNR(idx).slice(start, end),
+				G: this.sliceNG(idx).slice(start, end),
+				B: this.sliceNB(idx).slice(start, end),
+				A: this.sliceNA(idx).slice(start, end),
+				X: this.sliceNX(idx).slice(start, end),
+				Y: this.sliceNY(idx).slice(start, end),
+				Z: this.sliceNZ(idx).slice(start, end),
+			}
 		}
 		else {
-		return {
-			R:this.sliceNR(idx),
-			G:this.sliceNG(idx),
-			B:this.sliceNB(idx),
-			A:this.sliceNA(idx),
-			X:this.sliceNX(idx),
-			Y:this.sliceNY(idx),
-			Z:this.sliceNZ(idx),
+			return {
+				R: this.sliceNR(idx),
+				G: this.sliceNG(idx),
+				B: this.sliceNB(idx),
+				A: this.sliceNA(idx),
+				X: this.sliceNX(idx),
+				Y: this.sliceNY(idx),
+				Z: this.sliceNZ(idx),
+			}
 		}
-	} 
 	}
 
 	sliceNY(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
-		if (!this.hasSlice(idx)) {return}
+		if (!this.hasSlice(idx)) { return }
 		const p = this.points;
 		if (slice[0].constructor === Array) {
 			return Float32Array.from(slice.map((idx) => p[idx[0]].y))
@@ -345,10 +324,10 @@ return{
 	}
 
 	sliceNX(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
-		if (!this.hasSlice(idx)) {return}
+		if (!this.hasSlice(idx)) { return }
 		const p = this.points;
 		if (slice[0].constructor === Array) {
 			return Float32Array.from(slice.map((idx) => p[idx[0]].x))
@@ -358,10 +337,10 @@ return{
 	}
 
 	sliceNZ(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
-		if (!this.hasSlice(idx)) {return}
+		if (!this.hasSlice(idx)) { return }
 
 		const p = this.points;
 		if (slice[0].constructor === Array) {
@@ -375,35 +354,35 @@ return{
 
 
 	sliceNR(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 		const slice = this.slices[idx]
-		if (!this.hasSlice(idx)) {return}
-		const color_val=idx==2?255:0
+		if (!this.hasSlice(idx)) { return }
+		const color_val = idx == 2 ? 255 : 0
 
 		if (slice[0].constructor === Array) {
-			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+			return Float32Array.from(slice.map((idx) => idx[1] * color_val))
 		} else {
 			return Float32Array.from(slice.map((idx) => color_val))
 		}
 	}
 	sliceNG(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
 
-		if (!this.hasSlice(idx)) {return}
+		if (!this.hasSlice(idx)) { return }
 
-		const color_val=idx==1?255:0
+		const color_val = idx == 1 ? 255 : 0
 
 		if (slice[0].constructor === Array) {
-			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+			return Float32Array.from(slice.map((idx) => idx[1] * color_val))
 		} else {
 			return Float32Array.from(slice.map((idx) => color_val))
 		}
 
 	}
 	sliceNB(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
 
@@ -412,10 +391,10 @@ return{
 		}
 		const p = this.points;
 
-		const color_val=idx==0?255:0
+		const color_val = idx == 0 ? 255 : 0
 
 		if (slice[0].constructor === Array) {
-			return Float32Array.from(slice.map((idx) => idx[1]*color_val))
+			return Float32Array.from(slice.map((idx) => idx[1] * color_val))
 
 		} else {
 			return Float32Array.from(slice.map((idx) => color_val))
@@ -423,53 +402,53 @@ return{
 
 	}
 	sliceNA(idx) {
-		idx = idx? idx:0;
+		idx = idx ? idx : 0;
 
 		const slice = this.slices[idx]
-		if (!this.hasSlice(idx)) {return}
+		if (!this.hasSlice(idx)) { return }
 		return Float32Array.from(slice.map((idx) => .8))
 	}
 
 
-	setSliceXYRect({x0,y0,x1,y1,idx}){
-		idx = idx? idx:0;
+	setSliceXYRect({ x0, y0, x1, y1, idx }) {
+		idx = idx ? idx : 0;
 
-		this.slices[idx] = _.compact(_.map(this.umis,(u,i)=>{
-				return (u.x>x0 && u.x < x1) &&( u.y>y0 && u.y<y1)?i:null
+		this.slices[idx] = _.compact(_.map(this.umis, (u, i) => {
+			return (u.x > x0 && u.x < x1) && (u.y > y0 && u.y < y1) ? i : null
 		}))
 		this.slice_changed_time = Date.now()
 
 	}
 
-	setUmiSlice(umis,idx,nm) {
+	setUmiSlice(umis, idx, nm) {
 
 		idx == idx ? idx : 0;
 
-		
-    this.slice_names[idx] = nm;
 
-    if (!umis || umis.length == 0) {
-      this.unsetUmiSlice(idx);
-      return;
-    } else {
+		this.slice_names[idx] = nm;
 
-      this.slices[idx] = umis;
-    }
+		if (!umis || umis.length == 0) {
+			this.unsetUmiSlice(idx);
+			return;
+		} else {
 
-    this.slice_changed_time = Date.now();
+			this.slices[idx] = umis;
+		}
+
+		this.slice_changed_time = Date.now();
 
 	}
 	unsetUmiSlice(idx) {
-		idx == idx?idx:0
+		idx == idx ? idx : 0
 		this.slices[idx] = null;
 		this.slice_changed_time = Date.now()
 	}
 
 	hasSlice(idx) {
-		idx = idx? idx:0;
-		const output =  (this.slices[idx] != null ) &&(this.slices[idx].length > 0)
+		idx = idx ? idx : 0;
+		const output = (this.slices[idx] != null) && (this.slices[idx].length > 0)
 
-		return(output)
+		return (output)
 	}
 
 	async initializeFromBuffers(statusCallback, completionCallback, metadata) {
@@ -656,12 +635,12 @@ return{
 	getUmisInRange(x0, y0, x1, y1) {
 		/*returns a Dataset from a range of this current dataset*/
 		var idxs = this.kd.range(x0, y0, x1, y1);
-		return idxs.map(e=>this.umis[e])
+		return idxs.map(e => this.umis[e])
 	}
 
-	getSegmentsInRange(x0,y0,x1,y1){
-		var idxs = this.segs_kd.range(x0,y0,x1,y1);
-		return idxs.map(e=>Object.assign(this.segment_metadata[this.seg_ids_array[e]],{id:this.seg_ids_array[e]}))
+	getSegmentsInRange(x0, y0, x1, y1) {
+		var idxs = this.segs_kd.range(x0, y0, x1, y1);
+		return idxs.map(e => Object.assign(this.segment_metadata[this.seg_ids_array[e]], { id: this.seg_ids_array[e] }))
 	}
 
 
@@ -720,8 +699,8 @@ return{
 		}
 
 		const colors = _.map(_.range(max_segment + 1), (i) => [(seeded_random()),
-			(seeded_random()),
-			(seeded_random())
+		(seeded_random()),
+		(seeded_random())
 		]);
 		this.r_seg = Float32Array.from(this.segments.map((p) => colors[p][0]));
 		this.g_seg = Float32Array.from(this.segments.map((p) => colors[p][1]));

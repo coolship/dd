@@ -14,11 +14,13 @@ import UploadV2 from "./UploadV2";
 import Workspace from "./Workspace";
 import Navbar from "./components/Navbar";
 import Sandbox from "./sandbox";
+import EditDatasetRouter from "./Dataset/EditDatasetRouter"
 
 //hoc
 import requireAuth from "./components/requireAuth";
 import CrumbRoute from "./components/CrumbRoute";
 import {Breadcrumbs} from "react-breadcrumbs";
+
 
 class App extends Component {    
     componentWillMount() {
@@ -48,6 +50,7 @@ class App extends Component {
 		      <CrumbRoute path="/gallery" title="Gallery" component={Gallery} />
 		      <CrumbRoute path="/workspace" title="Workspace" component={Workspace} />
 			  <CrumbRoute path="/sandbox" title="Sandbox" component={Sandbox}/>
+			  <CrumbRoute path="/edit" title="Edit Dataset" component={EditDatasetRouter}/>
 		    </Switch>
 		)}/>
 	    </StyledAppContainer>
