@@ -15,9 +15,6 @@ import CellDataset from "../CellDataset/CellDataset";
 class EditDataset extends Component {
     constructor(props){
         super(props)
-        this.cell_ds = new CellDataset(
-           { which_dataset:this.props.match.params.number}
-        )
         this.state = {}
         const range = { x0:0, y0:0, x1:.25, y1:.25}
         this.state.range = range;
@@ -25,36 +22,49 @@ class EditDataset extends Component {
 
     }
     onNameChanged(ev){
-        console.log(ev.target.value)
         datasetsRef.child("all_v2").child(this.getKey()).update({
             "display_name":ev.target.value
         })
     }
-    getKey(){
-        return _.invert(_.mapValues(this.props.datasets,"dataset"))[this.props.match.params.number]
-    }
-    
-    getDataset(){
-        return this.props.datasets[this.getKey()]
-    }
+    setCells=(cells)=>this.setState({cells:cells})
+    setStats=(stats)=>this.setState({stats:stats})
+    setDetails=(details)=>this.setState({details:details})
+    setSelection=(ids)=>this.setState({selection:ids})
+    getKey(){return _.invert(_.mapValues(this.props.datasets,"dataset"))[this.props.match.params.number]}
+    getDataset(){return this.props.datasets[this.getKey()]}
+    setCells(cells){this.setState({cells :cells})}
     render(){
         return(
-
+            
         <div className={this.props.className}>
+            <div className="abs">
         <h1>{this.getDataset().display_name}</h1> 
         <h1>{this.props.match.params.number}</h1> 
         <label htmlFor="edit-name">
             <input id="edit-name" type="text" onChange={this.onNameChanged.bind(this)}/>
         </label>
+        <CellDataset  
+            setCellsHandler={this.setCells.bind(this)}
+            setStatsHandler={this.setStats.bind(this)}
+            setDetailsHandler={this.setDetails.bind(this)}
+            selection={this.state.selection}
+            which_dataset={this.props.match.params.number}
+            />
         <ul>
-            <li>{this.cell_ds.getCells()?this.cell_ds.getCells().length:null}</li>
-            <li>{this.cell_ds.getStats()?this.cell_ds.getStats().n_cells:null} cells</li>
-            <li>{this.cell_ds.getStats()?this.cell_ds.getStats().n_umis:null} umis</li> 
+            <li>{this.state.cells?this.state.cells.length:null}</li>
+            <li>{this.state.stats?this.state.stats.n_cells:null} cells</li>
+            <li>{this.state.stats?this.state.stats.n_umis:null} umis</li> 
         </ul>
         <img src={`${process.env.REACT_APP_API_URL}/dataset/${this.props.match.params.number}/preview2k`}/>
-        
+        </div>
 
-        <CellDataset3dView cell_ds={this.cell_ds} width={600} height={600}/>
+        <CellDataset3dView 
+        setSelectionHandler={this.setSelection.bind(this)}
+        cells={this.state.cells} 
+        details={this.state.details}
+        width={1200} 
+        height={800}/>
+        
         </div>
         
         )
@@ -68,7 +78,6 @@ class EditDatasetRouter extends Component{
     }
 
     render(){
-        console.log(this.props.datasets)
         if (Object.keys(this.props.datasets).length > 0) {
             return(
                 <Switch>
@@ -77,7 +86,8 @@ class EditDatasetRouter extends Component{
                     // render={(props) => <GalleryList {...props} demos={this.props.demos} />}
                 />
                 <Route path='/edit/:number'
-                    render={(props) => <EditDataset  className={this.props.className} {...props} datasets={this.props.datasets} />}
+                    render={(props) => 
+                    <EditDataset  className={this.props.className} {...props} datasets={this.props.datasets} />}
                 />
             </Switch>
             )
@@ -104,10 +114,15 @@ class EditDatasetRouter extends Component{
 }
 
 const StyledEditDatasetRouter = styled(EditDatasetRouter)`
+.abs{
+    position:absolute;
+    z-index:1;
+}
 img{
     display:none;
 }
 .cell-dataset-3d-view-canvas{
+    position:absolute;
     display:block;
     margin-left:auto;
     margin-right:auto;

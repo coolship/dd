@@ -1,40 +1,72 @@
 
-import React from 'react';
+import React,{Component} from 'react';
 
-class CellDetailsList {
+function eqSet(as, bs) {
+    if (as.size !== bs.size) return false;
+    for (var a of as) if (!bs.has(a)) return false;
+    return true;
+}
+
+class CellDetailsList extends Component{
+
     constructor(props){
-        console.log("initializing collection")
-        this.props = props
+        console.log("constructing details list")
+        super(props)
+        this.state={}
     }
-    setQuery(query){
-        this.state.query = query
-        var url = new URL( process.env.REACT_APP_API_URL+`/api/${this.props.which_dataset}/cells/`)
-        var params={query: query}
-        url.search = new URLSearchParams(params)
+    componentDidMount = ()=>{
+        console.log("MOUNTED!")
+        this.fetch()
+    }
 
+    setResult(details){
+        this.setState({details: details})
+        this.props.setDetailsHandler?this.props.setDetailsHandler(details):null;
+    }
 
-        this.state.fetching = fetch(
-            url
-        ).then(function (response) {
-			return (response.json())
-		}).then(myJson => { this.server_stats = myJson }
-		)
-
+    componentDidUpdate = (prevProps) => {
+        console.log(prevProps)
+        console.log(this.props)
+        const prevSel = new Set(prevProps.ids);
+        const nextSel = new Set(this.props.ids);
+        eqSet(prevSel, nextSel)?null:this.fetch();
+    }
+    
+    fetch(){
+        console.log("fetching")
+        var url = new URL( process.env.REACT_APP_API_URL+`/api/${this.props.which_dataset}/cell_neighborhoods/`)
+        console.log(this.props.ids)
+        url.search = new URLSearchParams(
+            {ids:JSON.stringify(this.props.ids),
+            attrs:JSON.stringify(["meanx","meany","id","rgb","xy","hull_xy", "points_xy"])
+            })
+        this.setState({fetch_status:"Pending"})
+        fetch(url)
+        .then(function (response) {return (response.json())})
+        .then(myJson => {
+            console.log("fetched cell details", myJson)
+            this.setResult(myJson)
+            this.setState({fetch_status:"Fulfilled"})
+        })
+    }
+    render=()=>{
+        console.log(this.state.ids)
+    return ((this.state.fetch_status)?(<span>{this.state.fetch_status}</span>) : <span>{this.state.fetch_status}</span>)
     }
 }
 
 
 
-export default class CellDataset {
+
+export default class CellDataset extends Component{
     constructor(props){
+        super(props)
         window.cur_cell_dataset = this;
         this.which_dataset = props.which_dataset;
         this.fetching=this.fetch_all();
-
         this.state = {}        
-        this.cl = new CellDetailsList({which_dataset:this.which_dataset})
+        this.cell_details = null;
     }
-    
     ComponentDidMount(){
         this.state.query  =  {x0:0,
             y0:0,
@@ -58,10 +90,13 @@ export default class CellDataset {
 
     async fetch_server_stats(){
         return fetch(
-            process.env.REACT_APP_API_URL+`/dataset_stats/${this.which_dataset}`
+            process.env.REACT_APP_API_URL+`/dataset_stats/${this.props.which_dataset}`
         ).then(function (response) {
 			return (response.json())
-		}).then(myJson => { this.server_stats = myJson }
+		}).then(myJson => { 
+            this.server_stats = myJson 
+            this.props.setStatsHandler?this.props.setStatsHandler(this.server_stats):null;
+        }
 		)
     }
 
@@ -70,7 +105,20 @@ export default class CellDataset {
             process.env.REACT_APP_API_URL+`/cells/all/${this.which_dataset}`
         ).then(function (response) {
 			return (response.json())
-		}).then(myJson => { this.cells = myJson }
+        }).then(myJson => {
+            this.cells = myJson 
+            this.props.setCellsHandler?this.props.setCellsHandler(this.cells):null;
+        }
 		)
+    }
+
+    render(){
+        console.log(this.props.selection)
+        return this.props.selection?
+        <CellDetailsList 
+            ids={this.props.selection}
+            which_dataset={this.props.which_dataset}
+            setDetailsHandler={this.props.setDetailsHandler}/>:null;
+            
     }
 }
