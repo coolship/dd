@@ -70,7 +70,7 @@ export const deleteDatasetAndAnnotations = (key, metadata) => dispatch => {
 		return storageRef.child(v).delete();
 	})).then(
 		() => {
-			datasetsRef.child("all").child(key).remove();
+			datasetsRef.child("all_v2").child(key).remove();
 		}
 	);
 };
@@ -107,7 +107,7 @@ export const uploadPreview = (key, metadata, blob) => {
 			uploadTask.snapshot.ref.getDownloadURL()
 				.then((url) => {
 					datasetsRef
-						.child("all")
+						.child("all_v2")
 						.child(key)
 						.update({ preview_url: url });
 				});
@@ -136,7 +136,7 @@ export const uploadBuffer = (key, metadata, name, typed_array) => dispatch => {
 			uploadTask.snapshot.ref.getDownloadURL()
 				.then((url) => {
 					datasetsRef
-						.child("all")
+						.child("all_v2")
 						.child(key)
 						.update({ [name + "_url"]: url });
 				});
@@ -237,7 +237,7 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
 					callbacks.error,
 					() => {
 						aUploadTask.snapshot.ref.getDownloadURL().then(function (aDownloadURL) {
-							var newObject = datasetsRef.child("all").push();
+							var newObject = datasetsRef.child("all_v2").push();
 							newObject.set({
 								dataset: dataset,
 								email: email,

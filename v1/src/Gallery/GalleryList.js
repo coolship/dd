@@ -11,7 +11,7 @@ const GalleryItem = (props)=>(
 		   backgroundPosition:props.dataset==786?"right 45vw top 50%":"left 45vw top 50%",
 	   }}>
       </div>
-      <NavLink to={"/gallery/"+props.dataset}>
+      <NavLink to={"/workspace/"+props.dataset}>
       <div className="preview-content">
 	<h1>{props.dataset}</h1>
 	<div>Explore sample dataset {props.dataset}, generated using DNA microscopy on an in vitro sample.</div>

@@ -7,7 +7,7 @@ export const userIdFromEmail = function(email){
 
 
 export const datasetToDemo = (email,dataset_key) => {
-    const oldRef = datasetsRef.child("all").child(dataset_key);
+    const oldRef = datasetsRef.child("all_v2").child(dataset_key);
     oldRef.once('value').then(snap => {
 	return oldRef.update({isPublished:true});
     }).then(()=>{
@@ -15,7 +15,7 @@ export const datasetToDemo = (email,dataset_key) => {
 };
 
 export const demoToDataset = (email,dataset_key) => {
-    const oldRef = datasetsRef.child("all").child(dataset_key);
+    const oldRef = datasetsRef.child("all_v2").child(dataset_key);
 
     oldRef.once('value').then(snap => {
 	return oldRef.update({isPublished:false});
@@ -26,7 +26,7 @@ export const demoToDataset = (email,dataset_key) => {
 
 export async function datasetsToAll(email){
     const folderRef =  datasetsRef.child(userIdFromEmail(email));
-    const targetFolder = datasetsRef.child("all");
+    const targetFolder = datasetsRef.child("all_v2");
     
     let newRef;
     console.log("logging");

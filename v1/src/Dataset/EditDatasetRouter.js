@@ -60,10 +60,10 @@ class EditDataset extends Component {
 
         <CellDataset3dView 
         setSelectionHandler={this.setSelection.bind(this)}
-        cells={this.state.cells} 
+        cells={this.state.cells?this.state.cells:null} 
         details={this.state.details}
         width={1200} 
-        height={800}/>
+        height={1200}/>
         
         </div>
         
@@ -122,7 +122,6 @@ img{
     display:none;
 }
 .cell-dataset-3d-view-canvas{
-    position:absolute;
     display:block;
     margin-left:auto;
     margin-right:auto;

@@ -139,7 +139,7 @@ export const setSelectionTime = time=>dispatch=>{
 }
 
 export const fetchDemoDatasets = ()=>dispatch=>{
-    datasetsRef.child("all").orderByChild("isPublished").equalTo(true).on("value",snapshot=>{
+    datasetsRef.child("all_v2").orderByChild("isPublished").equalTo(true).on("value",snapshot=>{
 	console.log("DEMO DATASET!");
 	console.log(snapshot.val());
 	dispatch({

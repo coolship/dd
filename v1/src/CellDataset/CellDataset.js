@@ -1,11 +1,14 @@
 
 import React,{Component} from 'react';
-
+import initREGL from 'regl';
+import _ from 'lodash';
 function eqSet(as, bs) {
     if (as.size !== bs.size) return false;
     for (var a of as) if (!bs.has(a)) return false;
     return true;
 }
+
+
 
 class CellDetailsList extends Component{
 
@@ -20,7 +23,13 @@ class CellDetailsList extends Component{
     }
 
     setResult(details){
+
+ 
+
         this.setState({details: details})
+
+        
+
         this.props.setDetailsHandler?this.props.setDetailsHandler(details):null;
     }
 
@@ -38,7 +47,7 @@ class CellDetailsList extends Component{
         console.log(this.props.ids)
         url.search = new URLSearchParams(
             {ids:JSON.stringify(this.props.ids),
-            attrs:JSON.stringify(["meanx","meany","id","rgb","xy","hull_xy", "points_xy"])
+            attrs:JSON.stringify(["meanx","meany","id","rgb","xy","hull_xy", "points_xy","kde_array_20"])
             })
         this.setState({fetch_status:"Pending"})
         fetch(url)
