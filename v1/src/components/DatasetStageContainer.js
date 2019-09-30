@@ -131,8 +131,8 @@ class DatasetStageContainer extends RenderContainer {
     const rcanvas = backend.getStorageCanvas();
     var export_canvas = ReactDOM.findDOMNode(this.export_canvas_ref.current);
 
-    export_canvas.width = 600;
-    export_canvas.height = 600;
+    export_canvas.width = 1000;
+    export_canvas.height = 1000;
     export_canvas
       .getContext("2d")
       .drawImage(rcanvas, 0, 0, export_canvas.height, export_canvas.width);
