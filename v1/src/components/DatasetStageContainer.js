@@ -215,13 +215,13 @@ class DatasetStageContainer extends RenderContainer {
     });
   }
 
-  handleKeyPress(ev){
-    console.log("Handling keypress for ", ev.key)
-    if (ev.key == "p"){
-      console.log("choosing new preview image")
-      this.choosePreview()
-    }
-  }
+  // handleKeyPress(ev){
+  //   console.log("Handling keypress for ", ev.key)
+  //   if (ev.key == "p"){
+  //     console.log("choosing new preview image")
+  //     this.choosePreview()
+  //   }
+  // }
 
   render() {
     if (this.state.viewport) {
@@ -250,7 +250,6 @@ class DatasetStageContainer extends RenderContainer {
           className="fov fov-black absolute-fullsize"
           style={{ overflow: "hidden" }}
           ref={this.self_ref}
-          onKeyPress={this.handleKeyPress} 
         >
           <ExportCanvas ref={this.export_canvas_ref} />
 
