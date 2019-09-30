@@ -13,8 +13,8 @@ const GalleryItem = (props)=>(
       </div>
       <NavLink to={"/workspace/"+props.dataset}>
       <div className="preview-content">
-	<h1>{props.dataset}</h1>
-	<div>Explore sample dataset {props.dataset}, generated using DNA microscopy on an in vitro sample.</div>
+	<h1>{props.meta.display_name}</h1>
+	<div>Explore sample dataset {props.meta.display_name}, generated using DNA microscopy on an in vitro sample.</div>
     </div>
 	</NavLink>
     </StyledGalleryItem>
@@ -117,10 +117,15 @@ background-blend-mode: lighten;
 export default class GalleryList extends Component{
     render(){
 	return(
-	    <div>
+	    <div className="list-container"
+        style= {{minHeight: "100vh",
+        position: "relative",
+        display: "block",}}
+    >
 	      <StyledGalleryList>
 		<div className="page-header">
-		  <h1>DNA MICROSCOPY GALLERY</h1>
+            <div class="bg"/>
+		  <h1>DNA MICROSCOPY // GALLERY</h1>
 		  <div className="biline">Explore demonstration datasets.</div>
 		</div>
 		<ul>
@@ -141,7 +146,6 @@ export default class GalleryList extends Component{
 
 
 const StyledBackgroundFooter=styled.div`
-bottom:0px;
 left:0px;
 right:0px;
 height:250px;
@@ -149,6 +153,9 @@ background-image:url("http://slides.dna-microscopy.org/assets/2x/footer.png");
 background-size:contain;
 background-repeat:no-repeat;
 background-position:50% 100%;
+bottom:0px;
+position:absolute;
+z-index:-1;
 `;
 
 
@@ -168,7 +175,27 @@ margin-right:auto;
 padding-top:50px;
 
 .page-header{
-margin-bottom:10vh;
+margin-bottom: 10vh;
+height: 33px;
+margin-top: -45px;
+margin-bottom: 200px;
+
+.bg{
+    position:absolute;
+    height:90px;
+    z-index:-1;
+width: 100%;
+max-width: 100%;
+background-image: url(http://slides.dna-microscopy.org/assets/2x/gallery.png);
+background-size: 200%;
+background-position: center;
+}
+h1{
+font-size: 250%;
+margin-top:0px;
+margin-bottom:0px;
+padding-top:10px;
+}
 }
 
 ul{
