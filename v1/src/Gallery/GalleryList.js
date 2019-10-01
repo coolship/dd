@@ -8,7 +8,7 @@ const GalleryItem = (props)=>(
     <StyledGalleryItem className={ "gallery-item item-"+props.dataset}>
       <div className={ "preview-background item-"+props.dataset}
 	   style={{backgroundImage:"url("+props.meta.preview_url+")",
-		   backgroundPosition:props.dataset==786?"right 45vw top 50%":"left 45vw top 50%",
+		   backgroundPosition:(props.num%2 ==0)?"right 45vw top 50%":"left 45vw top 50%",
 	   }}>
       </div>
       <NavLink to={"/workspace/"+props.dataset}>
@@ -115,7 +115,9 @@ background-blend-mode: lighten;
 
 
 export default class GalleryList extends Component{
+
     render(){
+        var i = 0;
 	return(
 	    <div className="list-container"
         style= {{minHeight: "100vh",
@@ -130,7 +132,7 @@ export default class GalleryList extends Component{
 		</div>
 		<ul>
 		  {_.map(this.props.demos,
-			 (d,k)=><li  key={d.dataset}><GalleryItem dataset={d.dataset} meta={d}/></li>
+			 (d,k)=><li  key={d.dataset}><GalleryItem num={i++} dataset={d.dataset} meta={d}/></li>
 			)}
 	    </ul>
 	    </StyledGalleryList>

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import styled, { css } from "styled-components";
 import { Breadcrumb } from "react-breadcrumbs";
-import { NavLink } from "react-router-dom";
+
 import ProgressContainer from "../display/ProgressContainer";
 
 import { fetchDatasets } from "../actions";
@@ -13,6 +13,10 @@ import { Route, Switch } from "react-router-dom";
 import XumiDropperContainer from "./XumiUploads";
 
 import Close from "react-icons/lib/md/close";
+
+import { NavLink } from "react-router-dom";
+import PageView from "react-icons/lib/md/pageview";
+import Edit from "react-icons/lib/md/edit";
 import ProgressRing from "../widgets/ProgressRing"
 
 function loadingMessage(dataset) {
@@ -82,6 +86,7 @@ class InProgressDatasetitem extends Component {
         <p className="message themed">
           {loadingMessage(this.props.dataset_meta)}{" "}
         </p>
+      <NavLink to={`/edit/${props.dataset}`} className="themed" ><span><Edit/>Configure</span></NavLink>
       </StyledInProgressDatasetItem>
     );
   }
@@ -90,7 +95,10 @@ class InProgressDatasetitem extends Component {
 const CompleteDatasetItem = props => (
   <StyledCompleteDatasetItem
     className={"dataset-item item-" + props.dataset + " " + props.className}
+    
   >
+    <div class="bg-image" style={{backgroundImage:`url(${process.env.REACT_APP_API_URL}/dataset/${props.dataset}/preview2k)`}}/>
+
     <Close
       onClick={() => {
         let r = window.confirm(
@@ -104,9 +112,8 @@ const CompleteDatasetItem = props => (
     />
     <p className="title">{props.dataset_meta.display_name}</p>
     <p>Status: ready</p>
-    <NavLink to={"/workspace/" + props.dataset}>
-      <span className="themed">View this Dataset</span>
-    </NavLink>
+    <NavLink to={"/workspace/" + props.dataset}><span className="themed"><PageView/>View this Dataset</span></NavLink>
+    <NavLink to={`/edit/${props.dataset}`} className="themed" ><span><Edit/>Configure</span></NavLink>
   </StyledCompleteDatasetItem>
 );
 
@@ -133,6 +140,29 @@ svg{
     margin-right: auto;
     fill:${stylecolor}
 }
+
+&:hover{
+  .bg-image{
+    filter: opacity(1);
+
+  }
+}
+.bg-image{
+  position:absolute;
+  left:0px;
+  top:0px;
+  bottom:0px;
+  right:0px;
+
+
+  z-index: -1;
+    background-position: center top;
+    background-size: 50%;
+    filter: brightness(2) grayscale(.5) opacity(0.25);
+
+  background-repeat: no-repeat;
+
+}
   border-color: ${stylecolor} !important;
   .themed{
     color:${stylecolor};
@@ -157,7 +187,7 @@ const StyledUploadListContainer = styled.div`
 
     text-alignment: center;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     flex-direction: column;
     text-align: center;
 

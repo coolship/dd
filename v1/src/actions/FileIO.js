@@ -46,7 +46,6 @@ export const FILETYPES = {
 	ZBUFFER: "zbuffer",
 	XUMI_FEAT: "xumi_feat",
 	XUMI_BASE: "xumi_base",
-	XUMI_SEGMENT_FEAT: "xumi_segment_feat",
 	XUMI_SEGMENT_BASE: "xumi_segment_base",
 }
 
@@ -272,10 +271,9 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 	const { dataset, email, display_name } = meta;
 	const userId = userIdFromEmail(email);
 
-	const { base_file, feat_file, segment_base_file, segment_feat_file } = files;
+	const { base_file, feat_file, segment_base_file } = files;
 	const bfname = filenameFromMetadata(meta, FILETYPES.XUMI_BASE);
 	const ffname = filenameFromMetadata(meta, FILETYPES.XUMI_FEAT);
-	const sffname = filenameFromMetadata(meta, FILETYPES.XUMI_SEGMENT_FEAT);
 	const sbfname = filenameFromMetadata(meta, FILETYPES.XUMI_SEGMENT_BASE);
 
 
@@ -283,7 +281,6 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 	const myItems = [
 		{ name: bfname, file: base_file },
 		{ name: ffname, file: feat_file },
-		{ name: sffname, file: segment_feat_file },
 		{ name: sbfname, file: segment_base_file },
 	]
 
@@ -305,11 +302,9 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 				allfiles: {
 					xumi_feat: ffname,
 					xumi_base: bfname,
-					xumi_segment_feat:sffname,
 					xumi_segment_base:sbfname,
 				}
 			});
-			console.log(newObject)
 			callbacks.complete(newObject.key)
 		})
 		.catch((error) => {
@@ -331,46 +326,5 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 		return uploadTask;
 			
 	}
-
-	// var uploadTask = storageRef.child(bfname).put(base_file, filetype_meta);
-	// var { dataset, email } = meta;
-	// const userId = userIdFromEmail(email);
-	// var filetype_meta = {
-	// 	contentType: 'text/plain',
-	// };
-
-	// uploadTask.on(
-	// 	firebase.storage.TaskEvent.STATE_CHANGED,
-	// 	(snapshot) => { callbacks.progress(50 * snapshot.bytesTransferred / snapshot.totalBytes); },
-	// 	callbacks.error,
-	// 	() => {
-
-	// 		// Upload completed successfully, now we can get the download URL
-	// 		uploadTask.snapshot.ref.getDownloadURL().then(function (/**url*/) {
-	// 			var aUploadTask = storageRef.child(bfname).put(data_file, filetype_meta);
-	// 			aUploadTask.on(
-	// 				firebase.storage.TaskEvent.STATE_CHANGED,
-	// 				(snapshot) => { callbacks.progress(50+50* snapshot.bytesTransferred / snapshot.totalBytes); },
-	// 				callbacks.error,
-	// 				() => {
-	// 					aUploadTask.snapshot.ref.getDownloadURL().then(function (/**url*/) {
-	// 						var newObject = datasetsRef.child("all_v2").push();
-	// 						newObject.set({
-	// 							dataset: dataset,
-	// 							email: email,
-	// 							userId: userId,
-	// 							server_process_status:"WAITING",
-	// 							server_process_progress:0,
-	// 							allfiles: {
-	// 								xumi_data:dfname,
-	// 								xumi_base:bfname,
-	// 							}
-	// 						});
-	// 					});
-	// 				});
-	// 		});
-	// 		callbacks.complete();
-	// 	}
-	// );
 };
 

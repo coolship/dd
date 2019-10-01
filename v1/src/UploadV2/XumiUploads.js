@@ -37,7 +37,6 @@ class XumiDropperView extends Component {
       base_file,
       feat_file,
       segment_base_file,
-      segment_feat_file,
       files,
       submit_state,
       className,
@@ -127,7 +126,6 @@ class XumiDropperView extends Component {
           <div className="file_desc"> {base_file.name} </div>
           <div className="file_desc"> {feat_file.name}</div>
           <div className="file_desc"> {segment_base_file.name}</div>
-          <div className="file_desc"> {segment_feat_file.name}</div>
         </div>
       );
       return Wrapper(out);

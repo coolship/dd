@@ -216,7 +216,7 @@ export default class CellDataset3dView extends Component {
                             color: [c.rgb[0] / 255, c.rgb[1] / 255, c.rgb[2] / 255],
                             zLayer: .3,
                             cellRadius: c.area12 ** .5 * .001,
-                            a:.5,
+                            a:1,
                             id:c.id,
                         }
                     })
@@ -224,12 +224,12 @@ export default class CellDataset3dView extends Component {
                     // var last_cheap_texture_keys, new_cheap_texture_keys;
                     // last_texture_keys = new Set(Object.keys(this.cheap_textures))
                     // new_texture_keys = new Set(Object.keys(this.props.cells))
-                    for( var cid in this.props.cells){
-                        this.cheap_textures[cid] = this.computeTextures(this.props.cells[cid].kde_array_5.flat()
-                        ,this.props.cells[cid].rgb
-                        ,5
-                        ,5)
-                    }
+                    // for( var cid in this.props.cells){
+                    //     this.cheap_textures[cid] = this.computeTextures(this.props.cells[cid].kde_array_5.flat()
+                    //     ,this.props.cells[cid].rgb
+                    //     ,5
+                    //     ,5)
+                    // }
 
                     var last_texture_keys, new_texture_keys;
                     if (this.props.details) {
@@ -299,15 +299,15 @@ export default class CellDataset3dView extends Component {
 
                       
 
-                        wrappedDrawTerrain(_.map(this.props.cells,c=>{
-                            var {elements, xzPosition, colorTexture, heightTexture} = this.cheap_textures[c.id]
-                            return {
-                            offset:[c.xy[0],c.xy[1]],
-                            elements, xzPosition, colorTexture, heightTexture,
-                            textureCenterX:0,// 0 * Math.sin(frame / 75),
-                            textureCenterY:0,// 0 * Math.cos(frame / 50)
-                            }}
-                        ))
+                        // wrappedDrawTerrain(_.map(this.props.cells,c=>{
+                        //     var {elements, xzPosition, colorTexture, heightTexture} = this.cheap_textures[c.id]
+                        //     return {
+                        //     offset:[c.xy[0],c.xy[1]],
+                        //     elements, xzPosition, colorTexture, heightTexture,
+                        //     textureCenterX:0,// 0 * Math.sin(frame / 75),
+                        //     textureCenterY:0,// 0 * Math.cos(frame / 50)
+                        //     }}
+                        // ))
         
 
 
@@ -476,7 +476,7 @@ const batchDraw = regl => {
             vec3 direction = normalize(light - vposition);
             vec3 normal = normalize(vnormal);
             float power = max(0.0, dot(direction, vnormal));
-            gl_FragColor = vec4(mix(vec3(power, power, power), color , 0.7), .1);         
+            gl_FragColor = vec4(mix(vec3(power, power, power), color , 0.7), a);         
         }`,
         
         vert: `

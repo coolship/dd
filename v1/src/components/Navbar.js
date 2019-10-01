@@ -95,7 +95,7 @@ class Navbar extends Component {
 	<li><span>Hi {this.props.auth.email}!</span></li> 
 	<li><NavLink className="valign" to="/"><span>GO HOME</span> <Home className="icon" onClick={()=>{this.context.router.history.push("/");}}/></NavLink></li>
 	<li><NavLink className="valign" to="/" onClick={this.props.signOut}><span>LOG OUT</span> <ExitToApp className="icon"/></NavLink></li>
-	<li><NavLink className="valign" to="/upload2"><span>EXPLORE DATA</span> <Visibility className="icon"/></NavLink></li>
+	<li><NavLink className="valign" to="/upload2"><span>MANAGE DATA</span> <Visibility className="icon"/></NavLink></li>
 </InlineList>
 
 </span>

@@ -60,7 +60,7 @@ export default function withXumiUpload(WrappedComponent) {
                             var item = entries[i];
                             if (item.name.includes("segment")) {
                                 if (item.name.includes("feat")) {
-                                    item.file(file => addFile(file, "segment_feat_file"))
+                                    console.log("no longer reading segmentation feature file")
                                 } else if (item.name.includes("_data")) {
                                     item.file(file => addFile(file, "segment_base_file"))
                                 }
@@ -79,7 +79,7 @@ export default function withXumiUpload(WrappedComponent) {
         }
 
         isReady() {
-            return this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_feat_file && this.state.files.segment_base_file
+            return this.state.files.base_file && this.state.files.feat_file && this.state.files.segment_base_file
         }
 
 
@@ -130,7 +130,6 @@ export default function withXumiUpload(WrappedComponent) {
                 base_file: this.state.files.base_file,
                 feat_file: this.state.files.feat_file,
                 segment_base_file: this.state.files.segment_base_file,
-                segment_feat_file: this.state.files.segment_feat_file,
                 dataset_name: this.state.dataset_name,
                 dataset_display_name: this.state.dataset_display_name
 
