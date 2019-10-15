@@ -76,6 +76,14 @@ class InProgressDatasetitem extends Component {
       <StyledInProgressDatasetItem
         className={"dataset-item item-" + props.dataset + " " + props.className}
       >
+            <Close
+      onClick={() => {
+          console.log(props.dataset_key);
+          props.deleteXumiDataset(props.dataset_key);
+
+      }}
+      style={{ width:"36px",height:"36px", position: "absolute", right: "0px", top: "0px" }}
+    />
         <ProgressRing
           radius={60}
           stroke={10}

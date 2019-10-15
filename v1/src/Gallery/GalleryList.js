@@ -127,7 +127,7 @@ export default class GalleryList extends Component{
 	      <StyledGalleryList>
 		<div className="page-header">
             <div class="bg"/>
-		  <h1>DNA MICROSCOPY // GALLERY</h1>
+		  <h1><NavLink to="/">DNA MICROSCOPY</NavLink> // GALLERY</h1>
 		  <div className="biline">Explore demonstration datasets.</div>
 		</div>
 		<ul>
@@ -163,6 +163,9 @@ z-index:-1;
 
 const StyledGalleryList = styled.section`
 
+a{
+color:white;
+}
 #contact{
     height: 0px;
     background-size: cover;

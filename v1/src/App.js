@@ -15,6 +15,7 @@ import Workspace from "./Workspace";
 import Navbar from "./components/Navbar";
 import Sandbox from "./sandbox";
 import EditDatasetRouter from "./Dataset/EditDatasetRouter"
+import CellDataset3dRouter from "./CellDataset/CellDataset3dRouter"
 
 //hoc
 import requireAuth from "./components/requireAuth";
@@ -51,6 +52,13 @@ class App extends Component {
 		      <CrumbRoute path="/workspace" title="Workspace" component={Workspace} />
 			  <CrumbRoute path="/sandbox" title="Sandbox" component={Sandbox}/>
 			  <CrumbRoute path="/edit" title="Edit Dataset" component={EditDatasetRouter}/>
+			  <CrumbRoute path="/3d/:number" title="3D" 
+				render={(props) => {
+					console.log(props)
+				return <CellDataset3dRouter {...props} 
+						datasets={props.datasets}
+						which_dataset={props.match.params.number}
+						 />}}/>
 		    </Switch>
 		)}/>
 	    </StyledAppContainer>

@@ -47,14 +47,17 @@ export const FILETYPES = {
 	XUMI_FEAT: "xumi_feat",
 	XUMI_BASE: "xumi_base",
 	XUMI_SEGMENT_BASE: "xumi_segment_base",
+	FULL_DATA: "full_data.csv",
+	FULL_KEY:"full_key.csv",
+	FULL_PARAMS:"full_params.csv"
 }
 
 
-function filenameFromMetadata({ email, dataset }, filetype = FILETYPES.DATASET) {
+function filenameFromMetadata({ email,dataset }, filetype = FILETYPES.DATASET) {
 
 	const email_id = userIdFromEmail(email);
 	const file_id = dataset.replace(/[^a-zA-Z0-9]/g, "_");
-	const filename = "/website_datasets/" + email_id + "/" + (filetype) + "_" + file_id;
+	const filename = "website_datasets/" + email_id + "/" + (filetype) + "_" + file_id;
 	return filename;
 }
 
@@ -261,9 +264,37 @@ export const uploadCoordsAndAnnotationsWithCallbacks = (coords_file, annotations
  * requesting further processing
   */
 
-export const deleteXumiDataset = (dataset_key)=>{
-
+export const deleteXumiDataset = (dataset_key)=> dispatch => {
 	datasetsRef.child("all_v2").child(dataset_key).remove()
+}
+
+export const uploadFull = (files, meta, callbacks, dataset_key) => dispatch => {
+
+	const { email } = meta;
+	const { data_file, key_file, params_file } = files;
+
+	const dataname = filenameFromMetadata(meta, FILETYPES.FULL_DATA)	
+	const keyname = filenameFromMetadata(meta, FILETYPES.FULL_KEY)	
+	const paramsname = filenameFromMetadata(meta, FILETYPES.FULL_PARAMS)	
+
+	const myItems = [
+	{ name: dataname, file: data_file,type:"full_data" },
+	{ name: keyname, file: key_file,type:"full_key" },
+	{ name: paramsname, file: params_file,type:"full_params" },
+	]
+
+	Promise.all(myItems.map(item => putStorageItem(item,callbacks)))
+		.then((results) => {
+			var fbObject = datasetsRef.child("all_v2").child(dataset_key)
+			var allfiles = fbObject.child("allfiles")
+			allfiles.update(Object.assign({}, ...results.map(o=>{return {[o.item["type"]]:o["storage_location"]}})))
+			callbacks.complete(fbObject.key)
+		})
+		.catch((error) => {
+			throw error;
+		});
+
+
 }
 
 export const uploadXumi = (files, meta, callbacks) => dispatch => {
@@ -279,18 +310,17 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 
 
 	const myItems = [
-		{ name: bfname, file: base_file },
-		{ name: ffname, file: feat_file },
-		{ name: sbfname, file: segment_base_file },
+		{ name: bfname, file: base_file , type:"xumi_base"},
+		{ name: ffname, file: feat_file , type:"xumi_feature"},
+		{ name: sbfname, file: segment_base_file, type:"xumi_segment" },
 	]
 
 	Promise.all(
 		// Array of "Promises"
-		myItems.map(item => putStorageItem(item))
+		myItems.map(item => putStorageItem(item,callbacks))
 	)
-		.then((items) => {
-			
-			//console.log("ALL SUCCESS!")
+		.then((results) => {
+			const allfiles = Object.assign({}, ...results.map(o=>{return {[o.item["type"]]:o["storage_location"]}}))
 			var newObject = datasetsRef.child("all_v2").push();
 			newObject.set({
 				dataset: dataset,
@@ -299,11 +329,8 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 				display_name:display_name,
 				server_process_status: "WAITING",
 				server_process_progress: 0,
-				allfiles: {
-					xumi_feat: ffname,
-					xumi_base: bfname,
-					xumi_segment_base:sbfname,
-				}
+				allfiles: allfiles,
+				creation_time: new Date().getTime(),
 			});
 			callbacks.complete(newObject.key)
 		})
@@ -311,20 +338,31 @@ export const uploadXumi = (files, meta, callbacks) => dispatch => {
 			throw error;
 		});
 
-	function putStorageItem(item) {
-		// the return value will be a Promise
-		var uploadTask = firebase.storage().ref("all_v2/" + item.name).put(item.file)
-		uploadTask.then((snapshot) => {
-				return {item:item,snapshot:snapshot};
-			}).catch((error) => {
-				throw error;
-			});
-		uploadTask.on(
-		firebase.storage.TaskEvent.STATE_CHANGED,
-		(snapshot) => { callbacks.progress( item.name, snapshot.bytesTransferred / snapshot.totalBytes); },
-		)
-		return uploadTask;
-			
-	}
 };
 
+
+
+function putStorageItem(item, callbacks) {
+	// the return value will be a Promise
+	const storage_location = "all_v2/" + item.name
+	console.log(storage_location)
+	const type = item.type
+	var uploadTask = firebase.storage().ref(storage_location).put(item.file)
+
+	uploadTask.on(
+	firebase.storage.TaskEvent.STATE_CHANGED,
+	(snapshot) => { callbacks.progress( item.name, snapshot.bytesTransferred / snapshot.totalBytes); },
+	)
+	return 	uploadTask.then((snapshot) => {
+		return {
+			item:item,
+			snapshot:snapshot,
+			storage_location:storage_location,
+			download_url:snapshot.ref.getDownloadURL(),
+			type:type,
+	};
+	}).catch((error) => {
+		throw error;
+	})
+		
+}
